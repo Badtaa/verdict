@@ -1,0 +1,10 @@
+{
+  "name": "verdict",
+  "private": true,
+  "type": "module",
+  "description": "Verdict: the macro call for NQ & ES",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "build:web": "python3 scripts/build-web.py"
+  }
+}
