@@ -71,7 +71,7 @@
         ${W.compMsg ? `<div class="notice ${W.compMsg.err ? "err" : ""}">${esc(W.compMsg.text)}</div>` : ""}
         <div class="comp-list">${W.comps == null ? `<p class="muted">Loading…</p>` : W.comps.length ? W.comps.map(c => `<div class="comp"><span><b>${esc(c.email)}</b>${c.note ? `<small>${esc(c.note)}</small>` : ""}</span><button class="gate-link danger" data-comp-del="${esc(c.email)}" type="button">Remove</button></div>`).join("") : `<p class="muted">No comped accounts yet.</p>`}</div>
         <p class="faint" style="font-size:11.5px">They sign up with that email and get in without a key. Removing takes effect on their next visit.</p></div>
-      ${W.cfg?.console ? `<div class="acct-block"><span class="eyebrow">Admin console</span><p class="muted" style="font-size:13px">Run now and Scan now here are free and go out with the next news check (within 20–60 min). For an instant run, use the Claude page.</p><a class="gate-link" href="${esc(W.cfg.console)}" target="_blank" rel="noopener">Open the Claude page →</a></div>` : ""}` : "";
+      ${W.cfg?.console ? `<div class="acct-block"><span class="eyebrow">Admin console</span><p class="muted" style="font-size:13px">Run now and Scan now here are free and go out with the next news check (every 10 min in the NY session, 30–60 min overnight). For an instant run, use the Claude page.</p><a class="gate-link" href="${esc(W.cfg.console)}" target="_blank" rel="noopener">Open the Claude page →</a></div>` : ""}` : "";
     return `<div class="scrim" id="acct-scrim"><div class="sheet" role="dialog" aria-modal="true" aria-label="Account">
       <div class="sheet-head"><h2 style="font-stretch:120%">Account</h2><button class="icon-btn" id="acct-close" aria-label="Close">${IC.close}</button></div>
       <div class="acct-block"><span class="eyebrow">Signed in</span><p><b>${esc(a.email || W.session?.user?.email || "")}</b></p><p class="muted" style="font-size:13px">${src}${admin ? " · Admin" : ""}</p></div>
@@ -100,6 +100,7 @@
     S.loaded = false; render();
     await loadBriefs();
     subscribe();
+    pollQuote();
   }
 
   async function loadBriefs() {
@@ -124,14 +125,14 @@
   }
 
   /* ---------- admin: levels + the free Run/Scan queue ---------- */
-  // Next scheduled news-watch check (ET): weekdays :13 from 00–15h, plus :33/:53 from 9–15h; Sun–Thu evenings :13 19–23h and :43 18–23h.
+  // Next scheduled news-watch check (ET): weekdays :13 from 00–15h, plus :03/:23/:33/:43/:53 from 9–15h; Sun–Thu evenings :13 19–23h and :43 18–23h.
   function nextWatch() {
     const d = new Date(); d.setSeconds(0, 0);
     for (let i = 1; i <= 4 * 24 * 60; i++) {
       const t = new Date(d.getTime() + i * 60e3), p = etParts(t), h = p.h, m = p.mi;
       const wk = ["Mon", "Tue", "Wed", "Thu", "Fri"].includes(p.wd), eve = ["Sun", "Mon", "Tue", "Wed", "Thu"].includes(p.wd);
       if (wk && m === 13 && h <= 15) return t;
-      if (wk && (m === 33 || m === 53) && h >= 9 && h <= 15) return t;
+      if (wk && [3, 23, 33, 43, 53].includes(m) && h >= 9 && h <= 15) return t;
       if (eve && m === 13 && h >= 19) return t;
       if (eve && m === 43 && h >= 18) return t;
     }
@@ -165,8 +166,45 @@
     });
   }
 
+  /* ---------- live tape: NQ price every minute while the app is open ---------- */
+  function futuresOpen() {
+    const p = etParts(new Date()), h = p.h, d = p.wd;
+    if (d === "Sat") return false;
+    if (d === "Sun") return h >= 18;
+    if (d === "Fri") return h < 17;
+    return h !== 17;
+  }
+  async function pollQuote() {
+    if (W.screen !== "app" || document.visibilityState !== "visible") return;
+    if (!futuresOpen()) { if (S.live) { S.live = null; render(); } return; }
+    try {
+      const r = await fetch("/api/quote", { cache: "no-store" });
+      const q = await r.json();
+      if (!r.ok || !q.ok) throw new Error(q.error || "no quote");
+      S.live = { q, at: Date.now(), queued: S.live?.queued || null };
+    } catch (e) {
+      S.live = { ...(S.live || {}), err: "couldn't get a quote" };
+    }
+    const br = latest(), t = br && S.live.q && tapeRead(br, S.live.q);
+    if (t && (t.state === "against" || t.state === "breakout")) trip(br);
+    if (!S.levels && !S.rp.playing && !W.acct) render();
+  }
+  async function trip(br) {
+    const key = br.id + "|" + (br.generatedAt || "");
+    if (W.tripped === key) return;
+    W.tripped = key;
+    try {
+      const r = await api("/api/trip", { date: br.id });
+      S.live.queued = r.queued ? "rescore queued for the next check" : null;
+      if (!r.queued && !r.flagged) W.tripped = null;
+    } catch { W.tripped = null; }
+    render();
+  }
+  setInterval(pollQuote, 60e3);
+
   function teardown() {
     if (W.chan) { W.sb.removeChannel(W.chan); W.chan = null; }
+    S.live = null; W.tripped = null;
     S.briefs = []; S.loaded = false; S.canRun = false; S.db = null; S.inputs = {}; W.acc = null; W.acct = false; W.comps = null;
   }
 
@@ -242,7 +280,7 @@
   document.addEventListener("keydown", e => { if (e.key === "Escape" && W.acct) { W.acct = false; render(); } });
 
   // Catch up after the phone wakes or the tab comes back.
-  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && W.screen === "app") loadBriefs(); });
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && W.screen === "app") { loadBriefs(); pollQuote(); } });
 
   /* ---------- boot ---------- */
   async function boot() {

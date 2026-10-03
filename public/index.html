@@ -648,6 +648,19 @@ h2{font-weight:600}
 .alert-dot{width:9px;height:9px;border-radius:50%;background:var(--loss);box-shadow:0 0 0 0 rgba(var(--loss-rgb),.7);animation:ping2 1.4s infinite}
 @keyframes ping2{70%{box-shadow:0 0 0 8px rgba(var(--loss-rgb),0)}100%{box-shadow:0 0 0 0 rgba(var(--loss-rgb),0)}}
 .alert-head{font-size:16px;font-weight:700;line-height:1.4}
+.flash-card{border-color:rgba(var(--card-rgb),.6);background:linear-gradient(180deg,rgba(var(--card-rgb),.16),rgba(var(--panel-rgb),.72))}
+.flash-card .alert-dot{background:rgb(var(--card-rgb))}
+.flash-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.now-chip{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:999px;border:1px solid rgba(var(--chip-rgb),.6);background:rgba(var(--chip-rgb),.15);color:rgb(var(--chip-rgb));width:max-content}
+.tape{display:flex;flex-direction:column;gap:8px;padding-top:14px;padding-bottom:14px}
+.tape-top{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.tape-px{font:700 22px/1 "JetBrains Mono",ui-monospace,monospace;letter-spacing:-.01em}
+.tape-chg{font:600 13px/1 "JetBrains Mono",ui-monospace,monospace}
+.tape-chg.up{color:var(--gain)} .tape-chg.dn{color:var(--loss)}
+.tape-stat{font-size:13.5px;line-height:1.45} .tape-stat b.bear{color:var(--loss)} .tape-stat b.bull{color:var(--gain)}
+.tape-meta{display:flex;gap:6px;flex-wrap:wrap}
+.tape.against{border-color:rgba(var(--loss-rgb),.6);background:linear-gradient(180deg,rgba(var(--loss-rgb),.13),rgba(var(--panel-rgb),.72))}
+.tape.breakout{border-color:rgba(var(--accent-rgb),.55)}
 @media (prefers-reduced-motion:reduce){.alert-dot,.radar{animation:none}}
 .geo-risk{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--muted)}
 .geo-risk.lv1{color:var(--warn)} .geo-risk.lv2,.geo-risk.lv3{color:var(--loss)}
@@ -720,8 +733,8 @@ body{padding-top:env(safe-area-inset-top,0px)}
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const TRIGGER_ID = "trig_01AU9AD1FPfo1m6NXuwh9Tyy";
-const WATCH_ID = "trig_01BzcPb9NawqqK1575az5fNd";
+const TRIGGER_ID = "trig_019QxpAAF87PSkdXA76D4vpj";
+const WATCH_ID = "trig_01Ckt9w8r2HYsDMByyQzJ4n5";
 const CONNECTOR = "Claude Code Remote";
 const TZ = "America/New_York";
 const STEP_MS = 1800;
@@ -1028,7 +1041,7 @@ function strip(br){
 }
 function watchCadence(){ const p = etParts(new Date()), h = p.h, d = p.wd;
   if(d === "Sat" || (d === "Fri" && h >= 16) || (d === "Sun" && h < 18)) return "resumes Sun 6:43pm";
-  if(d !== "Sun" && h >= 9 && h < 16) return "every 20 min";
+  if(d !== "Sun" && h >= 9 && h < 16) return "every 10 min";
   if(h >= 18) return "every 30 min";
   if(h >= 16) return "from 6:43pm";
   return "hourly"; }
@@ -1042,7 +1055,52 @@ function watchLine(br){
   const px = w.price && w.price.ok === false && !(tk && Date.now()-Date.parse(tk.at) < 90*60e3) ? ` · price check delayed` : tk && tk.nq ? ` · NQ ${Number(tk.nq).toLocaleString("en-US",{maximumFractionDigits:2})} <span class="faint">@ ${esc(fmtTime(tk.at))}</span>` : "";
   return `<div class="watchline"><i class="radar"></i><span>News watch · last check ${esc(fmtTime(w.lastAt))} · ${res}${fd.length?` · ${live}/${fd.length} feeds live`:""}${px} · next ${watchCadence()}</span>${btn}</div>`;
 }
+/* ---------- instant flip + live tape ---------- */
+function flashOn(br){ const f = br && br.flash; if(!f || !f.at) return null;
+  const t = Date.parse(f.at); if(!(t > Date.parse(br.generatedAt || 0))) return null;
+  return Date.now() - t < 3 * 3.6e6 ? f : null; }
+function flashBanner(br){ const f = flashOn(br); if(!f) return "";
+  return `<section class="panel alert-card flash-card" style="--card-rgb:${rgbVar(f.nq)}"><div class="alert-top"><span class="alert-dot"></span><span class="eyebrow">Bias shifting · ${esc(fmtTime(f.at))}</span><span class="tag ${cls(f.nq)}">Full read running</span></div>
+    <div class="flash-row"><span class="tag ${cls(f.nq)}">NQ now ${label(f.nq)}</span><span class="tag ${cls(f.es)}">ES now ${label(f.es)}</span><span class="faint" style="font-size:12px">provisional until the rescore lands</span></div>
+    ${f.headline?`<p class="alert-head">${esc(f.headline)}</p>`:""}${f.why?`<p class="muted" style="font-size:13.5px">${esc(f.why)}</p>`:""}</section>`; }
+function nowChip(br, sym, d){ const f = flashOn(br); const v = f && f[sym.toLowerCase()]; if(!v || v === d.bias) return "";
+  return `<span class="now-chip" style="--chip-rgb:${rgbVar(v)}">⚡ Now ${label(v)}</span>`; }
+// Same rule as the news watcher: T = half the expected AM move; against = moved more than T against the
+// call since it was made, or reversed more than T off the high (bullish call) / low (bearish call) since then.
+function tapeRead(br, q){
+  const n = q && q.NQ; if(!br || !n || n.price == null) return null;
+  const bias = br.instruments?.NQ?.bias || "neutral";
+  const am = Number(br.implied?.NQ?.amMovePct); const T = am > 0 ? 0.5 * am : 0.35;
+  const calls = br.calls || []; const c = calls[calls.length - 1];
+  const ref = Number(c?.px?.NQ) || null; const since = c?.at ? Date.parse(c.at) : 0;
+  const mv = ref ? (n.price - ref) / ref * 100 : null;
+  let hi = n.price, lo = n.price;
+  (n.bars || []).forEach(([t, h, l]) => { if(t >= since - 5*60e3){ if(h > hi) hi = h; if(l < lo) lo = l; } });
+  const offHi = (hi - n.price) / hi * 100, offLo = (n.price - lo) / lo * 100;
+  const f = x => Number(x).toLocaleString("en-US",{maximumFractionDigits:2});
+  let state = "with", why = mv != null ? `${pct(mv)} since the call` : "";
+  if(bias === "bullish"){ if(mv != null && mv < -T){ state = "against"; why = `${pct(mv)} since the call`; } else if(offHi > T){ state = "against"; why = `${pct(-offHi)} off the ${f(hi)} high`; } }
+  else if(bias === "bearish"){ if(mv != null && mv > T){ state = "against"; why = `${pct(mv)} since the call`; } else if(offLo > T){ state = "against"; why = `${pct(offLo)} off the ${f(lo)} low`; } }
+  else if(mv != null && Math.abs(mv) > T){ state = "breakout"; why = `${pct(mv)} since the call`; }
+  else state = "flat";
+  return { state, why, T, mv, hi, lo, bias, n };
+}
+function tapeStrip(br){
+  const L = S.live; if(!L || !latest() || br.id !== latest().id) return "";
+  const r = L.q && tapeRead(br, L.q);
+  if(!r) return L.err ? `<div class="watchline"><i class="radar"></i><span>Live price paused · ${esc(L.err)}</span></div>` : "";
+  const n = r.n, f = x => Number(x).toLocaleString("en-US",{maximumFractionDigits:2});
+  const chg = n.prevClose ? (n.price - n.prevClose) / n.prevClose * 100 : null;
+  const stat = r.state === "against" ? `<b class="bear">Tape is against the ${label(r.bias).toLowerCase()} call</b> · ${esc(r.why)}${L.queued ? ` · ${esc(L.queued)}` : ""}`
+    : r.state === "breakout" ? `<b class="${r.mv > 0 ? "bull" : "bear"}">Breaking ${r.mv > 0 ? "up" : "down"} out of the neutral range</b> · ${esc(r.why)}${L.queued ? ` · ${esc(L.queued)}` : ""}`
+    : r.state === "flat" ? `<b>Holding inside the range</b>${r.why ? ` · ${esc(r.why)}` : ""}`
+    : `<b class="${cls(r.bias)}">Tape is with the call</b>${r.why ? ` · ${esc(r.why)}` : ""}`;
+  return `<section class="panel tape ${r.state}"><div class="tape-top"><span class="eyebrow">Live NQ</span><span class="tape-px">${f(n.price)}</span>${chg != null ? `<span class="tape-chg ${chg >= 0 ? "up" : "dn"}">${pct(chg)}</span>` : ""}<span class="faint" style="font-size:11.5px;margin-left:auto">${n.time ? esc(fmtTime(new Date(n.time).toISOString())) : ""} · ${esc(n.src || "")}</span></div>
+    <p class="tape-stat">${stat}</p>
+    <div class="tape-meta"><span class="tag flat">High since call ${f(r.hi)}</span><span class="tag flat">Low since call ${f(r.lo)}</span><span class="tag flat">Trips at ±${r.T.toFixed(2)}%</span></div></section>`;
+}
 function alertBanner(br){
+  if(flashOn(br)) return "";
   const a = (br.watch?.alerts || []).slice().sort((x,y)=>String(y.at).localeCompare(String(x.at)))[0];
   if(!a || Date.now() - Date.parse(a.at) > 6*3.6e6) return "";
   const rescored = br.generatedAt && Date.parse(br.generatedAt) > Date.parse(a.at);
@@ -1124,7 +1182,7 @@ function instCard(sym, d, br){
   if(!d) return "";
   return `<button class="panel inst" data-go="${sym.toLowerCase()}" style="--card-rgb:${rgbVar(d.bias)}" aria-label="Open ${sym} detail">
     <div class="inst-head"><span class="sym">${sym}<small>${SYM[sym]}</small></span>${conviction(d.conviction,d.bias)}</div>
-    <div class="dial-row">${dial("t-"+sym+br.id, d.score, d.bias)}<div style="display:flex;flex-direction:column;gap:8px;min-width:0"><span class="bias-word ${cls(d.bias)}">${label(d.bias)}</span>${br.implied?.[sym]?.amMovePts?`<span class="range-chip">AM range <b>±${esc(br.implied[sym].amMovePts)} pts</b></span>`:""}<p class="thesis">${esc(d.thesis)}</p></div></div>
+    <div class="dial-row">${dial("t-"+sym+br.id, d.score, d.bias)}<div style="display:flex;flex-direction:column;gap:8px;min-width:0"><span class="bias-word ${cls(d.bias)}">${label(d.bias)}</span>${nowChip(br, sym, d)}${br.implied?.[sym]?.amMovePts?`<span class="range-chip">AM range <b>±${esc(br.implied[sym].amMovePts)} pts</b></span>`:""}<p class="thesis">${esc(d.thesis)}</p></div></div>
   </button>`;
 }
 function drivers(br){
@@ -1286,7 +1344,7 @@ async function saveLevels(after){
 function today(br){
   const I = br.instruments || {};
   const ev = br.scenarios?.length ? scenarios(br.scenarios) : "";
-  return `${alertBanner(br)}<section class="hero">${br.regime?`<span class="regime">${esc(br.regime)}</span>`:""}<p class="headline">${esc(br.headline)}</p></section>
+  return `${flashBanner(br)}${alertBanner(br)}${tapeStrip(br)}<section class="hero">${br.regime?`<span class="regime">${esc(br.regime)}</span>`:""}<p class="headline">${esc(br.headline)}</p></section>
     <div class="duo">${instCard("NQ",I.NQ,br)}${instCard("ES",I.ES,br)}</div>
     ${midPanel(br)}${sessionMap(br)}${geoPanel(br)}${resultPanel(br)}${ev}${newsPanel(br)}${positioning(br)}${surprises(br)}${callLog(br)}${drivers(br)}${calendar(br)}`;
 }

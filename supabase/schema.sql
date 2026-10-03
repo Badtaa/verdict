@@ -118,3 +118,11 @@ language sql as $$
   returning *;
 $$;
 revoke execute on function public.take_requests() from public, anon, authenticated;
+
+-- Provisional "bias shifting" flag set by the news watcher or the app's live price check before a full rescore lands.
+create or replace function public.set_flash(p_id text, p_flash jsonb) returns void
+language sql as $$
+  update public.briefs set data = jsonb_set(data, '{flash}', p_flash, true), updated_at = now() where id = p_id;
+$$;
+revoke execute on function public.set_flash(text, jsonb) from public, anon, authenticated;
+grant execute on function public.set_flash(text, jsonb) to service_role;
