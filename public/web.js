@@ -100,7 +100,7 @@
     S.loaded = false; render();
     await loadBriefs();
     subscribe();
-    pollQuote();
+    pollQuote(); loadCal();
   }
 
   async function loadBriefs() {
@@ -215,6 +215,19 @@
   }
   setInterval(pollQuote, 60e3);
 
+  /* ---------- economic calendar (week ahead) ---------- */
+  async function loadCal(force) {
+    if (!force && S.cal && Date.now() - S.cal.got < 20 * 60e3) return;
+    try {
+      const r = await fetch("/api/calendar");
+      const c = await r.json();
+      if (!r.ok || !c.ok) throw new Error(c.error || "no calendar");
+      S.cal = { events: c.events, src: c.src, at: c.at, got: Date.now() };
+    } catch { if (!S.cal) S.cal = { events: [], err: true, got: Date.now() }; }
+    if (!S.levels && !S.rp.playing && !W.acct) render();
+  }
+  setInterval(() => { if (W.screen === "app" && document.visibilityState === "visible") loadCal(); }, 10 * 60e3);
+
   function teardown() {
     if (W.chan) { W.sb.removeChannel(W.chan); W.chan = null; }
     S.live = null; W.tripped = null;
@@ -293,7 +306,7 @@
   document.addEventListener("keydown", e => { if (e.key === "Escape" && W.acct) { W.acct = false; render(); } });
 
   // Catch up after the phone wakes or the tab comes back.
-  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && W.screen === "app") { loadBriefs(); pollQuote(); } });
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && W.screen === "app") { loadBriefs(); pollQuote(); loadCal(); } });
 
   /* ---------- boot ---------- */
   async function boot() {

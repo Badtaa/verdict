@@ -797,6 +797,47 @@ h2{font-weight:600}
 .ev-when{font-family:var(--mono);font-size:11px;color:var(--muted)}
 .ev-dot{width:8px;height:8px;border-radius:50%;background:var(--faint)} .ev-dot.high{background:var(--loss)} .ev-dot.medium{background:var(--warn)}
 @media (prefers-reduced-motion:reduce){.inst::before,.bias-word,.regime::after,.livedot,#app.enter>*,.spot-detail,.tape-px{animation:none!important}}
+/* week ahead */
+.cal2{gap:14px;overflow:hidden}
+.cal-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
+.cal-title{font-family:var(--display);font-size:19px;font-weight:700;letter-spacing:-.01em;margin-top:4px}
+.cal-ctl{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.cal-hi{display:inline-flex;align-items:center;gap:7px;height:30px;padding:0 11px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--muted);font:700 12px/1 var(--font);cursor:pointer}
+.cal-hi i{width:8px;height:8px;border-radius:50%;border:1.5px solid var(--loss)}
+.cal-hi[aria-pressed="true"]{color:var(--text);border-color:rgba(var(--loss-rgb),.55);background:rgba(var(--loss-rgb),.12)} .cal-hi[aria-pressed="true"] i{background:var(--loss)}
+.cal-next{position:relative;display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;padding:14px 16px;border-radius:16px;overflow:hidden;
+  border:1px solid rgba(var(--loss-rgb),.35);background:linear-gradient(120deg,rgba(var(--loss-rgb),.16),rgba(var(--accent-rgb),.06) 60%,rgba(var(--panel-rgb),.3))}
+.cal-next::after{content:"";position:absolute;right:-40px;top:-60px;width:180px;height:180px;border-radius:50%;background:radial-gradient(closest-side,rgba(var(--loss-rgb),.25),transparent);pointer-events:none}
+.cn-l{display:flex;flex-direction:column;gap:4px;min-width:0}
+.cn-k{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--loss)}
+.cn-t{display:inline-flex;align-items:center;gap:7px;font-family:var(--display);font-size:18px;font-weight:700;letter-spacing:-.01em}
+.cn-t svg{width:16px;height:16px;color:var(--muted)}
+.cn-w{font-size:12.5px;color:var(--muted)}
+.cn-r{display:flex;flex-direction:column;align-items:flex-end;gap:6px;position:relative;z-index:1}
+.cn-cd{font-family:var(--mono);font-size:22px;font-weight:700;letter-spacing:-.02em;color:var(--text)}
+.cal-next.soon .cn-cd{color:var(--loss);animation:breathe 1.6s ease-in-out infinite}
+.cn-fp{display:flex;gap:10px;font-size:11.5px;color:var(--muted)} .cn-fp b{font-family:var(--mono);color:var(--text)}
+.cal-list{display:flex;flex-direction:column;gap:12px}
+.cal-list.was{opacity:.7}
+.cal-day{display:flex;flex-direction:column}
+.cal-dh{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:0 0 6px;border-bottom:1px solid rgba(var(--muted-rgb),.14)}
+.cal-dh span{color:var(--loss);letter-spacing:.08em}
+.cal-day.today .cal-dh{color:var(--accent-hi)}
+.cal-row{display:grid;grid-template-columns:62px 4px minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid rgba(var(--muted-rgb),.08)}
+.cal-row:last-child{border-bottom:0}
+.cal-row.past{opacity:.45}
+.cal-row.high .cal-ev{font-weight:700}
+.cal-tm{font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+.imp-bar{align-self:stretch;border-radius:2px;background:rgba(var(--muted-rgb),.3);min-height:18px}
+.imp-bar.high{background:var(--loss);box-shadow:0 0 10px rgba(var(--loss-rgb),.7)} .imp-bar.medium{background:var(--accent)} .imp-bar.low{background:var(--warn);opacity:.55}
+.cal-ev{display:flex;align-items:center;gap:7px;font-size:13.5px;min-width:0;flex-wrap:wrap}
+.cal-cc{font-family:var(--mono);font-size:10px;font-weight:700;padding:2px 5px;border-radius:5px;border:1px solid var(--line-hi);color:var(--muted)}
+.cal-mic svg{width:13px;height:13px;color:var(--muted);display:block}
+.cal-fp{display:flex;gap:8px;font-family:var(--mono);font-size:11.5px;color:var(--text);white-space:nowrap}
+.cal-fp em{font-style:normal;color:var(--faint);margin-right:3px}
+.cal-empty{display:flex;flex-direction:column;gap:3px;padding:12px 14px;border-radius:14px;border:1px dashed var(--line-hi);font-size:13px;color:var(--muted)} .cal-empty b{color:var(--text);font-size:14px}
+@media (max-width:480px){.cal-row{grid-template-columns:54px 4px minmax(0,1fr)}.cal-fp{grid-column:3;font-size:11px}}
+@media (prefers-reduced-motion:reduce){.cal-next.soon .cn-cd{animation:none}}
 </style>
 <style>
 /* ---------- web shell ---------- */
@@ -1432,6 +1473,46 @@ function alertBanner(br){
       <span class="tag ${rescored?"acc":"bear"}">${rescored?"Bias rescored":"Rescore running"}</span></div>
     <p class="alert-head">${esc(a.headline)}</p>${a.why?`<p class="muted" style="font-size:13.5px">${esc(a.why)}</p>`:""}</section>`;
 }
+/* ---------- week ahead: economic calendar ---------- */
+const MIC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg>';
+function cdTxt(t){ const ms = t - Date.now(); if(ms < -5*60e3) return "done"; if(ms <= 0) return "now";
+  const d = Math.floor(ms/864e5), h = Math.floor(ms%864e5/36e5), m = Math.floor(ms%36e5/6e4);
+  return d ? `in ${d}d ${h}h` : h ? `in ${h}h ${m}m` : `in ${Math.max(1,m)}m`; }
+function etKey(t){ const p = etParts(new Date(t)); return `${p.y}-${p.m}-${p.d}`; }
+function calTime(t){ const p = etParts(new Date(t)); if(p.h === 0 && p.mi === 0) return "All day";
+  return new Date(t).toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit",timeZone:TZ}).replace(" ",""); }
+function calDay(t){ const k = etKey(t), now = Date.now();
+  const rel = k === etKey(now) ? "Today" : k === etKey(now + 864e5) ? "Tomorrow" : "";
+  const d = new Date(t).toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric",timeZone:TZ});
+  return rel ? `${rel} · ${d}` : d; }
+function upcoming(){
+  const C = S.cal; if(!C) return "";
+  const all = S.calCur === "all", hiOnly = !!S.calHigh, now = Date.now();
+  const MAJ = ["USD","EUR","GBP","JPY","CNY","CAD","AUD","CHF","NZD"];
+  let ev = (C.events || []).filter(e => all ? MAJ.includes(e.country) : e.country === "USD");
+  if(hiOnly) ev = ev.filter(e => e.impact === "high");
+  const up = ev.filter(e => e.t >= now - 5*60e3);
+  const nextHi = up.find(e => e.impact === "high" && e.t >= now - 5*60e3);
+  const usdHiLeft = (C.events || []).filter(e => e.country === "USD" && e.impact === "high" && e.t >= now).length;
+  const head = `<div class="cal-head"><div><span class="eyebrow">Week ahead · ${all ? "majors" : "USD"}</span><h3 class="cal-title">${usdHiLeft ? `${usdHiLeft} high-impact USD release${usdHiLeft === 1 ? "" : "s"} left` : "Economic calendar"}</h3></div>
+    <div class="cal-ctl"><span class="seg" role="group" aria-label="Currency"><button data-cal="usd" aria-pressed="${!all}">USD</button><button data-cal="all" aria-pressed="${all}">All</button></span>
+    <button class="cal-hi" data-calhi="1" aria-pressed="${hiOnly}"><i></i>High only</button></div></div>`;
+  const hero = nextHi ? `<div class="cal-next${nextHi.t - now < 15*60e3 ? " soon" : ""}"><div class="cn-l"><span class="cn-k">Next big one</span><b class="cn-t">${/speaks|testif|press conference/i.test(nextHi.title) ? MIC : ""}${esc(nextHi.title)}</b>
+      <span class="cn-w">${esc(nextHi.country)} · ${esc(calDay(nextHi.t))} · ${esc(calTime(nextHi.t))} ET</span></div>
+      <div class="cn-r"><span class="cn-cd" data-cd="${nextHi.t}">${cdTxt(nextHi.t)}</span>${nextHi.forecast || nextHi.previous ? `<span class="cn-fp">${nextHi.forecast ? `<span>Fcst <b>${esc(nextHi.forecast)}</b></span>` : ""}${nextHi.previous ? `<span>Prev <b>${esc(nextHi.previous)}</b></span>` : ""}</span>` : ""}</div></div>` : "";
+  const row = e => { const past = e.t < now - 5*60e3, spk = /speaks|testif|press conference/i.test(e.title);
+    return `<div class="cal-row ${esc(e.impact)}${past ? " past" : ""}"><span class="cal-tm">${esc(calTime(e.t))}</span><i class="imp-bar ${esc(e.impact)}"></i>
+      <span class="cal-ev">${all ? `<span class="cal-cc">${esc(e.country)}</span>` : ""}${spk ? `<span class="cal-mic">${MIC}</span>` : ""}<span>${esc(e.title)}</span>${e.impact === "holiday" ? `<span class="tag flat">Holiday</span>` : ""}</span>
+      <span class="cal-fp">${e.forecast ? `<span><em>F</em>${esc(e.forecast)}</span>` : ""}${e.previous ? `<span><em>P</em>${esc(e.previous)}</span>` : ""}</span></div>`; };
+  const group = list => { const days = []; list.forEach(e => { const k = etKey(e.t); let g = days.find(d => d.k === k); if(!g){ g = {k, t:e.t, items:[]}; days.push(g); } g.items.push(e); });
+    return days.map(d => `<div class="cal-day${d.k === etKey(now) ? " today" : ""}"><div class="cal-dh">${esc(calDay(d.t))}<span>${d.items.filter(x=>x.impact==="high").length ? `${d.items.filter(x=>x.impact==="high").length} high` : ""}</span></div>${d.items.map(row).join("")}</div>`).join(""); };
+  let body;
+  if(C.err && !(C.events || []).length) body = `<p class="muted" style="font-size:13px">Calendar feed is unavailable right now. It retries every 10 minutes.</p>`;
+  else if(up.length) body = `<div class="cal-list">${group(up)}</div>`;
+  else { const past = ev.filter(e => e.impact === "high" || !hiOnly && e.impact === "medium");
+    body = `<div class="cal-empty"><b>Next week's calendar posts Sunday.</b><span>Forex Factory publishes the new week over the weekend. Here's how this week lined up.</span></div>${past.length ? `<div class="cal-list was">${group(past)}</div>` : ""}`; }
+  return `<section class="panel cal2">${head}${hero}${body}<p class="faint" style="font-size:11.5px">Forex Factory calendar · all times ET · F = forecast, P = previous. Live headlines from FinancialJuice and others are in Market-moving news.</p></section>`;
+}
 function sessionMap(br){
   const ss = br.sessions || []; if(!ss.length) return "";
   const now = new Date(); const g = br.grade?.sessions || {};
@@ -1650,7 +1731,7 @@ function today(br){
   const ev = br.scenarios?.length ? scenarios(br.scenarios) : "";
   return `${flashBanner(br)}${alertBanner(br)}${tapeStrip(br)}<section class="hero">${br.regime?`<span class="regime">${esc(br.regime)}</span>`:""}<p class="headline">${heroLine(br.headline)}</p></section>
     <div class="duo">${instCard("NQ",I.NQ,br)}${instCard("ES",I.ES,br)}</div>
-    ${midPanel(br)}${sessionMap(br)}${geoPanel(br)}${resultPanel(br)}${ev}${newsPanel(br)}${positioning(br)}${surprises(br)}${callLog(br)}${drivers(br)}${calendar(br)}`;
+    ${midPanel(br)}${upcoming()}${geoPanel(br)}${sessionMap(br)}${resultPanel(br)}${ev}${newsPanel(br)}${positioning(br)}${surprises(br)}${callLog(br)}${drivers(br)}${calendar(br)}`;
 }
 function detail(sym, br){
   const d = (br.instruments||{})[sym];
@@ -1817,9 +1898,11 @@ function rpPlay(){
 
 /* ---------- events ---------- */
 document.addEventListener("click", e => {
-  const t = e.target.closest("[data-geo],[data-news],#news-more,[data-tab],[data-go],[data-pick],button[data-skin],[data-rday],[data-rstep],.pt,#run,#scan,#latest,#theme,#levels,#sheet-close,#scrim,#rp-play,#rp-prev,#rp-next,#fx-holiday,#fx-effects,#fx-stars");
+  const t = e.target.closest("[data-cal],[data-calhi],[data-geo],[data-news],#news-more,[data-tab],[data-go],[data-pick],button[data-skin],[data-rday],[data-rstep],.pt,#run,#scan,#latest,#theme,#levels,#sheet-close,#scrim,#rp-play,#rp-prev,#rp-next,#fx-holiday,#fx-effects,#fx-stars");
   if(!t) return;
   if(t.id === "scrim" && e.target !== t) return;
+  if(t.dataset.cal){ S.calCur = t.dataset.cal; render(); return; }
+  if(t.dataset.calhi){ S.calHigh = !S.calHigh; render(); return; }
   if(t.dataset.geo != null){ S.geoSel = +t.dataset.geo; render(); return; }
   if(t.id === "latest"){ e.preventDefault(); S.selected = null; render(); return; }
   if(t.id === "run"){ runNow(); return; }
@@ -1853,6 +1936,7 @@ document.addEventListener("submit", e => {
   e.preventDefault(); saveLevels(e.submitter?.dataset?.after || "save");
 });
 const soft = () => { if(!S.levels && !S.rp.playing) render(); };
+setInterval(() => { document.querySelectorAll("[data-cd]").forEach(el => { el.textContent = cdTxt(+el.dataset.cd); }); }, 15000);
 setInterval(() => { const el = document.getElementById("strip"); if(el && latest()){ el.outerHTML = strip(latest()); } }, 30000);
 
 async function runNow(){
