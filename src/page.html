@@ -472,7 +472,7 @@ tr.total td{font-weight:700;border-top:2px solid var(--line-hi)}
 .form-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
 
 /* tab bar */
-.tabs{position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--bg);background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px))}
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--bg);background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(6,1fr);padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px))}
 .tabs button{background:none;border:0;display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 0;border-radius:12px;font-size:11px;font-weight:600;color:var(--muted)}
 .tabs button svg{width:21px;height:21px}
 .tabs button[aria-selected="true"]{color:var(--accent-hi);background:rgba(var(--accent-rgb),.12)}
@@ -519,7 +519,7 @@ h1,h2,h3,.sym,.bias-word,.brand b,.rate,.scen-head b,.day b{font-family:var(--di
 .skin{border-radius:18px}
 .sheet{border-radius:26px;background:linear-gradient(180deg,var(--panel-hi),var(--panel))}
 /* floating tab island */
-.tabs{left:50%;right:auto;transform:translateX(-50%);width:min(520px,calc(100% - 24px));bottom:calc(10px + env(safe-area-inset-bottom,0px));
+.tabs{left:50%;right:auto;transform:translateX(-50%);width:min(600px,calc(100% - 24px));bottom:calc(10px + env(safe-area-inset-bottom,0px));
   padding:6px;border:1px solid var(--line-hi);border-radius:24px;background:rgba(var(--panel-rgb),.86);
   -webkit-backdrop-filter:blur(20px) saturate(1.3);backdrop-filter:blur(20px) saturate(1.3);box-shadow:0 18px 50px -20px rgba(0,0,0,.75)}
 .tabs button{border-radius:18px;font-family:var(--font);font-weight:600}
@@ -680,9 +680,433 @@ h2{font-weight:600}
 .fx-opt[aria-pressed="true"] .sw2{background:var(--accent)}
 .fx-opt[aria-pressed="true"] .sw2::after{transform:translateX(16px);background:var(--on-accent)}
 .hol-note{font-size:12.5px;color:var(--muted);border:1px dashed var(--line-hi);border-radius:12px;padding:9px 11px;margin-top:10px}
+/* ---------- premium pass: live tape, geo globe, motion ---------- */
+@property --ang{syntax:"<angle>";inherits:false;initial-value:0deg}
+.tape{gap:10px;overflow:hidden}
+.tape-eb{display:inline-flex;align-items:center;gap:7px}
+.tape-when{font-size:11.5px;margin-left:auto}
+.tape-px{font-size:26px;transition:color .3s}
+.tape-px.tick-up{animation:tickUp 1.6s ease-out}
+.tape-px.tick-dn{animation:tickDn 1.6s ease-out}
+@keyframes tickUp{0%{color:var(--gain);text-shadow:0 0 18px rgba(var(--gain-rgb),.8)}100%{color:var(--text);text-shadow:none}}
+@keyframes tickDn{0%{color:var(--loss);text-shadow:0 0 18px rgba(var(--loss-rgb),.8)}100%{color:var(--text);text-shadow:none}}
+.livedot{width:8px;height:8px;border-radius:50%;background:var(--gain);box-shadow:0 0 0 0 rgba(var(--gain-rgb),.7);animation:ping3 1.8s infinite}
+@keyframes ping3{70%{box-shadow:0 0 0 7px rgba(var(--gain-rgb),0)}100%{box-shadow:0 0 0 0 rgba(var(--gain-rgb),0)}}
+.lockdot{width:8px;height:8px;border-radius:50%;background:var(--faint)}
+.spark{display:block;width:100%;height:64px;margin:2px 0 -2px;overflow:visible}
+.spark-dot{filter:drop-shadow(0 0 6px currentColor)}
+.tape.closed{background:linear-gradient(180deg,rgba(var(--panel-rgb),.78),rgba(var(--panel-rgb),.5))}
+.tape.closed .tape-px{color:var(--muted)}
+
+/* instrument cards: orbiting edge light */
+.inst::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.2px;pointer-events:none;
+  background:conic-gradient(from var(--ang),transparent 0 62%,rgba(var(--card-rgb),.95) 78%,transparent 92%);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);
+  animation:orbit 7s linear infinite;animation-delay:var(--sync,0s);opacity:.85}
+@keyframes orbit{to{--ang:360deg}}
+.inst{box-shadow:0 24px 60px -40px rgba(var(--card-rgb),.9),inset 0 1px 0 rgba(255,255,255,.05)}
+.bias-word{background:linear-gradient(100deg,currentColor 40%,rgba(255,255,255,.95) 50%,currentColor 60%) 0 0/250% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:sheen 6s ease-in-out infinite;animation-delay:var(--sync,0s)}
+@keyframes sheen{0%,55%{background-position:120% 0}100%{background-position:-120% 0}}
+
+/* hero */
+.hero{position:relative;padding:6px 0 2px 16px}
+.hero::before{content:"";position:absolute;left:0;top:6px;bottom:4px;width:3px;border-radius:3px;background:linear-gradient(180deg,rgb(var(--mood-rgb)),rgba(var(--accent-rgb),.25))}
+.headline .lead{display:block;font-family:var(--display);font-weight:700;font-size:1.22em;line-height:1.25;letter-spacing:-.015em;margin-bottom:6px;color:var(--text)}
+.regime{position:relative;overflow:hidden}
+.regime::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.22) 50%,transparent 70%) 0 0/250% 100%;animation:sheen 7s ease-in-out infinite;animation-delay:var(--sync,0s)}
+.nitem.hi{position:relative}
+.nitem.hi::before{content:"";position:absolute;left:-16px;top:10px;bottom:10px;width:3px;border-radius:3px;background:var(--loss);box-shadow:0 0 12px rgba(var(--loss-rgb),.8)}
+
+/* entrance */
+#app.enter>*{animation:rise .6s cubic-bezier(.2,.75,.2,1) both}
+#app.enter>*:nth-child(2){animation-delay:.04s} #app.enter>*:nth-child(3){animation-delay:.08s} #app.enter>*:nth-child(4){animation-delay:.12s}
+#app.enter>*:nth-child(5){animation-delay:.16s} #app.enter>*:nth-child(6){animation-delay:.2s} #app.enter>*:nth-child(7){animation-delay:.24s}
+#app.enter>*:nth-child(8){animation-delay:.28s} #app.enter>*:nth-child(n+9){animation-delay:.32s}
+@keyframes rise{from{opacity:0;transform:translateY(14px) scale(.99)}to{opacity:1;transform:none}}
+
+/* geo radar */
+.geo2{overflow:hidden;gap:14px}
+.geo2::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;background:radial-gradient(520px 260px at 15% 0%,rgba(var(--accent-rgb),.10),transparent 70%)}
+.geo2.lv2::after,.geo2.lv3::after{background:radial-gradient(560px 280px at 15% 0%,rgba(var(--loss-rgb),.14),transparent 70%)}
+.geo2-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;position:relative;z-index:1}
+.geo2-title{font-family:var(--display);font-size:19px;font-weight:700;letter-spacing:-.01em;margin-top:4px}
+.geo2-title em{font-style:normal;color:var(--loss)}
+.geo2-stage{display:grid;grid-template-columns:1fr;gap:14px;position:relative;z-index:1}
+@media (min-width:720px){.geo2-stage{grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);align-items:center}}
+.globe-box{position:relative;display:flex;justify-content:center;align-items:center;min-height:240px;border-radius:18px;
+  background:radial-gradient(closest-side,rgba(var(--accent-rgb),.07),transparent),repeating-radial-gradient(circle at 50% 50%,transparent 0 38px,rgba(var(--muted-rgb),.05) 38px 39px)}
+.globe-host{width:100%;display:flex;justify-content:center}
+.globe-cv{display:block;cursor:grab;touch-action:pan-y;max-width:100%}
+.globe-cv:active{cursor:grabbing}
+.globe-legend{position:absolute;left:10px;bottom:8px;display:flex;flex-direction:column;gap:3px;font-size:10.5px;color:var(--muted)}
+.globe-legend span{display:inline-flex;align-items:center;gap:6px}
+.globe-legend i{width:7px;height:7px;border-radius:50%}
+.globe-legend .esc i,.spot-pill.esc i,.spot-detail.esc .sd-st i{background:var(--loss);box-shadow:0 0 8px rgba(var(--loss-rgb),.9)}
+.globe-legend .steady i,.spot-pill.steady i,.spot-detail.steady .sd-st i{background:var(--warn)}
+.globe-legend .cool i,.spot-pill.cool i,.spot-detail.cool .sd-st i{background:var(--gain)}
+.globe-score{position:absolute;right:10px;top:8px;display:flex;flex-direction:column;align-items:flex-end;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-family:var(--mono)}
+.globe-score b{font-size:18px;letter-spacing:0;color:var(--text)} .globe-score b.bull{color:var(--gain)} .globe-score b.bear{color:var(--loss)}
+.globe-hint{position:absolute;right:10px;bottom:8px;font-size:10.5px;color:var(--faint)}
+.geo2-side{display:flex;flex-direction:column;gap:12px;min-width:0}
+.geo2-sum{font-size:14.5px;line-height:1.55;color:var(--text);opacity:.92}
+.hv-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:6px}
+.hv-tile{position:relative;display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-radius:14px;border:1px solid rgba(var(--muted-rgb),.16);background:rgba(var(--panel-rgb),.45);overflow:hidden}
+.hv-tile::after{content:"";position:absolute;right:-20px;top:-20px;width:70px;height:70px;border-radius:50%;opacity:.18;filter:blur(14px);background:var(--muted)}
+.hv-tile.bull::after{background:var(--gain)} .hv-tile.bear::after{background:var(--loss)}
+.hv-name{font-size:11.5px;color:var(--muted);font-weight:600}
+.hv-v{font-family:var(--mono);font-size:18px;font-weight:700;letter-spacing:-.01em}
+.hv-tile.bull .hv-v{color:var(--gain)} .hv-tile.bear .hv-v{color:var(--loss)}
+.hv-read{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);font-family:var(--mono)}
+.spot-rail{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 4px;scrollbar-width:none;position:relative;z-index:1}
+.spot-rail::-webkit-scrollbar{display:none}
+.spot-pill{flex:none;display:inline-flex;align-items:center;gap:8px;height:34px;padding:0 13px;border-radius:999px;border:1px solid rgba(var(--muted-rgb),.2);background:rgba(var(--panel-rgb),.5);color:var(--muted);font:600 12.5px/1 var(--font);cursor:pointer;transition:all .2s}
+.spot-pill i{width:7px;height:7px;border-radius:50%;flex:none}
+.spot-pill:hover{color:var(--text);border-color:var(--line-hi)}
+.spot-pill[aria-pressed="true"]{color:var(--text);border-color:rgba(var(--accent-rgb),.6);background:rgba(var(--accent-rgb),.12);box-shadow:0 8px 24px -14px rgba(var(--accent-rgb),.9)}
+.spot-detail{position:relative;z-index:1;display:flex;flex-direction:column;gap:10px;padding:14px 16px;border-radius:16px;border:1px solid rgba(var(--muted-rgb),.16);background:linear-gradient(180deg,rgba(var(--panel-rgb),.65),rgba(var(--panel-rgb),.35));animation:rise .35s ease both}
+.spot-detail.esc{border-color:rgba(var(--loss-rgb),.4);background:linear-gradient(180deg,rgba(var(--loss-rgb),.09),rgba(var(--panel-rgb),.35))}
+.sd-top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.sd-top b{font-family:var(--display);font-size:16px;font-weight:700}
+.sd-st{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.sd-st i{width:7px;height:7px;border-radius:50%}
+.spot-detail.esc .sd-st{color:var(--loss)} .spot-detail.cool .sd-st{color:var(--gain)} .spot-detail.steady .sd-st{color:var(--warn)}
+.sd-flow{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.sd-lbl{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);font-family:var(--mono);margin-right:4px}
+.sd-ch{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;text-transform:capitalize;color:var(--accent-hi);background:rgba(var(--accent-rgb),.12);border:1px solid rgba(var(--accent-rgb),.25);padding:4px 9px;border-radius:999px}
+.sd-ch svg{width:13px;height:13px}
+.sd-arrow{color:var(--faint);font-size:12px}
+.sd-note{font-size:13.5px;line-height:1.5}
+.sd-watch{display:flex;gap:10px;align-items:baseline;font-size:12.5px;color:var(--muted);line-height:1.45}
+.sd-watch span{flex:none;font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--warn);border:1px solid rgba(var(--muted-rgb),.25);padding:2px 6px;border-radius:5px}
+.geo2-evs{display:flex;flex-direction:column;gap:6px;position:relative;z-index:1}
+.geo-ev2{display:grid;grid-template-columns:86px 10px 1fr;gap:8px;align-items:center;font-size:13px}
+.ev-when{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.ev-dot{width:8px;height:8px;border-radius:50%;background:var(--faint)} .ev-dot.high{background:var(--loss)} .ev-dot.medium{background:var(--warn)}
+@media (prefers-reduced-motion:reduce){.inst::before,.bias-word,.regime::after,.livedot,#app.enter>*,.spot-detail,.tape-px{animation:none!important}}
+/* week ahead */
+.cal2{gap:14px;overflow:hidden}
+.cal-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
+.cal-title{font-family:var(--display);font-size:19px;font-weight:700;letter-spacing:-.01em;margin-top:4px}
+.cal-ctl{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.cal-hi{display:inline-flex;align-items:center;gap:7px;height:30px;padding:0 11px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--muted);font:700 12px/1 var(--font);cursor:pointer}
+.cal-hi i{width:8px;height:8px;border-radius:50%;border:1.5px solid var(--loss)}
+.cal-hi[aria-pressed="true"]{color:var(--text);border-color:rgba(var(--loss-rgb),.55);background:rgba(var(--loss-rgb),.12)} .cal-hi[aria-pressed="true"] i{background:var(--loss)}
+.cal-next{position:relative;display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;padding:14px 16px;border-radius:16px;overflow:hidden;
+  border:1px solid rgba(var(--loss-rgb),.35);background:linear-gradient(120deg,rgba(var(--loss-rgb),.16),rgba(var(--accent-rgb),.06) 60%,rgba(var(--panel-rgb),.3))}
+.cal-next::after{content:"";position:absolute;right:-40px;top:-60px;width:180px;height:180px;border-radius:50%;background:radial-gradient(closest-side,rgba(var(--loss-rgb),.25),transparent);pointer-events:none}
+.cn-l{display:flex;flex-direction:column;gap:4px;min-width:0}
+.cn-k{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--loss)}
+.cn-t{display:inline-flex;align-items:center;gap:7px;font-family:var(--display);font-size:18px;font-weight:700;letter-spacing:-.01em}
+.cn-t svg{width:16px;height:16px;color:var(--muted)}
+.cn-w{font-size:12.5px;color:var(--muted)}
+.cn-r{display:flex;flex-direction:column;align-items:flex-end;gap:6px;position:relative;z-index:1}
+.cn-cd{font-family:var(--mono);font-size:22px;font-weight:700;letter-spacing:-.02em;color:var(--text)}
+.cal-next.soon .cn-cd{color:var(--loss);animation:breathe 1.6s ease-in-out infinite}
+.cn-fp{display:flex;gap:10px;font-size:11.5px;color:var(--muted)} .cn-fp b{font-family:var(--mono);color:var(--text)}
+.cal-list{display:flex;flex-direction:column;gap:12px}
+.cal-list.was{opacity:.7}
+.cal-day{display:flex;flex-direction:column}
+.cal-dh{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:0 0 6px;border-bottom:1px solid rgba(var(--muted-rgb),.14)}
+.cal-dh span{color:var(--loss);letter-spacing:.08em}
+.cal-day.today .cal-dh{color:var(--accent-hi)}
+.cal-row{display:grid;grid-template-columns:62px 4px minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid rgba(var(--muted-rgb),.08)}
+.cal-row:last-child{border-bottom:0}
+.cal-row.past{opacity:.45}
+.cal-row.high .cal-ev{font-weight:700}
+.cal-tm{font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+.imp-bar{align-self:stretch;border-radius:2px;background:rgba(var(--muted-rgb),.3);min-height:18px}
+.imp-bar.high{background:var(--loss);box-shadow:0 0 10px rgba(var(--loss-rgb),.7)} .imp-bar.medium{background:var(--accent)} .imp-bar.low{background:var(--warn);opacity:.55}
+.cal-ev{display:flex;align-items:center;gap:7px;font-size:13.5px;min-width:0;flex-wrap:wrap}
+.cal-cc{font-family:var(--mono);font-size:10px;font-weight:700;padding:2px 5px;border-radius:5px;border:1px solid var(--line-hi);color:var(--muted)}
+.cal-mic svg{width:13px;height:13px;color:var(--muted);display:block}
+.cal-fp{display:flex;gap:8px;font-family:var(--mono);font-size:11.5px;color:var(--text);white-space:nowrap}
+.cal-fp em{font-style:normal;color:var(--faint);margin-right:3px}
+.cal-empty{display:flex;flex-direction:column;gap:3px;padding:12px 14px;border-radius:14px;border:1px dashed var(--line-hi);font-size:13px;color:var(--muted)} .cal-empty b{color:var(--text);font-size:14px}
+@media (max-width:480px){.cal-row{grid-template-columns:54px 4px minmax(0,1fr)}.cal-fp{grid-column:3;font-size:11px}}
+@media (prefers-reduced-motion:reduce){.cal-next.soon .cn-cd{animation:none}}
+/* ---------- signature motion: mood aurora behind everything ---------- */
+.aurora{position:fixed;inset:-20%;pointer-events:none;z-index:0;filter:blur(70px);opacity:.55}
+.aurora i{position:absolute;border-radius:50%;mix-blend-mode:screen}
+.aurora i:nth-child(1){width:46vmax;height:46vmax;left:8%;top:-6%;background:radial-gradient(closest-side,rgba(var(--mood-rgb),.42),transparent);animation:drift1 34s ease-in-out infinite alternate}
+.aurora i:nth-child(2){width:38vmax;height:38vmax;right:2%;top:12%;background:radial-gradient(closest-side,rgba(var(--accent-rgb),.30),transparent);animation:drift2 41s ease-in-out infinite alternate}
+.aurora i:nth-child(3){width:40vmax;height:40vmax;left:30%;bottom:-8%;background:radial-gradient(closest-side,rgba(var(--sky1-rgb),.28),transparent);animation:drift3 47s ease-in-out infinite alternate}
+@keyframes drift1{to{transform:translate(18vw,14vh) scale(1.15)}}
+@keyframes drift2{to{transform:translate(-22vw,18vh) scale(.9)}}
+@keyframes drift3{to{transform:translate(-12vw,-20vh) scale(1.2)}}
+:root[data-skin="morning"] .aurora{opacity:.35;mix-blend-mode:multiply}
+:root[data-skin="ink"] .aurora,:root[data-skin="graphite"] .aurora{opacity:.25}
+@media (prefers-reduced-motion:reduce){.aurora i{animation:none}}
+
+/* ---------- live multi-asset tape: a glass rail ---------- */
+.mtape{position:relative;display:flex;align-items:center;height:40px;border-radius:999px;border:1px solid var(--line);overflow:hidden;
+  background:linear-gradient(90deg,rgba(var(--panel-rgb),.82),rgba(var(--panel-rgb),.6));backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
+.mt-live{flex:none;display:inline-flex;align-items:center;gap:7px;height:100%;padding:0 14px 0 16px;font:700 11px/1 var(--font);letter-spacing:.06em;color:var(--accent-hi);border-right:1px solid var(--line)}
+.mt-live i{width:7px;height:7px;border-radius:50%;background:var(--gain);box-shadow:0 0 0 0 rgba(var(--gain-rgb),.7);animation:ping3 1.8s infinite}
+.mt-view{flex:1;min-width:0;overflow:hidden;mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent);-webkit-mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent)}
+.mt-track{display:flex;width:max-content;animation:tick 42s linear infinite;animation-delay:var(--sync,0s)}
+.mtape:hover .mt-track{animation-play-state:paused}
+.mt{display:inline-flex;align-items:baseline;gap:7px;padding:0 15px;font:600 12.5px/40px var(--mono);white-space:nowrap;border-radius:8px}
+.mt+.mt{box-shadow:-1px 0 0 rgba(var(--muted-rgb),.14)}
+.mt b{font-family:var(--font);color:var(--muted);font-weight:700;font-size:12px}
+.mt-p{color:var(--text)} .mt-c{font-size:11.5px;color:var(--muted)} .mt-c.up{color:var(--gain)} .mt-c.dn{color:var(--loss)}
+.mt.fl-up,.hm-t.fl-up{animation:flUp 1.4s ease-out} .mt.fl-dn,.hm-t.fl-dn{animation:flDn 1.4s ease-out}
+@keyframes flUp{0%{background:rgba(var(--gain-rgb),.25)}100%{background:transparent}}
+@keyframes flDn{0%{background:rgba(var(--loss-rgb),.25)}100%{background:transparent}}
+
+/* ---------- threat level: a pressure gauge ---------- */
+.defcon{--dc:var(--gain-rgb);position:relative;display:grid;grid-template-columns:auto 1fr;gap:12px 18px;align-items:center;padding:14px 18px;border-radius:var(--r);overflow:hidden;
+  border:1px solid rgba(var(--dc),.35);background:radial-gradient(420px 140px at 0% 0%,rgba(var(--dc),.16),transparent 70%),linear-gradient(180deg,rgba(var(--panel-rgb),.8),rgba(var(--panel-rgb),.6))}
+.defcon.d4{--dc:150,225,120} .defcon.d3{--dc:255,206,110} .defcon.d2{--dc:255,150,90} .defcon.d1{--dc:var(--loss-rgb)}
+.defcon.d1{animation:dcAlarm 1.8s ease-in-out infinite}
+@keyframes dcAlarm{50%{box-shadow:0 0 0 1px rgba(var(--loss-rgb),.7),0 0 40px -6px rgba(var(--loss-rgb),.7)}}
+.dc-l{display:flex;flex-direction:column;gap:2px;min-width:118px}
+.dc-k{font:600 10.5px/1.2 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.dc-n{font:800 26px/1.05 var(--display);letter-spacing:-.02em;color:var(--text)} .dc-n span{color:rgb(var(--dc));text-shadow:0 0 18px rgba(var(--dc),.6)}
+.dc-w{font:700 12px/1.2 var(--font);color:rgb(var(--dc))}
+.dc-bar{position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:0;height:12px;border-radius:999px;
+  background:linear-gradient(90deg,rgba(var(--gain-rgb),.9),rgba(255,206,110,.95) 50%,rgba(var(--loss-rgb),.95));box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
+.dc-bar i{position:relative;font-style:normal}
+.dc-bar i span{position:absolute;top:16px;left:50%;transform:translateX(-50%);font:600 10px/1 var(--mono);color:var(--faint)}
+.dc-bar i:not(.on){background:rgba(var(--panel-rgb),.78)} .dc-bar i:not(.on).s1{border-radius:0 999px 999px 0}
+.dc-bar i.on+i:not(.on){box-shadow:-9px 0 14px -4px rgba(var(--dc),.9)}
+.dc-bar i.on+i:not(.on)::before{content:"";position:absolute;left:-9px;top:-5px;width:18px;height:18px;border-radius:50%;background:#fff;border:3px solid rgb(var(--dc));box-shadow:0 0 14px rgba(var(--dc),.9)}
+.defcon.d1 .dc-bar::after{content:"";position:absolute;right:-6px;top:-5px;width:18px;height:18px;border-radius:50%;background:#fff;border:3px solid rgb(var(--dc));box-shadow:0 0 16px rgba(var(--dc),1)}
+.dc-bar i.on span{color:var(--muted)}
+.dc-f{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.dc-f span{font:600 11.5px/1 var(--font);padding:6px 10px;border-radius:999px;border:1px solid rgba(var(--muted-rgb),.2);color:var(--muted);background:rgba(var(--panel-rgb),.4)}
+.dc-f span.hot{border-color:rgba(var(--dc),.55);color:var(--text);background:rgba(var(--dc),.12)}
+@media (min-width:720px){.defcon{grid-template-columns:auto minmax(220px,360px) 1fr}.dc-f{grid-column:auto;justify-content:flex-end;margin-top:0}}
+
+/* ---------- T-minus ---------- */
+.tminus{position:relative;display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;padding:16px 18px;border-radius:var(--r);overflow:hidden;
+  border:1px solid rgba(var(--accent-rgb),.45);background:radial-gradient(500px 160px at 100% 50%,rgba(var(--accent-rgb),.18),transparent 70%),linear-gradient(180deg,rgba(var(--panel-rgb),.82),rgba(var(--panel-rgb),.62))}
+.tminus.hot{border-color:rgba(var(--loss-rgb),.6);background:radial-gradient(500px 160px at 100% 50%,rgba(var(--loss-rgb),.22),transparent 70%),linear-gradient(180deg,rgba(var(--panel-rgb),.82),rgba(var(--panel-rgb),.62))}
+.tm-l{display:flex;flex-direction:column;gap:4px;min-width:0}
+.tm-k{font:600 10.5px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--accent-hi)} .tminus.hot .tm-k{color:var(--loss)}
+.tm-t{font:800 20px/1.2 var(--display);letter-spacing:-.01em}
+.tm-f{font:500 12px/1.5 var(--mono);color:var(--muted)} .tm-f b{color:var(--text)}
+.tm-clock{font:800 clamp(34px,8vw,46px)/1 var(--display);letter-spacing:-.02em;font-variant-numeric:tabular-nums;
+  background:linear-gradient(120deg,var(--accent-hi),var(--accent2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 18px rgba(var(--accent-rgb),.45))}
+.tminus.hot .tm-clock{background:linear-gradient(120deg,#fff,var(--loss));-webkit-background-clip:text;background-clip:text;animation:breathe 1s ease-in-out infinite}
+.tminus.printed{border-color:rgba(var(--accent-rgb),.6)}
+.tm-acts{display:flex;flex-wrap:wrap;gap:8px}
+.tm-acts div{display:flex;flex-direction:column;gap:3px;padding:9px 13px;border-radius:14px;border:1px solid var(--line-hi);background:rgba(var(--panel-rgb),.5);min-width:120px}
+.tm-acts span{font-size:11.5px;color:var(--muted)} .tm-acts b{font:800 22px/1 var(--display)} .tm-acts em{font:500 11px/1 var(--mono);color:var(--faint);font-style:normal}
+.tm-n{flex-basis:100%;font-size:12px;color:var(--muted)}
+
+/* ---------- session plan ("operation") ---------- */
+.mission{gap:12px;overflow:hidden}
+.mission::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--muted),transparent)}
+.mission.m-bull::before{background:linear-gradient(180deg,var(--gain),transparent)} .mission.m-bear::before{background:linear-gradient(180deg,var(--loss),transparent)}
+.ms-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
+.ms-head>div:first-child{display:flex;flex-direction:column;gap:3px}
+.ms-k{font:600 10.5px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--accent-hi)}
+.ms-t{font:800 24px/1.05 var(--display);letter-spacing:-.02em}
+.ms-w{font:500 12px/1.2 var(--font);color:var(--muted)}
+.ms-r{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.ms-st{display:inline-flex;align-items:center;gap:6px;font:700 11px/1 var(--font);padding:6px 10px;border-radius:999px;border:1px solid var(--line-hi);color:var(--muted)}
+.ms-st.live{color:var(--accent-hi);border-color:rgba(var(--accent-rgb),.55);background:rgba(var(--accent-rgb),.12)}
+.ms-row{display:grid;grid-template-columns:92px 1fr;gap:12px;align-items:start;padding-top:11px;border-top:1px solid rgba(var(--muted-rgb),.12)}
+.ms-l{display:inline-flex;align-items:center;gap:7px;font:600 10.5px/1.7 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.ms-l::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--accent)}
+.ms-l.threat::before{background:var(--warn)} .ms-l.abort::before{background:var(--loss)}
+.ms-row p{font-size:13.5px;line-height:1.5}
+.ms-row ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px;font-size:13px;line-height:1.45}
+.ms-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px}
+.ms-grid div{display:flex;flex-direction:column;gap:3px;padding:8px 11px;border:1px solid rgba(var(--muted-rgb),.16);border-radius:12px;background:rgba(var(--panel-rgb),.4)}
+.ms-grid span{font:600 10px/1.2 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--faint)} .ms-grid b{font:700 13.5px/1.2 var(--mono)}
+@media (max-width:480px){.ms-row{grid-template-columns:1fr;gap:6px}}
+
+/* ---------- record ---------- */
+.rec{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center}
+.rec-ring{position:relative;width:72px;height:72px}
+.rec-ring svg{width:72px;height:72px} .rr-bg{fill:none;stroke:rgba(var(--muted-rgb),.15);stroke-width:7} .rr-fg{fill:none;stroke:url(#rrg);stroke:var(--accent);stroke-width:7;stroke-linecap:round;filter:drop-shadow(0 0 6px rgba(var(--accent-rgb),.7))}
+.rec-ring b{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:800 16px/1 var(--display)}
+.rec-mid{display:flex;flex-direction:column;gap:6px;min-width:0}
+.rec-big{font:800 20px/1.1 var(--display);letter-spacing:-.01em}
+.fire{background:linear-gradient(90deg,var(--accent-hi),var(--accent2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.rec-r{display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+.rank{font:700 11.5px/1 var(--font);padding:6px 11px;border-radius:999px;border:1px solid rgba(var(--accent-rgb),.45);color:var(--accent-hi);background:rgba(var(--accent-rgb),.1)}
+.share-btn{display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 14px;border-radius:999px;border:0;background:linear-gradient(135deg,var(--accent),var(--accent2));color:var(--on-accent);font:700 12.5px/1 var(--font);cursor:pointer;box-shadow:0 10px 24px -12px rgba(var(--accent-rgb),.9)}
+.share-btn svg{width:15px;height:15px}
+@media (max-width:480px){.rec{grid-template-columns:auto 1fr}.rec-r{grid-column:1/-1;flex-direction:row;justify-content:space-between;align-items:center}}
+.card-prev{width:100%;border-radius:14px;border:1px solid var(--line-hi);display:block}
+
+/* ---------- heatmap ---------- */
+.hm-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.hm-title{font:700 18px/1.2 var(--display);margin-top:4px}
+.hm-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.hm-t{position:relative;display:flex;flex-direction:column;gap:3px;padding:11px 11px 7px;border-radius:14px;border:1px solid rgba(255,255,255,.07);min-height:90px;overflow:hidden;box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
+.hm-top{display:flex;justify-content:space-between;align-items:baseline;gap:4px}
+.hm-top b{font:800 14px/1 var(--display);color:var(--text)}
+.hm-top span{font:700 12.5px/1 var(--mono)} .hm-top .bull{color:var(--gain)} .hm-top .bear{color:var(--loss)}
+.hm-p{font:500 11.5px/1 var(--mono);color:var(--muted)}
+.hm-t svg{width:100%;height:28px;margin-top:auto;opacity:.8}
+.hm-t svg path{stroke:var(--text)}
+@media (max-width:480px){.hm-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* ---------- vote ---------- */
+.vote{gap:12px}
+.vote-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.vote-title{font:800 19px/1.2 var(--display);letter-spacing:-.01em;margin-top:4px}
+.cs{font:700 12px/1 var(--mono);padding:6px 10px;border-radius:999px;border:1px solid rgba(var(--accent-rgb),.4);color:var(--accent-hi)}
+.vote-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.vote-btn{display:flex;flex-direction:column;align-items:center;gap:4px;padding:15px 10px;border-radius:18px;border:1px solid var(--line-hi);background:linear-gradient(180deg,rgba(var(--panel-rgb),.7),rgba(var(--panel-rgb),.4));color:var(--text);cursor:pointer;transition:transform .15s,box-shadow .2s,border-color .2s}
+.vote-btn b{font:800 21px/1 var(--display);letter-spacing:-.01em} .vote-btn span{font:600 11.5px/1 var(--font);color:var(--muted)}
+.vote-btn.bull b{color:var(--gain)} .vote-btn.bear b{color:var(--loss)}
+.vote-btn:not([disabled]):hover{transform:translateY(-2px)}
+.vote-btn.bull.picked{border-color:var(--gain);background:radial-gradient(160px 80px at 50% 0%,rgba(var(--gain-rgb),.25),rgba(var(--panel-rgb),.5));box-shadow:0 14px 34px -16px rgba(var(--gain-rgb),.9)}
+.vote-btn.bear.picked{border-color:var(--loss);background:radial-gradient(160px 80px at 50% 0%,rgba(var(--loss-rgb),.25),rgba(var(--panel-rgb),.5));box-shadow:0 14px 34px -16px rgba(var(--loss-rgb),.9)}
+.vote-btn[disabled]{cursor:default;opacity:.8}
+.crowd-bar{display:flex;height:10px;border-radius:999px;overflow:hidden;background:rgba(var(--muted-rgb),.15);gap:2px}
+.crowd-bar .b{background:linear-gradient(90deg,rgba(var(--gain-rgb),.55),var(--gain));border-radius:999px 0 0 999px} .crowd-bar .s{background:linear-gradient(90deg,var(--loss),rgba(var(--loss-rgb),.55));border-radius:0 999px 999px 0}
+.crowd-lbl{display:flex;justify-content:space-between;gap:8px;margin-top:7px;font:600 11.5px/1.3 var(--font)}
+.crowd-lbl .bull{color:var(--gain)} .crowd-lbl .bear{color:var(--loss)} .crowd-lbl .muted{text-align:center}
+.vote-st{font-size:12.5px;color:var(--muted)} .vote-st b.bull{color:var(--gain)} .vote-st b.bear{color:var(--loss)}
+.lb{display:flex;flex-direction:column;border-top:1px solid rgba(var(--muted-rgb),.14);padding-top:8px}
+.lb-h{display:flex;justify-content:space-between;font:600 10px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--faint);padding:0 0 6px}
+.lb-r{display:grid;grid-template-columns:26px 1fr auto;gap:8px;align-items:center;padding:7px 8px;margin:0 -8px;font-size:13px;border-radius:10px}
+.lb-i{font:800 12px/1 var(--display);color:var(--faint)} .lb-r:nth-child(2) .lb-i{color:var(--accent-hi)}
+.lb-n{font-weight:700} .lb-s{font:600 12px/1 var(--mono);color:var(--muted)}
+.lb-r.me{background:rgba(var(--accent-rgb),.1)} .lb-r.ai .lb-n,.lb-r.ai .lb-i{color:var(--accent-hi)}
+
+/* ---------- push nudge ---------- */
+.nudge{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:var(--r);border:1px solid rgba(var(--accent-rgb),.35);background:linear-gradient(90deg,rgba(var(--accent-rgb),.12),rgba(var(--panel-rgb),.5))}
+.nudge-ic{font-size:20px} .nudge>span:nth-child(2){flex:1;display:flex;flex-direction:column;gap:2px;font-size:13.5px} .nudge small{font-size:12px;color:var(--muted)}
+.nudge .icon-btn{width:30px;height:30px}
+
+/* ---------- War Room theme (optional, in the theme picker) ---------- */
+:root[data-skin="warroom"]{color-scheme:dark;
+  --bg:#050506; --bg-raise:#0A0A0C; --panel:#0D0D10; --panel-hi:#131317; --panel-rgb:13,13,16; --line:#24242B; --line-hi:#3A3A44;
+  --accent:#FF3B30; --accent-hi:#FF6B61; --accent2:#FFB000; --ice:#FFB000; --gain:#2BFF88; --loss:#FF3B30; --warn:#FFB000;
+  --text:#F4F4F6; --muted:#9B9BA7; --faint:#5D5D68; --on-accent:#140000;
+  --accent-rgb:255,59,48; --gain-rgb:43,255,136; --loss-rgb:255,59,48; --muted-rgb:155,155,167;
+  --sky1-rgb:255,40,30; --sky2-rgb:255,140,0; --hz-rgb:255,40,30; --sky-a:.14; --sky-b:.06; --hz-a:.08; --grain:.07; --r:8px}
+:root[data-skin="warroom"] .aurora{opacity:.3}
+:root[data-skin="warroom"] body::before{background:
+  radial-gradient(1000px 520px at 50% -20%, rgba(255,40,30,.16), transparent 62%),
+  radial-gradient(700px 500px at 110% 10%, rgba(255,140,0,.06), transparent 62%),
+  linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px) 0 0/100% 48px,
+  linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px) 0 0/48px 100%}
+:root[data-skin="warroom"] #app::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;
+  background:repeating-linear-gradient(0deg,rgba(255,255,255,.028) 0 1px,transparent 1px 3px),radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.55))}
+:root[data-skin="warroom"] .panel:not(.alert-card):not(.tape){border-color:#26262D;
+  background:linear-gradient(var(--accent),var(--accent)) top left/14px 2px no-repeat,linear-gradient(var(--accent),var(--accent)) top left/2px 14px no-repeat,
+    linear-gradient(var(--accent),var(--accent)) bottom right/14px 2px no-repeat,linear-gradient(var(--accent),var(--accent)) bottom right/2px 14px no-repeat,
+    linear-gradient(180deg,rgba(19,19,23,.94),rgba(11,11,14,.9))}
+:root[data-skin="warroom"] .eyebrow{text-transform:uppercase}
+:root[data-skin="warroom"] .eyebrow::before{content:"// ";color:var(--accent)}
+:root[data-skin="warroom"] .bias-word{text-transform:uppercase;background:none;-webkit-text-fill-color:currentColor;animation:glitch 6s steps(1) infinite;animation-delay:var(--sync,0s);text-shadow:0 0 22px currentColor}
+@keyframes glitch{0%,93%,100%{transform:none;text-shadow:0 0 22px currentColor}
+  94%{transform:translateX(-3px) skewX(-8deg);text-shadow:3px 0 rgba(0,255,255,.7),-3px 0 rgba(255,0,60,.8)}
+  95%{transform:translateX(3px);text-shadow:-3px 0 rgba(0,255,255,.7),3px 0 rgba(255,0,60,.8)}
+  96%{transform:translateX(-1px) skewX(4deg);clip-path:inset(20% 0 30% 0)} 97%{clip-path:none;transform:none}}
+:root[data-skin="warroom"] .headline .lead,:root[data-skin="warroom"] .brand b,:root[data-skin="warroom"] h2,:root[data-skin="warroom"] h3,:root[data-skin="warroom"] .ms-t{text-transform:uppercase}
+:root[data-skin="warroom"] .brand b{font-size:20px}
+:root[data-skin="warroom"] .run-btn{background:linear-gradient(135deg,#FF3B30,#B3170F);color:#fff;box-shadow:0 0 0 1px rgba(255,59,48,.6),0 10px 30px -10px rgba(255,59,48,.8);text-transform:uppercase}
+:root[data-skin="warroom"] .regime{border-radius:4px;background:rgba(255,176,0,.08);border-color:rgba(255,176,0,.45);color:#FFB000}
+:root[data-skin="warroom"] .tag,:root[data-skin="warroom"] .mtape,:root[data-skin="warroom"] .dc-f span,:root[data-skin="warroom"] .rank,:root[data-skin="warroom"] .ms-st{border-radius:4px;text-transform:uppercase}
+:root[data-skin="warroom"] .mt-live{background:var(--loss);color:#fff;font-family:var(--mono);letter-spacing:.14em}
+:root[data-skin="warroom"] .dc-n,:root[data-skin="warroom"] .tm-clock{font-family:var(--mono)}
+@media (prefers-reduced-motion:reduce){:root[data-skin="warroom"] .bias-word{animation:none}}
+
+.mid.bull,.mid.bear,.mid.warn{color:var(--text)}
+.dayband .chip{max-width:100%;white-space:normal;height:auto;min-height:28px;padding:4px 10px}
+:root[data-skin="warroom"] .brand b{letter-spacing:.04em;font-size:20px}
+:root[data-skin="warroom"] .run-btn{letter-spacing:.03em}
+@media (max-width:420px){.brand small{display:none} .crowd-lbl{font-size:10.5px} .top .run-btn span{display:none} .top .run-btn{padding:0 13px}}
+/* ---------- latest headline bar ---------- */
+.lastnews{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:var(--r);text-decoration:none;color:inherit;
+  border:1px solid rgba(var(--accent-rgb),.35);background:linear-gradient(90deg,rgba(var(--accent-rgb),.14),rgba(var(--panel-rgb),.55) 60%)}
+.lastnews.high{border-color:rgba(var(--loss-rgb),.5);background:linear-gradient(90deg,rgba(var(--loss-rgb),.16),rgba(var(--panel-rgb),.55) 60%)}
+.ln-k{flex:none;display:inline-flex;align-items:center;gap:7px;font:700 10.5px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--accent-hi)}
+.lastnews.high .ln-k{color:var(--loss)}
+.ln-k i{width:8px;height:8px;border-radius:50%;background:currentColor;box-shadow:0 0 0 0 currentColor;animation:ping3 1.8s infinite}
+.ln-h{flex:1;min-width:0;font-weight:700;font-size:14.5px;line-height:1.35}
+.ln-r{flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.ln-r em{font:500 11px/1 var(--mono);color:var(--muted);font-style:normal}
+.lastnews:hover .ln-h{color:var(--accent-hi)}
+.fxp{display:inline-flex;align-items:center;gap:3px;font:700 11px/1 var(--mono);padding:4px 7px;border-radius:999px;white-space:nowrap}
+.fxp.up{color:var(--gain);background:rgba(var(--gain-rgb),.12)} .fxp.dn{color:var(--loss);background:rgba(var(--loss-rgb),.12)}
+@media (max-width:480px){.lastnews{flex-wrap:wrap}.ln-h{flex-basis:100%;order:3}.ln-r{flex-direction:row;margin-left:auto}}
+
+/* ---------- why the bias moved ---------- */
+.story{gap:14px}
+.st-head{display:flex;flex-direction:column;gap:4px}
+.st-title{font:800 22px/1.25 var(--display);letter-spacing:-.015em}
+.st-pend{display:flex;flex-direction:column;gap:6px;padding:12px 14px;border-radius:14px;border:1px solid rgba(var(--loss-rgb),.5);background:linear-gradient(90deg,rgba(var(--loss-rgb),.14),rgba(var(--panel-rgb),.4))}
+.st-pend b{font-size:15px;line-height:1.35} .st-pend>span:last-child{font-size:12.5px;color:var(--muted)}
+.st-pend.calm{border-color:rgba(var(--accent-rgb),.4);background:linear-gradient(90deg,rgba(var(--accent-rgb),.1),rgba(var(--panel-rgb),.4))}
+.st-k{font:700 10px/1.2 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.st-pend .st-k{color:var(--loss)} .st-pend.calm .st-k{color:var(--accent-hi)}
+.st-note{font-size:11.5px;color:var(--faint)}
+.st-line{display:flex;flex-direction:column}
+.st-step{display:grid;grid-template-columns:22px 1fr;gap:12px}
+.st-rail{position:relative;display:flex;justify-content:center}
+.st-rail::before{content:"";position:absolute;top:0;bottom:0;width:2px;background:rgba(var(--muted-rgb),.18)}
+.st-step:first-child .st-rail::before{top:8px} .st-step:last-child .st-rail::before{bottom:auto;height:14px}
+.st-rail i{position:relative;margin-top:6px;width:12px;height:12px;border-radius:50%;background:var(--muted);box-shadow:0 0 0 4px rgba(var(--panel-rgb),1)}
+.st-rail i.bull{background:var(--gain)} .st-rail i.bear{background:var(--loss)}
+.st-step.flip .st-rail i{width:16px;height:16px;margin-top:4px;box-shadow:0 0 0 4px rgba(var(--panel-rgb),1),0 0 16px currentColor}
+.st-step.flip .st-rail i.bull{color:var(--gain)} .st-step.flip .st-rail i.bear{color:var(--loss)}
+.st-body{display:flex;flex-direction:column;gap:8px;padding-bottom:18px;min-width:0}
+.st-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.st-time{font:700 12.5px/1 var(--mono)} .st-phase{font-size:12px;color:var(--muted)}
+.st-step.now .st-phase{color:var(--accent-hi);font-weight:700}
+.st-flipchip{display:inline-flex;align-items:center;gap:6px} .st-arrow{color:var(--muted);font-weight:700}
+.st-d{font:700 11px/1 var(--mono);padding:4px 7px;border-radius:999px;background:rgba(var(--muted-rgb),.12);color:var(--muted)} .st-d.up{color:var(--gain)} .st-d.dn{color:var(--loss)}
+.st-why{font-size:14px;line-height:1.5;color:var(--muted)} .st-why b{color:var(--text);font-weight:700}
+.st-step:not(.now) .st-why{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.st-step.now .st-why{font-size:15px}
+.st-trig{display:flex;flex-direction:column;gap:6px;padding:10px 12px;border-radius:12px;background:rgba(var(--panel-rgb),.45);border:1px solid rgba(var(--muted-rgb),.14)}
+.st-t{display:flex;align-items:flex-start;gap:8px;font-size:13px;line-height:1.35;color:inherit;text-decoration:none}
+a.st-t[href]:hover .st-tt{color:var(--accent-hi)}
+.st-tt{flex:1;min-width:0} .st-tt small{color:var(--muted);font-size:12px}
+.st-t em{flex:none;font:500 11px/1 var(--mono);color:var(--faint);font-style:normal}
+.st-badge{flex:none;font:700 9.5px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;padding:4px 6px;border-radius:5px;background:rgba(var(--accent-rgb),.14);color:var(--accent-hi)}
+.st-t.k-data .st-badge{background:rgba(var(--muted-rgb),.16);color:var(--text)}
+
+/* ---------- headline cards ---------- */
+.hl{gap:12px}
+.hl-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+.hl-grid{display:grid;grid-template-columns:1fr;gap:8px}
+@media (min-width:720px){.hl-grid{grid-template-columns:1.4fr 1fr}.hl-card.lead{grid-row:span 2}}
+.hl-card{position:relative;display:flex;flex-direction:column;gap:10px;padding:14px 16px;border-radius:16px;text-decoration:none;color:inherit;overflow:hidden;
+  border:1px solid rgba(var(--muted-rgb),.18);background:linear-gradient(180deg,rgba(var(--panel-rgb),.7),rgba(var(--panel-rgb),.4));transition:transform .15s,border-color .2s}
+.hl-card:hover{transform:translateY(-2px);border-color:var(--line-hi)}
+.hl-card.high{border-color:rgba(var(--loss-rgb),.45);background:radial-gradient(400px 160px at 0% 0%,rgba(var(--loss-rgb),.16),transparent 70%),linear-gradient(180deg,rgba(var(--panel-rgb),.7),rgba(var(--panel-rgb),.4))}
+.hl-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:11.5px;color:var(--muted)}
+.hl-meta em{margin-left:auto;font:500 11px/1 var(--mono);font-style:normal;color:var(--faint)}
+.hl-imp{font:700 9.5px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;padding:4px 7px;border-radius:5px;background:rgba(var(--muted-rgb),.08);color:var(--warn);border:1px solid rgba(var(--muted-rgb),.25)}
+.hl-imp.high{color:var(--loss);border-color:rgba(var(--loss-rgb),.5);background:rgba(var(--loss-rgb),.1)}
+.hl-h{font:700 16px/1.4 var(--font)}
+.hl-card.lead .hl-h{font:800 clamp(18px,2.6vw,22px)/1.3 var(--display);letter-spacing:-.01em}
+.hl-foot{display:flex;gap:6px;flex-wrap:wrap;margin-top:auto}
+.hl-fx,.hl-es{font:700 11.5px/1 var(--font);padding:5px 9px;border-radius:999px;background:rgba(var(--muted-rgb),.12);color:var(--muted)}
+.hl-fx.up,.hl-es.up{color:var(--gain);background:rgba(var(--gain-rgb),.12)} .hl-fx.dn,.hl-es.dn{color:var(--loss);background:rgba(var(--loss-rgb),.12)}
+
+/* news teaser on Today + News tab */
+.nteaser{gap:12px}
+.nt-head{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.nt-go{border:0;background:none;color:var(--accent-hi);font:700 12.5px/1 var(--font);cursor:pointer;padding:6px 0}
+.nt-why{display:flex;flex-direction:column;gap:8px}
+.nt-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.nt-lead{font:700 16px/1.4 var(--display);letter-spacing:-.01em}
+.nt-list{display:flex;flex-direction:column;border-top:1px solid rgba(var(--muted-rgb),.12)}
+.nt-row{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid rgba(var(--muted-rgb),.1);color:inherit;text-decoration:none}
+.nt-row .imp{margin-top:6px;flex:none}
+.nt-h{flex:1;min-width:0;font-size:13.5px;font-weight:600;line-height:1.4}
+a.nt-row:hover .nt-h{color:var(--accent-hi)}
+.nt-r{flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:4px} .nt-r em{font:500 11px/1 var(--mono);color:var(--faint);font-style:normal}
+.nt-more{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;padding:11px 14px;border-radius:14px;border:1px solid rgba(var(--accent-rgb),.35);background:rgba(var(--accent-rgb),.08);color:var(--muted);font:500 12.5px/1.3 var(--font);cursor:pointer;text-align:left}
+.nt-more b{color:var(--accent-hi);font-weight:700;white-space:nowrap}
+.nt-more:hover{background:rgba(var(--accent-rgb),.14)}
+.news-hero{gap:6px}
+.nh-title{font:800 clamp(22px,3.4vw,28px)/1.15 var(--display);letter-spacing:-.02em}
 </style>
 
 <canvas id="fx" aria-hidden="true"></canvas>
+<div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
 <div class="wrap" id="app"></div>
 <nav class="tabs" role="tablist" id="tabs" aria-label="Sections"></nav>
 <div id="sheet-root"></div>
@@ -701,6 +1125,7 @@ const SKINS = [
   {k:"graphite", name:"Graphite", desc:"Quiet and neutral", dots:["#121212","#9BB7FF","#F2A65A"]},
   {k:"ink", name:"Ink", desc:"Pure black and white", dots:["#000000","#FFFFFF","#9BE8B7"]},
   {k:"morning", name:"Morning", desc:"Light, for daytime", dots:["#EEF2F9","#E2733B","#C04F9B"], light:true},
+  {k:"warroom", name:"War Room", desc:"Black ops, blood red", dots:["#050506","#FF3B30","#FFB000"]},
   {"k": "midnight", "name": "Midnight", "desc": "Blue on black", "dots": ["#01030A", "#2F7CFF", "#C4DDFF"], "light": false, "group": "conviction"},
   {"k": "ember", "name": "Ember", "desc": "Warm amber", "dots": ["#0A0604", "#FF9F1C", "#FFE3B0"], "light": false, "group": "conviction"},
   {"k": "terminal", "name": "Terminal", "desc": "Old-school green", "dots": ["#000806", "#22E08A", "#C6FFE6"], "light": false, "group": "conviction"},
@@ -738,6 +1163,8 @@ const S = {briefs:[], selected:null, tab:"today", loaded:false, dbMissing:false,
 const store = {get(k){try{return localStorage.getItem(k)}catch(e){return null}}, set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
 S.tab = store.get("db-tab") || "today";
 S.skin = store.get("db-skin") || "daybreak";
+// War Room was switched on automatically for one build; put those devices back on the default once.
+if(store.get("db-wr1") && !store.get("db-wr2")){ if(S.skin === "warroom"){ S.skin = "daybreak"; store.set("db-skin", "daybreak"); } store.set("db-wr2", "1"); }
 S.fx = {holiday: store.get("db-fx-holiday") !== "0", effects: store.get("db-fx-effects") !== "0", stars: store.get("db-fx-stars") === "1"};
 S.scanFrom = Number(store.get("db-scan")) || null; if(S.scanFrom && Date.now() - S.scanFrom > 15*60e3) S.scanFrom = null;
 S.awaitFrom = Number(store.get("db-await")) || null; if(S.awaitFrom && Date.now() - S.awaitFrom > 25*60e3) S.awaitFrom = null;
@@ -1040,20 +1467,241 @@ function tapeRead(br, q){
   else state = "flat";
   return { state, why, T, mv, hi, lo, bias, n };
 }
+/* ---------- live tape ---------- */
+function reopenTxt(){ const p = etParts(new Date()), h = p.h, d = p.wd;
+  if(d === "Sat" || (d === "Sun" && h < 18) || (d === "Fri" && h >= 17)) return "Reopens Sun 6:00pm ET";
+  return "Reopens 6:00pm ET"; }
+function spark(bars, ref, col){
+  const pts = (bars || []).map(([t,h,l]) => [t, (h+l)/2]).filter(x => isFinite(x[1]));
+  if(pts.length < 6) return "";
+  let lo = Math.min(...pts.map(x=>x[1])), hi = Math.max(...pts.map(x=>x[1]));
+  const useRef = fin(ref) && ref > lo - (hi-lo)*.6 && ref < hi + (hi-lo)*.6;
+  if(useRef){ lo = Math.min(lo, ref); hi = Math.max(hi, ref); }
+  const pad = (hi-lo)*.08 || 1; lo -= pad; hi += pad;
+  const W = 600, H = 64, t0 = pts[0][0], t1 = pts[pts.length-1][0] || t0+1;
+  const X = t => ((t - t0) / Math.max(1, t1 - t0) * W).toFixed(1), Y = v => ((hi - v) / (hi - lo) * H).toFixed(1);
+  const line = pts.map(([t,v],i) => `${i?"L":"M"}${X(t)} ${Y(v)}`).join("");
+  const last = pts[pts.length-1];
+  const id = "sp" + Math.round(t0/1000 % 1e6);
+  return `<svg class="spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgb(${col})" stop-opacity=".32"/><stop offset="1" stop-color="rgb(${col})" stop-opacity="0"/></linearGradient></defs>
+    <path d="${line}L${W} ${H}L0 ${H}Z" fill="url(#${id})"/>
+    ${useRef ? `<line x1="0" x2="${W}" y1="${Y(ref)}" y2="${Y(ref)}" stroke="rgba(var(--muted-rgb),.7)" stroke-width="1" stroke-dasharray="4 5" vector-effect="non-scaling-stroke"/>` : ""}
+    <path d="${line}" fill="none" stroke="rgb(${col})" stroke-width="1.8" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+    <circle class="spark-dot" cx="${X(last[0])}" cy="${Y(last[1])}" r="3.4" fill="rgb(${col})" vector-effect="non-scaling-stroke"/></svg>`;
+}
 function tapeStrip(br){
   const L = S.live; if(!L || !latest() || br.id !== latest().id) return "";
+  const f = x => Number(x).toLocaleString("en-US",{maximumFractionDigits:2});
+  const tick = L.dir && Date.now() - (L.dirAt||0) < 4000 ? (L.dir > 0 ? " tick-up" : " tick-dn") : "";
+  if(L.closed){
+    const n = L.q?.NQ; if(!n || n.price == null) return "";
+    const chg = n.prevClose ? (n.price - n.prevClose) / n.prevClose * 100 : null;
+    const col = chg == null ? "var(--muted-rgb)" : chg >= 0 ? "var(--gain-rgb)" : "var(--loss-rgb)";
+    const bars = n.bars || []; const hs = bars.map(b=>b[1]).concat(n.price), ls = bars.map(b=>b[2]).concat(n.price);
+    return `<section class="panel tape closed"><div class="tape-top"><span class="eyebrow tape-eb"><i class="lockdot"></i>NQ · Closed</span><span class="tape-px">${f(n.price)}</span>${chg != null ? `<span class="tape-chg ${chg >= 0 ? "up" : "dn"}">${pct(chg)}</span>` : ""}<span class="faint tape-when">${n.time ? esc("Last " + fmtTime(new Date(n.time).toISOString(), true)) : ""}</span></div>
+      ${spark(bars.concat([[n.time || Date.now(), n.price, n.price]]), null, col)}
+      <div class="tape-meta">${bars.length?`<span class="tag flat">Session high ${f(Math.max(...hs))}</span><span class="tag flat">Session low ${f(Math.min(...ls))}</span>`:""}<span class="tag acc">${reopenTxt()}</span></div></section>`;
+  }
   const r = L.q && tapeRead(br, L.q);
   if(!r) return L.err ? `<div class="watchline"><i class="radar"></i><span>Live price paused · ${esc(L.err)}</span></div>` : "";
-  const n = r.n, f = x => Number(x).toLocaleString("en-US",{maximumFractionDigits:2});
+  const n = r.n;
   const chg = n.prevClose ? (n.price - n.prevClose) / n.prevClose * 100 : null;
+  const calls = br.calls || []; const ref = Number(calls[calls.length-1]?.px?.NQ) || null;
+  const col = r.state === "against" ? "var(--loss-rgb)" : r.state === "breakout" ? "var(--accent-rgb)" : rgbVar(r.bias === "neutral" ? (chg >= 0 ? "bullish" : "bearish") : r.bias);
   const stat = r.state === "against" ? `<b class="bear">Tape is against the ${label(r.bias).toLowerCase()} call</b> · ${esc(r.why)}${L.queued ? ` · ${esc(L.queued)}` : ""}`
     : r.state === "breakout" ? `<b class="${r.mv > 0 ? "bull" : "bear"}">Breaking ${r.mv > 0 ? "up" : "down"} out of the neutral range</b> · ${esc(r.why)}${L.queued ? ` · ${esc(L.queued)}` : ""}`
     : r.state === "flat" ? `<b>Holding inside the range</b>${r.why ? ` · ${esc(r.why)}` : ""}`
     : `<b class="${cls(r.bias)}">Tape is with the call</b>${r.why ? ` · ${esc(r.why)}` : ""}`;
-  return `<section class="panel tape ${r.state}"><div class="tape-top"><span class="eyebrow">Live NQ</span><span class="tape-px">${f(n.price)}</span>${chg != null ? `<span class="tape-chg ${chg >= 0 ? "up" : "dn"}">${pct(chg)}</span>` : ""}<span class="faint" style="font-size:11.5px;margin-left:auto">${n.time ? esc(fmtTime(new Date(n.time).toISOString())) : ""} · ${esc(n.src || "")}</span></div>
+  return `<section class="panel tape ${r.state}"><div class="tape-top"><span class="eyebrow tape-eb"><i class="livedot"></i>Live NQ</span><span class="tape-px${tick}">${f(n.price)}</span>${chg != null ? `<span class="tape-chg ${chg >= 0 ? "up" : "dn"}">${pct(chg)}</span>` : ""}<span class="faint tape-when">${n.time ? esc(fmtTime(new Date(n.time).toISOString())) : ""} · ${esc(n.src || "")}</span></div>
+    ${spark((n.bars || []).concat([[n.time || Date.now(), n.price, n.price]]), ref, col)}
     <p class="tape-stat">${stat}</p>
-    <div class="tape-meta"><span class="tag flat">High since call ${f(r.hi)}</span><span class="tag flat">Low since call ${f(r.lo)}</span><span class="tag flat">Trips at ±${r.T.toFixed(2)}%</span></div></section>`;
+    <div class="tape-meta">${ref?`<span class="tag flat">Call ${f(ref)}</span>`:""}<span class="tag flat">High since call ${f(r.hi)}</span><span class="tag flat">Low since call ${f(r.lo)}</span><span class="tag flat">Trips at ±${r.T.toFixed(2)}%</span></div></section>`;
 }
+
+/* ---------- geo radar: dot-matrix globe ---------- */
+const GEO_PLACES = [
+  [/hormuz/,26.6,56.3],[/red sea|bab.?el|houthi|yemen/,15.4,44.2],[/gaza|hamas/,31.4,34.4],[/lebanon|hezbollah|beirut/,33.9,35.6],
+  [/israel|idf|netanyahu/,31.8,35.0],[/syria|damascus/,35.0,38.5],[/iraq|baghdad/,33.3,44.4],[/iran|tehran|irgc/,32.4,53.7],
+  [/saudi|riyadh|aramco|opec/,24.7,46.7],[/qatar|doha/,25.3,51.2],[/emirates|uae|dubai|abu dhabi/,24.5,54.4],[/suez|egypt|cairo/,30.0,32.5],
+  [/turkey|türkiye|ankara/,39.9,32.9],[/ukraine|kyiv|kiev/,50.4,30.5],[/russia|moscow|kremlin|putin/,55.75,37.6],[/belarus/,53.9,27.6],
+  [/poland|warsaw/,52.2,21.0],[/baltic/,58.0,20.0],[/black sea/,43.5,34.0],[/taiwan|taipei/,23.7,121.0],[/south china sea|philippines|manila/,12.0,115.0],
+  [/north korea|pyongyang|dprk/,39.0,125.75],[/korea|seoul/,37.5,127.0],[/japan|tokyo|boj|takaichi|ishiba/,35.7,139.7],[/hong kong/,22.3,114.2],
+  [/china|beijing|xi jinping|\bpboc\b/,39.9,116.4],[/india|delhi|modi/,28.6,77.2],[/pakistan|islamabad/,33.7,73.1],[/afghan/,34.5,69.2],
+  [/germany|berlin|bund/,52.5,13.4],[/france|paris|macron/,48.86,2.35],[/britain|\buk\b|london|\bboe\b/,51.5,-0.13],[/italy|rome/,41.9,12.5],
+  [/g7|europe|\beu\b|euro|ecb|brussels|nato/,50.85,4.35],[/venezuela|caracas/,10.5,-66.9],[/mexico/,19.4,-99.1],[/canada|ottawa/,45.4,-75.7],
+  [/brazil/,-15.8,-47.9],[/argentina/,-34.6,-58.4],[/panama/,9.0,-79.5],[/cuba|havana/,23.1,-82.4],[/greenland/,64.2,-51.7],
+  [/sudan|khartoum/,15.5,32.5],[/libya|tripoli/,32.9,13.2],[/nigeria/,9.1,7.5],[/south africa/,-25.7,28.2],[/ethiopia|somalia|horn of africa/,9.0,40.0],
+  [/australia/,-35.3,149.1],[/white house|washington|tariff|congress|shutdown|\bfed\b|treasury|united states|\bus\b|u\.s\./,38.9,-77.0],
+];
+const NYC = [40.71,-74.0];
+function geoLoc(h){
+  if(fin(h.lat) && fin(h.lon)) return [Number(h.lat), Number(h.lon)];
+  const s = String(h.name || "").toLowerCase();
+  for(const [re,la,lo] of GEO_PLACES) if(re.test(s)) return [la,lo];
+  return null;
+}
+const GEO_ST = {escalating:{k:"esc",txt:"Escalating",rgb:"--loss-rgb"}, "de-escalating":{k:"cool",txt:"Cooling",rgb:"--gain-rgb"}, steady:{k:"steady",txt:"Steady",rgb:"--warn-rgb"}};
+const geoSt = s => GEO_ST[s] || GEO_ST.steady;
+const CH_IC = {
+  oil:'<path d="M12 3.5c3 4 5.5 7 5.5 10a5.5 5.5 0 0 1-11 0c0-3 2.5-6 5.5-10Z"/>',
+  energy:'<path d="M13 3 5 14h6l-1 7 8-11h-6z"/>', gas:'<path d="M13 3 5 14h6l-1 7 8-11h-6z"/>',
+  shipping:'<path d="M3 15h18l-2.5 4.5h-13z"/><path d="M6 15V9h12v6M12 4v5"/>',
+  rates:'<path d="M5 19 19 5"/><circle cx="7" cy="7" r="2.2"/><circle cx="17" cy="17" r="2.2"/>',
+  "risk-off":'<path d="M12 3 4.5 6v5.5c0 4.5 3.2 8 7.5 9.5 4.3-1.5 7.5-5 7.5-9.5V6z"/>',
+  fx:'<path d="M4 8h13l-3-3M20 16H7l3 3"/>', usd:'<path d="M4 8h13l-3-3M20 16H7l3 3"/>',
+  tech:'<rect x="7" y="7" width="10" height="10" rx="1.5"/><path d="M10 3v4M14 3v4M10 17v4M14 17v4M3 10h4M3 14h4M17 10h4M17 14h4"/>',
+  chips:'<rect x="7" y="7" width="10" height="10" rx="1.5"/><path d="M10 3v4M14 3v4M10 17v4M14 17v4M3 10h4M3 14h4M17 10h4M17 14h4"/>',
+  trade:'<path d="M3 7h14M13 3l4 4-4 4M21 17H7M11 13l-4 4 4 4"/>', tariffs:'<path d="M3 7h14M13 3l4 4-4 4M21 17H7M11 13l-4 4 4 4"/>',
+  sanctions:'<circle cx="12" cy="12" r="8"/><path d="m6.5 6.5 11 11"/>', gold:'<path d="M4 18h16l-3-7H7z"/><path d="M8.5 11 10 6h4l1.5 5"/>',
+};
+const chIcon = c => { const k = String(c).toLowerCase(); const p = CH_IC[k] || Object.entries(CH_IC).find(([kk]) => k.includes(kk))?.[1] || '<circle cx="12" cy="12" r="3.5"/>';
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`; };
+
+const Globe = (() => {
+  const MASK = "AAAAAAAAABAAQkBIAAhJIQshJISEhIAUEBJCgkLAAJk6IQNgYAAMhJEDMjIADsTYgZk5Mkdi7sjMuplpcfEsbu3MprzXNv/6Stvf+zt/f+3t/u2Vv7/+9t732tv5/ztvf+ft/f+dt/v21v7+2lt5eztv9++tvN21t/L3Vsbu31t5Oysn5e+snJ2Xk3J3VmbO3Um5OSMr5+ak7JyR03JzQn7OzUmZOSMv5+aE7Jy70zNzQn7OzInZOTG3Z+bk/Jybk3NzRm7Pzen5OTU35+bk3Jyb03NzSm7Ozem5OTW35+bU3Jybk3Nzak7Pzek5OTUn5+T0nJyb03Nzam7Pzak5OTW35+bUnJybU3Nyam7Ozam5OTWn4+bUnJybUXNzakbGzak5OTGj5ubUnIybUXNyakbNzeg5OTOj5uTEjIqTkXN6akbFyYg5NSOj5+TEjIqREXNqTk7FyYkZNScmZ9SEnIqTE3NqRkzMyYk5FSMmZtSEmIiRE3NqRkzOqQk5FSMmZtSUmJyTE3JqRk7MqAk5ESOmZtSEjJ6RUzJiRkzNiAkZPSOmZvSEmJoREzJ6RkzN6AkZNSOmZNSEmJpREzJqRkzJ6Ak5NSOmZNSEmJLRUzJqTkzJqAkxJaemZNSEmJJRU3JqTkzJqSkxJaem5NSUmJJTUnJqSk3JKSkxJaem5JSUmJJTUGJKSknJKSkxJaek5NSUkpJTUGJKSknJKCklJaekxFSckpJTUGpKSknJKCglJaekxJSUkpJTUEpKSkmJKCklBaek1BSckgJTUEoKSkmpKCklBaeklBSckgJTUkoKSkmpKCklBaamlBSUkkJTUkoKSEmpoSklBaaklBSQmkJBUkoKTEmhqSA1BYaElFSQkkJBQEoqDAkpKSA1hYaklBSQkkJBQGoqDAmpKSAlhYaA1BQQkkJBQGoKCgGpKSAkhYaA1BQQglJBQEoKCwGpISAEhYKA1BQUglJCQGgKCQGpKSAUhYCA0BQWglJCQCgKCQGpKSAEpYCAUBQWAlJCQCgKCQEhICgEpYCAUBQSAlJQQAgKCQEhICQEpICAUBQSAlJAQQgKCQUhISQEpICCUFQSAkJCQQhoCQUhoCQEhISCUFASCkJCQShICQUhqCwEpISCUFASCkJAUQgICQUhoCwUpISCUFASCkJAUQgICQUhoCQUhICCEFASCkJAUSgISQUBoCQUlYCCEFASigJAQSgoQAUBoCQVFYCCAFAQCgJAQSgqQAUBoCAVFICCQFQACgJAQSgqAAWBqAAVBICCUFQACgJAQSgqAAWBqAAVBICiUFQACgJRASgoAAWBqAAVBKACUFQACgJRASoqAAWgqAAVBKICUFAACgJRESooAAWgqAAVFKICUFAACkBRASooBAWgoAgVFKIiUFQECkhRESooBAWkoAgUEIICUFQMCkhBESooBgXkoAgUEIICUFQMCkhBESogBgWkoAgUEIICUFAMCkhBESogBkWkoAgUEIICUECMCkhBESogBAWgoBgVkIIiUECICkhBESggBAWgoBAUkIICUEAMCkBBASggBAWggBAUkKICUEAICkBBASggBAWggBAUgIICUEAICkBBASggBQWggBAUgIIiUEAICkABISgCBQWggBAUgYICUAQKCkABISgKBUWgiBAUgIICUAQKCkARISgABUWgiBQUgCICUBQKCkARISgCBUWgKBQUgCIDUAQKikBRKSgCRUSgKBQUgCICUASKiEBRCCgCRQSgKBQQgaICUASKiEBRKCgCRQSgCBQRgaIQUASKiEBRKCICRUSgCBQRgaIQVASKiEARKCICRQGoCBQRgaJQVASKiFARKCICRQGoCBQRgSJQRASKglARKCICRaGoCBQBoSJQRASKglARKAICRaCICBQBoSJQBASKgBARKAJCRaAICBQBoSJQBASKgBERKAJCRaAICBQBISJQBASKQBERKAJCRaAICBQBIyJQBASKQBEQKAJCRKAICBQBIyBQBISIQBEQKAJGRKAICBQBIiBQBISIQBEQKAJGQKAICBABIiBQAISAQAEQIABEQKAACBGBIiBAAIiAQAEQIAAEQIAACAGBAiAAAAiAAAEQAAAEQIAAEAAAAiAAAAiAAAEQAAAEQIAAEAAAAiAAAAiEAAEgAAAEQgAAEAAAAgAAAAgEAAAgAAAEAAAAEAAAAEAAAAgAAAAgAAAEQAAAEAgAAEAAAACAAAAgEAAAgAAAEAAAAEAgAACAAAAgAAAAgEAAAAAAAEAAAAAAgQAgAAAAgAAAAAAAAEAAAAAAgQAAAAAAgAAAAAAAAEAAAAAAAQAAAAAAgAAAAAACAAAAAAAAAQAAAAAAgAEAAAACAAAAAAAAAQAAAAQAAAAAEAACAAAAAAAAAQAAAAQAAAAAAAAAAAAAAAAAAQAAAAQAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAACAAACSkRICQgBISUgpISUjJASUFJKSkZpKSkdJaWn9LSWjtPSWlpOS29paT0/p+f1/Jyf1/Nzfl7Pz/v5Pb/v9/f9vN6f3/N7fn/v7//9/f////8=";
+  const N = 16000, GA = Math.PI*(3-Math.sqrt(5)), D2R = Math.PI/180;
+  const reduce = (() => { try { return matchMedia("(prefers-reduced-motion: reduce)").matches; } catch(e){ return false; } })();
+  let P = null, cv = null, ctx = null, host = null, ro = null, io = null, raf = 0, visible = true;
+  let size = 0, dpr = 1, lon0 = 20, lat0 = 22, tgt = null, drag = null, holdUntil = 0, spots = [], sel = -1, col = {}, onPick = null, last = 0;
+  function build(){ const b = atob(MASK); const a = [];
+    for(let i=0;i<N;i++) if((b.charCodeAt(i>>3) >> (i&7)) & 1){ const y = 1-(i+.5)*2/N, r = Math.sqrt(1-y*y), th = i*GA; a.push(Math.cos(th)*r, y, Math.sin(th)*r); }
+    P = new Float32Array(a); }
+  const xyz = (la, lo) => [Math.cos(la*D2R)*Math.cos(lo*D2R), Math.sin(la*D2R), Math.cos(la*D2R)*Math.sin(lo*D2R)];
+  function proj(x, y, z){ const cl = Math.cos(lon0*D2R), sl = Math.sin(lon0*D2R), ct = Math.cos(lat0*D2R), st = Math.sin(lat0*D2R);
+    const x1 = z*cl - x*sl, z1 = x*cl + z*sl; const y2 = y*ct - z1*st, z2 = y*st + z1*ct; return [x1, y2, z2]; }
+  function readCol(){ const cs = getComputedStyle(document.documentElement); const g = k => cs.getPropertyValue(k).trim();
+    const hex = h => { const m = /^#?([\da-f]{2})([\da-f]{2})([\da-f]{2})/i.exec(h); return m ? [1,2,3].map(i=>parseInt(m[i],16)).join(",") : "255,210,122"; };
+    col = {dot:g("--muted-rgb"), acc:g("--accent-rgb"), loss:g("--loss-rgb"), gain:g("--gain-rgb"), warn:hex(g("--warn")), text:hex(g("--text")) || "255,255,255", panel:g("--panel-rgb"), font:g("--mono") || "monospace", light:document.documentElement.style.colorScheme === "light" || getComputedStyle(document.documentElement).colorScheme === "light"};
+    col["--loss-rgb"] = col.loss; col["--gain-rgb"] = col.gain; col["--warn-rgb"] = col.warn; }
+  function resize(){ if(!host || !cv) return; const w = host.clientWidth || 300; size = Math.max(200, Math.min(w, 460)); dpr = Math.min(2, window.devicePixelRatio || 1);
+    cv.width = Math.round(size*dpr); cv.height = Math.round(size*dpr); cv.style.width = size+"px"; cv.style.height = size+"px"; draw(performance.now()); }
+  function arcPts(a, b){ const d = Math.acos(Math.max(-1, Math.min(1, a[0]*b[0]+a[1]*b[1]+a[2]*b[2]))); const n = 48, out = [], sd = Math.sin(d) || 1;
+    for(let i=0;i<=n;i++){ const t = i/n, k1 = Math.sin((1-t)*d)/sd, k2 = Math.sin(t*d)/sd, lift = 1 + Math.min(.32, d*.16)*Math.sin(Math.PI*t);
+      out.push([(a[0]*k1+b[0]*k2)*lift, (a[1]*k1+b[1]*k2)*lift, (a[2]*k1+b[2]*k2)*lift]); }
+    return out; }
+  function draw(t){
+    if(!ctx || !P) return;
+    const R = size*.4, cx = size/2, cy = size/2;
+    ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,size,size);
+    // atmosphere + body
+    let g = ctx.createRadialGradient(cx, cy, R*.92, cx, cy, R*1.28); g.addColorStop(0, `rgba(${col.acc},.22)`); g.addColorStop(1, `rgba(${col.acc},0)`);
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, R*1.28, 0, 6.283); ctx.fill();
+    g = ctx.createRadialGradient(cx - R*.35, cy - R*.4, R*.1, cx, cy, R); g.addColorStop(0, `rgba(${col.acc},.16)`); g.addColorStop(.6, `rgba(${col.panel},.55)`); g.addColorStop(1, `rgba(${col.panel},.85)`);
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, R, 0, 6.283); ctx.fill();
+    ctx.strokeStyle = `rgba(${col.acc},.35)`; ctx.lineWidth = 1; ctx.stroke();
+    // land dots in depth buckets
+    const B = [[],[],[],[],[]]; const back = [];
+    for(let i=0;i<P.length;i+=3){ const p = proj(P[i],P[i+1],P[i+2]); const sx = cx + R*p[0], sy = cy - R*p[1];
+      if(p[2] > 0){ const k = Math.min(4, Math.floor(p[2]*5)); B[k].push(sx, sy); } else if(p[2] > -.55) back.push(sx, sy); }
+    const dr = Math.max(.8, R/150);
+    ctx.fillStyle = `rgba(${col.dot},.07)`; ctx.beginPath(); for(let i=0;i<back.length;i+=2){ ctx.moveTo(back[i]+dr*.6, back[i+1]); ctx.arc(back[i], back[i+1], dr*.6, 0, 6.283); } ctx.fill();
+    B.forEach((arr, k) => { const a = .22 + k*.17, r = dr*(.72 + k*.08); ctx.fillStyle = `rgba(${col.dot},${a.toFixed(2)})`; ctx.beginPath();
+      for(let i=0;i<arr.length;i+=2){ ctx.moveTo(arr[i]+r, arr[i+1]); ctx.arc(arr[i], arr[i+1], r, 0, 6.283); } ctx.fill(); });
+    // arcs to New York
+    const ny = xyz(NYC[0], NYC[1]);
+    spots.forEach((s, si) => { if(!s.loc) return; const c = col[s.rgb] || col.warn; const A = s.arc || (s.arc = arcPts(xyz(s.loc[0], s.loc[1]), ny));
+      const pr = A.map(q => { const p = proj(q[0],q[1],q[2]); return [cx + R*p[0], cy - R*p[1], p[2] > 0 || (p[0]*p[0] + p[1]*p[1]) > 1.0]; });
+      ctx.lineWidth = si === sel ? 1.8 : 1.1; ctx.strokeStyle = `rgba(${c},${si === sel ? .7 : .32})`; ctx.beginPath();
+      let on = false; pr.forEach(([x,y,v]) => { if(v){ on ? ctx.lineTo(x,y) : ctx.moveTo(x,y); on = true; } else on = false; }); ctx.stroke();
+      if(!reduce){ const ph = ((t/2600) + si*.37) % 1, i1 = Math.floor(ph*(pr.length-1)), i0 = Math.max(0, i1-7);
+        for(let i=i0+1;i<=i1;i++){ const a0 = pr[i-1], a1 = pr[i]; if(!a0[2] || !a1[2]) continue; ctx.strokeStyle = `rgba(${c},${(.25 + .75*(i-i0)/(i1-i0+1)).toFixed(2)})`; ctx.lineWidth = 2.2; ctx.beginPath(); ctx.moveTo(a0[0],a0[1]); ctx.lineTo(a1[0],a1[1]); ctx.stroke(); } } });
+    // New York anchor
+    const pn = proj(...ny);
+    if(pn[2] > 0){ const x = cx + R*pn[0], y = cy - R*pn[1]; ctx.fillStyle = `rgb(${col.text})`; ctx.beginPath(); ctx.arc(x, y, 3, 0, 6.283); ctx.fill();
+      ctx.strokeStyle = `rgba(${col.text},.5)`; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(x, y, 6.5, 0, 6.283); ctx.stroke(); label(x, y, "NQ · ES", col.text, false); }
+    // hotspots
+    spots.forEach((s, si) => { if(!s.loc) return; const p = proj(...xyz(s.loc[0], s.loc[1])); s.sx = null; if(p[2] <= 0) return;
+      const x = cx + R*p[0], y = cy - R*p[1], c = col[s.rgb] || col.warn, isSel = si === sel; s.sx = x; s.sy = y;
+      const ph = reduce ? .5 : ((t/1700) + si*.29) % 1;
+      ctx.strokeStyle = `rgba(${c},${(.85*(1-ph)).toFixed(2)})`; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.arc(x, y, 4 + ph*(isSel ? 18 : 12), 0, 6.283); ctx.stroke();
+      const gg = ctx.createRadialGradient(x, y, 0, x, y, isSel ? 16 : 11); gg.addColorStop(0, `rgba(${c},.55)`); gg.addColorStop(1, `rgba(${c},0)`); ctx.fillStyle = gg; ctx.beginPath(); ctx.arc(x, y, isSel ? 16 : 11, 0, 6.283); ctx.fill();
+      ctx.fillStyle = `rgb(${c})`; ctx.beginPath(); ctx.arc(x, y, isSel ? 5 : 3.8, 0, 6.283); ctx.fill();
+      ctx.fillStyle = `rgba(255,255,255,.9)`; ctx.beginPath(); ctx.arc(x, y, isSel ? 1.9 : 1.3, 0, 6.283); ctx.fill();
+      if(isSel) label(x, y, s.short, c, true); });
+  }
+  function label(x, y, txt, c, pill){ ctx.font = `600 ${pill ? 11 : 10}px ${col.font}`; const w = ctx.measureText(txt).width; let lx = x + 12, ly = y - 12;
+    if(lx + w + 12 > size) lx = x - 12 - w - 12; if(ly < 14) ly = y + 22;
+    if(pill){ ctx.fillStyle = `rgba(${col.panel},.88)`; ctx.strokeStyle = `rgba(${c},.75)`; ctx.lineWidth = 1; ctx.beginPath();
+      if(ctx.roundRect) ctx.roundRect(lx - 2, ly - 12, w + 14, 19, 9.5); else ctx.rect(lx - 2, ly - 12, w + 14, 19); ctx.fill(); ctx.stroke(); }
+    ctx.fillStyle = pill ? `rgb(${c})` : `rgba(${col.text},.75)`; ctx.fillText(txt, lx + (pill ? 5 : 0), ly + 1.5); }
+  function step(t){
+    raf = 0; if(!cv || !cv.isConnected || !visible || document.hidden) return;
+    const dt = Math.min(64, t - (last || t)); last = t;
+    if(tgt){ let dl = ((tgt[1] - lon0 + 540) % 360) - 180; lon0 += dl * Math.min(1, dt/260); lat0 += (tgt[0] - lat0) * Math.min(1, dt/260);
+      if(Math.abs(dl) < .05 && Math.abs(tgt[0]-lat0) < .05){ tgt = null; holdUntil = t + 9000; } }
+    else if(!drag && t > holdUntil){ lon0 -= dt * .0035; lat0 += (18 - lat0) * Math.min(1, dt/4000); }
+    draw(t); raf = requestAnimationFrame(step); }
+  function kick(){ if(!raf && !reduce && visible && cv?.isConnected) { last = 0; raf = requestAnimationFrame(step); } else if(reduce) draw(0); }
+  function ensure(){
+    if(cv) return; build(); cv = document.createElement("canvas"); cv.className = "globe-cv"; cv.setAttribute("role","img"); cv.setAttribute("aria-label","Globe showing geopolitical hotspots and how they reach US index futures");
+    ctx = cv.getContext("2d");
+    cv.addEventListener("pointerdown", e => { drag = {x:e.clientX, y:e.clientY, lon:lon0, lat:lat0, moved:false}; tgt = null; cv.setPointerCapture?.(e.pointerId); });
+    cv.addEventListener("pointermove", e => { if(!drag) return; const k = 180/(size*.4*Math.PI); const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+      if(Math.abs(dx) + Math.abs(dy) > 4) drag.moved = true; lon0 = drag.lon - dx*k; lat0 = Math.max(-60, Math.min(70, drag.lat + dy*k)); if(reduce) draw(0); });
+    const up = e => { if(!drag) return; const moved = drag.moved; drag = null; holdUntil = performance.now() + 4000;
+      if(!moved){ const r = cv.getBoundingClientRect(); const x = e.clientX - r.left, y = e.clientY - r.top; let best = -1, bd = 22;
+        spots.forEach((s, i) => { if(s.sx == null) return; const d = Math.hypot(s.sx - x, s.sy - y); if(d < bd){ bd = d; best = i; } });
+        if(best >= 0 && onPick) onPick(best); } };
+    cv.addEventListener("pointerup", up); cv.addEventListener("pointercancel", () => { drag = null; });
+    document.addEventListener("visibilitychange", kick);
+  }
+  function mount(data, selIdx, pick){
+    const h = document.getElementById("globe-host");
+    if(!h){ host = null; return; }
+    ensure(); onPick = pick;
+    const key = data.map(s => s.name + s.status).join("|");
+    if(key !== spots.key){ spots = data; spots.key = key; }
+    if(selIdx !== sel && spots[selIdx]?.loc){ const L = spots[selIdx].loc; tgt = [Math.max(-50, Math.min(60, L[0]*.8)), L[1]]; }
+    sel = selIdx; readCol();
+    if(host !== h){ host = h; h.appendChild(cv);
+      ro?.disconnect(); if(window.ResizeObserver){ ro = new ResizeObserver(resize); ro.observe(h); }
+      io?.disconnect(); if(window.IntersectionObserver){ io = new IntersectionObserver(es => { visible = es[0].isIntersecting; kick(); }); io.observe(h); } }
+    else if(cv.parentNode !== h) h.appendChild(cv);
+    resize(); kick();
+  }
+  return {mount};
+})();
+
+function geoPanel(br){
+  const g = br.geo; if(!g) return "";
+  const LV = ["calm","elevated","high","crisis"]; const lv = Math.max(0, LV.indexOf(g.risk));
+  const lvTxt = {calm:"Calm",elevated:"Elevated",high:"High",crisis:"Crisis"}[g.risk] || "n/a";
+  const hs = (g.hotspots || []).slice(0, 6);
+  const nEsc = hs.filter(h => h.status === "escalating").length;
+  if(S.geoSel == null || S.geoSel >= hs.length) S.geoSel = Math.max(0, hs.findIndex(h => h.status === "escalating"));
+  const cur = hs[S.geoSel];
+  const hv = (g.havens || []).map(x => { const c = Number(x.chg); const ok = isFinite(c);
+    const on = !ok || c === 0 ? null : (x.riskOffWhenUp ? c < 0 : c > 0);
+    const k = on == null ? "flat" : on ? "bull" : "bear";
+    return `<div class="hv-tile ${k}"><span class="hv-name">${esc(x.name)}</span><b class="hv-v">${ok ? pct(c) : esc(x.chg ?? "—")}</b><span class="hv-read">${on == null ? "flat" : on ? "risk-on" : "risk-off"}</span></div>`; }).join("");
+  const rail = hs.map((h, i) => { const st = geoSt(h.status); const short = String(h.name).split(/\s*[\/–—-]\s*/)[0];
+    return `<button class="spot-pill ${st.k}" data-geo="${i}" aria-pressed="${i === S.geoSel}"><i></i><span>${esc(h.name)}</span></button>`; }).join("");
+  const det = cur ? (() => { const st = geoSt(cur.status);
+    return `<div class="spot-detail ${st.k}"><div class="sd-top"><b>${esc(cur.name)}</b><span class="sd-st"><i></i>${st.txt}</span></div>
+      ${cur.channel?.length ? `<div class="sd-flow"><span class="sd-lbl">Reaches NQ via</span>${cur.channel.map((c, i) => `${i ? '<span class="sd-arrow">→</span>' : ""}<span class="sd-ch">${chIcon(c)}${esc(c)}</span>`).join("")}</div>` : ""}
+      ${cur.note ? `<p class="sd-note">${esc(cur.note)}</p>` : ""}
+      ${cur.watch ? `<p class="sd-watch"><span>Watch</span>${esc(cur.watch)}</p>` : ""}</div>`; })() : "";
+  const ev = (g.events || []).slice(0, 5).map(e => `<div class="geo-ev2"><span class="ev-when">${esc(e.when)}</span><span class="ev-dot ${esc(e.impact || "low")}"></span><span>${esc(e.event)}</span></div>`).join("");
+  return `<section class="panel geo2 lv${lv}">
+    <div class="geo2-head"><div><span class="eyebrow">Geo radar</span><h3 class="geo2-title">${hs.length} hotspot${hs.length === 1 ? "" : "s"}${nEsc ? ` · <em>${nEsc} escalating</em>` : ""}</h3></div>
+      <span class="geo-risk lv${lv}"><span class="geo-meter">${LV.map((_, i) => `<i class="${i <= lv ? "on" : ""}"></i>`).join("")}</span>${lvTxt} risk</span></div>
+    <div class="geo2-stage">
+      <div class="globe-box"><div id="globe-host" class="globe-host"></div>
+        <div class="globe-legend"><span class="esc"><i></i>Escalating</span><span class="steady"><i></i>Steady</span><span class="cool"><i></i>Cooling</span></div>
+        ${g.points != null ? `<div class="globe-score"><span>Geo factor</span><b class="${g.points > 0 ? "bull" : g.points < 0 ? "bear" : "flat"}">${signed(g.points)}</b></div>` : ""}
+        <span class="globe-hint">Drag to spin · tap a pin</span></div>
+      <div class="geo2-side">${g.summary ? `<p class="geo2-sum">${esc(g.summary)}</p>` : ""}${hv ? `<div><span class="eyebrow" style="font-size:10px">Haven tape</span><div class="hv-grid">${hv}</div></div>` : ""}</div>
+    </div>
+    ${rail ? `<div class="spot-rail" role="group" aria-label="Hotspots">${rail}</div>` : ""}${det}
+    ${ev ? `<div class="geo2-evs"><span class="eyebrow" style="font-size:10px">Scheduled</span>${ev}</div>` : ""}
+  </section>`;
+}
+function mountGlobe(){
+  const br = current(); const hs = (br?.geo?.hotspots || []).slice(0, 6);
+  const data = hs.map(h => { const st = geoSt(h.status); return {name:h.name, status:h.status, rgb:st.rgb, loc:geoLoc(h), short:String(h.name).split(/\s*[\/–—]\s*/)[0]}; });
+  Globe.mount(data, S.geoSel ?? 0, i => { S.geoSel = i; render(); });
+}
+
 function alertBanner(br){
   if(flashOn(br)) return "";
   const a = (br.watch?.alerts || []).slice().sort((x,y)=>String(y.at).localeCompare(String(x.at)))[0];
@@ -1063,26 +1711,346 @@ function alertBanner(br){
       <span class="tag ${rescored?"acc":"bear"}">${rescored?"Bias rescored":"Rescore running"}</span></div>
     <p class="alert-head">${esc(a.headline)}</p>${a.why?`<p class="muted" style="font-size:13.5px">${esc(a.why)}</p>`:""}</section>`;
 }
-function geoPanel(br){
-  const g = br.geo; if(!g) return "";
-  const LV = ["calm","elevated","high","crisis"]; const lv = Math.max(0, LV.indexOf(g.risk));
-  const lvTxt = {calm:"Calm",elevated:"Elevated",high:"High",crisis:"Crisis"}[g.risk] || "n/a";
-  const st = s => s==="escalating" ? `<span class="tag bear">▲ Escalating</span>` : s==="de-escalating" ? `<span class="tag bull">▼ Cooling</span>` : `<span class="tag flat">● Steady</span>`;
-  const hs = (g.hotspots||[]).slice(0,6).map(h => `<div class="geo-spot ${h.status==="escalating"?"hot":""}">
-      <div class="geo-top"><b>${esc(h.name)}</b>${st(h.status)}</div>
-      ${h.channel?.length?`<div class="geo-ch">${h.channel.map(c=>`<span>${esc(c)}</span>`).join("")}</div>`:""}
-      ${h.note?`<p class="snote">${esc(h.note)}</p>`:""}
-      ${h.watch?`<p class="sev">Watch: ${esc(h.watch)}</p>`:""}</div>`).join("");
-  const hv = (g.havens||[]).map(x => { const c = Number(x.chg); const cls2 = !isFinite(c) ? "flat" : (x.riskOffWhenUp ? (c>0?"bear":c<0?"bull":"flat") : (c>0?"bull":c<0?"bear":"flat"));
-    return `<span class="geo-hv"><span>${esc(x.name)}</span><b class="${cls2}">${isFinite(c)?pct(c):esc(x.chg??"—")}</b></span>`; }).join("");
-  const ev = (g.events||[]).slice(0,5).map(e => `<div class="geo-ev"><span class="sev">${esc(e.when)}</span><span>${e.impact?`<i class="imp ${esc(e.impact)}"></i>`:""}${esc(e.event)}</span></div>`).join("");
-  return `<section class="panel geo"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><span class="eyebrow">Geo radar</span>
-      <span class="geo-risk lv${lv}"><span class="geo-meter">${LV.map((_,i)=>`<i class="${i<=lv?"on":""}"></i>`).join("")}</span>${lvTxt} risk${g.points!=null?` · NQ ${signed(g.points)}`:""}</span></div>
-    ${g.summary?`<p class="snote" style="font-size:14px">${esc(g.summary)}</p>`:""}
-    ${hv?`<div class="geo-hvs">${hv}</div>`:""}
-    ${hs?`<div class="geo-grid">${hs}</div>`:""}
-    ${ev?`<div><span class="eyebrow" style="font-size:10px">Scheduled</span><div class="geo-evs">${ev}</div></div>`:""}
-  </section>`;
+/* ---------- week ahead: economic calendar ---------- */
+const MIC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg>';
+function cdTxt(t){ const ms = t - Date.now(); if(ms < -5*60e3) return "done"; if(ms <= 0) return "now";
+  const d = Math.floor(ms/864e5), h = Math.floor(ms%864e5/36e5), m = Math.floor(ms%36e5/6e4);
+  return d ? `in ${d}d ${h}h` : h ? `in ${h}h ${m}m` : `in ${Math.max(1,m)}m`; }
+function etKey(t){ const p = etParts(new Date(t)); return `${p.y}-${p.m}-${p.d}`; }
+function calTime(t){ const p = etParts(new Date(t)); if(p.h === 0 && p.mi === 0) return "All day";
+  return new Date(t).toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit",timeZone:TZ}).replace(" ",""); }
+function calDay(t){ const k = etKey(t), now = Date.now();
+  const rel = k === etKey(now) ? "Today" : k === etKey(now + 864e5) ? "Tomorrow" : "";
+  const d = new Date(t).toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric",timeZone:TZ});
+  return rel ? `${rel} · ${d}` : d; }
+function upcoming(){
+  const C = S.cal; if(!C) return "";
+  const all = S.calCur === "all", hiOnly = !!S.calHigh, now = Date.now();
+  const MAJ = ["USD","EUR","GBP","JPY","CNY","CAD","AUD","CHF","NZD"];
+  let ev = (C.events || []).filter(e => all ? MAJ.includes(e.country) : e.country === "USD");
+  if(hiOnly) ev = ev.filter(e => e.impact === "high");
+  const up = ev.filter(e => e.t >= now - 5*60e3);
+  const nextHi = up.find(e => e.impact === "high" && e.t >= now - 5*60e3);
+  const usdHiLeft = (C.events || []).filter(e => e.country === "USD" && e.impact === "high" && e.t >= now).length;
+  const head = `<div class="cal-head"><div><span class="eyebrow">Week ahead · ${all ? "majors" : "USD"}</span><h3 class="cal-title">${usdHiLeft ? `${usdHiLeft} high-impact USD release${usdHiLeft === 1 ? "" : "s"} left` : "Economic calendar"}</h3></div>
+    <div class="cal-ctl"><span class="seg" role="group" aria-label="Currency"><button data-cal="usd" aria-pressed="${!all}">USD</button><button data-cal="all" aria-pressed="${all}">All</button></span>
+    <button class="cal-hi" data-calhi="1" aria-pressed="${hiOnly}"><i></i>High only</button></div></div>`;
+  const hero = nextHi ? `<div class="cal-next${nextHi.t - now < 15*60e3 ? " soon" : ""}"><div class="cn-l"><span class="cn-k">Next big one</span><b class="cn-t">${/speaks|testif|press conference/i.test(nextHi.title) ? MIC : ""}${esc(nextHi.title)}</b>
+      <span class="cn-w">${esc(nextHi.country)} · ${esc(calDay(nextHi.t))} · ${esc(calTime(nextHi.t))} ET</span></div>
+      <div class="cn-r"><span class="cn-cd" data-cd="${nextHi.t}">${cdTxt(nextHi.t)}</span>${nextHi.forecast || nextHi.previous ? `<span class="cn-fp">${nextHi.forecast ? `<span>Fcst <b>${esc(nextHi.forecast)}</b></span>` : ""}${nextHi.previous ? `<span>Prev <b>${esc(nextHi.previous)}</b></span>` : ""}</span>` : ""}</div></div>` : "";
+  const row = e => { const past = e.t < now - 5*60e3, spk = /speaks|testif|press conference/i.test(e.title);
+    return `<div class="cal-row ${esc(e.impact)}${past ? " past" : ""}"><span class="cal-tm">${esc(calTime(e.t))}</span><i class="imp-bar ${esc(e.impact)}"></i>
+      <span class="cal-ev">${all ? `<span class="cal-cc">${esc(e.country)}</span>` : ""}${spk ? `<span class="cal-mic">${MIC}</span>` : ""}<span>${esc(e.title)}</span>${e.impact === "holiday" ? `<span class="tag flat">Holiday</span>` : ""}</span>
+      <span class="cal-fp">${e.forecast ? `<span><em>F</em>${esc(e.forecast)}</span>` : ""}${e.previous ? `<span><em>P</em>${esc(e.previous)}</span>` : ""}</span></div>`; };
+  const group = list => { const days = []; list.forEach(e => { const k = etKey(e.t); let g = days.find(d => d.k === k); if(!g){ g = {k, t:e.t, items:[]}; days.push(g); } g.items.push(e); });
+    return days.map(d => `<div class="cal-day${d.k === etKey(now) ? " today" : ""}"><div class="cal-dh">${esc(calDay(d.t))}<span>${d.items.filter(x=>x.impact==="high").length ? `${d.items.filter(x=>x.impact==="high").length} high` : ""}</span></div>${d.items.map(row).join("")}</div>`).join(""); };
+  let body;
+  if(C.err && !(C.events || []).length) body = `<p class="muted" style="font-size:13px">Calendar feed is unavailable right now. It retries every 10 minutes.</p>`;
+  else if(up.length) body = `<div class="cal-list">${group(up)}</div>`;
+  else { const past = ev.filter(e => e.impact === "high" || !hiOnly && e.impact === "medium");
+    body = `<div class="cal-empty"><b>Next week's calendar posts Sunday.</b><span>Forex Factory publishes the new week over the weekend. Here's how this week lined up.</span></div>${past.length ? `<div class="cal-list was">${group(past)}</div>` : ""}`; }
+  return `<section class="panel cal2">${head}${hero}${body}<p class="faint" style="font-size:11.5px">Forex Factory calendar · all times ET · F = forecast, P = previous. Live headlines from FinancialJuice and others are in Market-moving news.</p></section>`;
+}
+/* ---------- war room: tape, threat level, T-minus, mission, record, heatmap, vote, share card ---------- */
+const tapeOf = k => S.tape?.macro?.find(x => x.k === k) || S.tape?.weights?.find(x => x.k === k) || null;
+const y10 = v => v > 20 ? v / 10 : v;
+function fmtPx(k, v){ if(v == null || !isFinite(v)) return "—"; v = Number(v);
+  if(k === "10Y") return y10(v).toFixed(3) + "%";
+  if(k === "BTC") return v.toLocaleString("en-US",{maximumFractionDigits:0});
+  if(k === "VIX" || k === "DXY" || k === "WTI") return v.toFixed(2);
+  return v.toLocaleString("en-US",{minimumFractionDigits:2, maximumFractionDigits:2}); }
+function fmtChg(x){ if(x.chg == null) return "";
+  if(x.k === "10Y" && x.prev != null){ const bp = (y10(x.price) - y10(x.prev)) * 100; return `${bp > 0 ? "+" : bp < 0 ? "−" : ""}${Math.abs(bp).toFixed(1)}bp`; }
+  return pct(x.chg); }
+const flashOf = k => S.tape?.flash?.[k] && Date.now() - (S.tape.flashAt || 0) < 4000 ? (S.tape.flash[k] > 0 ? " fl-up" : " fl-dn") : "";
+// 10Y, DXY, VIX, oil and gold up are headwinds for NQ; color them against the move.
+const INV = {"10Y":1, DXY:1, VIX:1, WTI:1, Gold:1};
+function mtape(){
+  const T = S.tape; if(!T?.macro?.length) return "";
+  const it = T.macro.map(x => { const good = x.chg == null ? 0 : (INV[x.k] ? -x.chg : x.chg);
+    return `<span class="mt${flashOf(x.k)}"><b>${esc(x.k)}</b><span class="mt-p">${fmtPx(x.k, x.price)}</span><span class="mt-c ${good > 0 ? "up" : good < 0 ? "dn" : ""}">${x.chg != null && x.chg >= 0 ? "▲" : x.chg != null ? "▼" : ""} ${esc(fmtChg(x))}</span></span>`; }).join("");
+  return `<div class="mtape" aria-label="Live markets"><span class="mt-live"><i></i>LIVE</span><div class="mt-view"><div class="mt-track">${it}<span aria-hidden="true" style="display:contents">${it}</span></div></div></div>`;
+}
+
+const norm = s => String(s || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+function nextHigh(br){
+  const now = Date.now();
+  const ff = (S.cal?.events || []).filter(e => e.country === "USD" && e.impact === "high" && e.t > now - 30*60e3);
+  if(ff.length){ const t0 = ff[0].t, same = ff.filter(e => e.t === t0); return {t:t0, title: same[0].title + (same.length > 1 ? ` +${same.length-1}` : ""), list: same}; }
+  if(br?.date && br.calendar?.length){
+    const c = br.calendar.filter(c => c.impact === "high" && /^\d{1,2}:\d{2}$/.test(c.timeET || "")).map(c => ({t: etToDate(br.date, c.timeET.padStart(5,"0")).getTime(), c})).filter(x => x.t > now - 30*60e3).sort((a,b) => a.t - b.t);
+    if(c.length){ const same = c.filter(x => x.t === c[0].t); return {t:c[0].t, title: c[0].c.event + (same.length > 1 ? ` +${same.length-1}` : ""), list: same.map(x => ({title:x.c.event, forecast:x.c.forecast, previous:x.c.prior, actual:x.c.actual}))}; }
+  }
+  return null;
+}
+function vixNow(br){ const v = tapeOf("VIX"); if(v) return {v:v.price, chg:v.chg};
+  const m = /VIX\s*([\d.]+)/.exec(br?.implied?.ES?.iv || ""); return m ? {v:Number(m[1]), chg:null} : null; }
+function threat(br){
+  const f = []; let pts = 0;
+  const LV = ["calm","elevated","high","crisis"]; const g = br.geo ? LV.indexOf(br.geo.risk) : -1;
+  if(g >= 0){ pts += g; f.push({t:`Geo ${LV[g]}`, hot:g >= 2}); }
+  const vx = vixNow(br);
+  if(vx){ const vp = vx.v < 15 ? 0 : vx.v < 20 ? 1 : vx.v < 25 ? 2 : vx.v < 32 ? 3 : 4; pts += vp; if(vx.chg > 8) pts += 1;
+    f.push({t:`VIX ${vx.v.toFixed(1)}${vx.chg != null ? ` ${pct(vx.chg)}` : ""}`, hot: vp >= 2 || vx.chg > 8}); }
+  const nx = nextHigh(br);
+  if(nx){ const ms = nx.t - Date.now();
+    if(ms > -15*60e3 && ms < 60*60e3){ pts += 2; f.push({t:`${nx.title} ${ms > 0 ? cdTxt(nx.t) : "just printed"}`, hot:true}); }
+    else if(ms > 0 && ms < 6*3600e3){ pts += 1; f.push({t:`${nx.title} ${cdTxt(nx.t)}`}); } }
+  if(flashOn(br)){ pts += 2; f.push({t:"Bias flip live", hot:true}); }
+  else { const a = (br.watch?.alerts || []).slice().sort((x,y) => String(y.at).localeCompare(String(x.at)))[0];
+    if(a && Date.now() - Date.parse(a.at) < 2*3600e3){ pts += 1; f.push({t:"Breaking news", hot:true}); } }
+  const r = S.live && !S.live.closed && S.live.q ? tapeRead(br, S.live.q) : null;
+  if(r?.state === "against"){ pts += 1; f.push({t:"Tape against the call", hot:true}); }
+  const lvl = pts <= 1 ? 5 : pts <= 3 ? 4 : pts <= 5 ? 3 : pts <= 7 ? 2 : 1;
+  return {lvl, f};
+}
+function defcon(br){
+  if(br.id !== latest()?.id) return "";
+  const t = threat(br); const WD = {5:"Quiet",4:"Watch",3:"Elevated",2:"Danger",1:"Max threat"};
+  return `<section class="defcon d${t.lvl}"><div class="dc-l"><span class="dc-k">Threat level</span><b class="dc-n">DEFCON <span>${t.lvl}</span></b><span class="dc-w">${WD[t.lvl]}</span></div>
+    <div class="dc-bar" aria-hidden="true">${[5,4,3,2,1].map(i => `<i class="s${i}${i >= t.lvl ? " on" : ""}"><span>${i}</span></i>`).join("")}</div>
+    <div class="dc-f">${t.f.length ? t.f.map(x => `<span class="${x.hot ? "hot" : ""}">${esc(x.t)}</span>`).join("") : "<span>Nothing pressing</span>"}</div></section>`;
+}
+
+const clk = ms => { ms = Math.max(0, ms); const h = Math.floor(ms/36e5), m = Math.floor(ms%36e5/6e4), s = Math.floor(ms%6e4/1e3); return [h,m,s].map(x => String(x).padStart(2,"0")).join(":"); };
+function tminus(br){
+  if(br.id !== latest()?.id) return "";
+  const nx = nextHigh(br); if(!nx) return ""; const ms = nx.t - Date.now();
+  if(ms > 3*3600e3 || ms < -20*60e3) return "";
+  const act = nx.list.map(e => { const m = (br.calendar || []).find(c => norm(c.event) === norm(e.title) || (c.actual && norm(c.event).includes(norm(e.title).slice(0,6))));
+    return {...e, actual: e.actual || m?.actual, forecast: e.forecast || m?.forecast}; });
+  if(ms <= 0) return `<section class="tminus printed"><div class="tm-l"><span class="tm-k">Printed · ${esc(calTime(nx.t))} ET</span><b class="tm-t">${esc(nx.title)}</b></div>
+    <div class="tm-acts">${act.map(e => `<div><span>${esc(e.title)}</span><b>${esc(e.actual || "…")}</b><em>F ${esc(e.forecast || "—")}</em></div>`).join("")}</div>
+    <p class="tm-n">${act.some(e => e.actual) ? "The rescore picks this up at the next check." : "Waiting on the number. The next check pulls it and rescores."}</p></section>`;
+  const fc = act.filter(e => e.forecast).map(e => `${esc(e.title)} <b>F ${esc(e.forecast)}</b>${e.previous ? ` · P ${esc(e.previous)}` : ""}`).join("<br>");
+  return `<section class="tminus${ms < 15*60e3 ? " hot" : ""}"><div class="tm-l"><span class="tm-k">T-minus · ${esc(calTime(nx.t))} ET</span><b class="tm-t">${esc(nx.title)}</b>${fc ? `<span class="tm-f">${fc}</span>` : ""}</div>
+    <b class="tm-clock" data-tminus="${nx.t}">${clk(ms)}</b></section>`;
+}
+
+function liveSession(br){ const now = new Date();
+  for(const sd of SESS){ const st = br.date ? sessStatus(br.date, sd, now) : "upcoming"; if(st !== "done") return {sd, st}; }
+  return null; }
+function mission(br){
+  if(br.id !== latest()?.id) return "";
+  const L = liveSession(br); if(!L) return "";
+  const {sd, st} = L; const x = (br.sessions || []).find(s => s.key === sd.key) || {};
+  const I = br.instruments?.NQ || {}; const bias = x.nq || I.bias || "neutral";
+  const P = br.positioning?.NQ || {}; const inp = (S.inputs[br.date] || {}).NQ || {};
+  const lv = v => fin(v) && v !== "" ? fmtN(v) : null;
+  const flip = lv(inp.flip || P.flip), cw = lv(inp.callWall || P.callWall), pw = lv(inp.putWall || P.putWall), onH = lv(inp.onHigh), onL = lv(inp.onLow);
+  const tg = [];
+  if(bias === "bullish"){ if(cw) tg.push(["Upside target", `Call wall ${cw}`]); if(onH) tg.push(["Liquidity", `ON high ${onH}`]); if(flip) tg.push(["Hold above", `Gamma flip ${flip}`]); if(pw) tg.push(["Last line", `Put wall ${pw}`]); }
+  else if(bias === "bearish"){ if(pw) tg.push(["Downside target", `Put wall ${pw}`]); if(onL) tg.push(["Liquidity", `ON low ${onL}`]); if(flip) tg.push(["Stay below", `Gamma flip ${flip}`]); if(cw) tg.push(["Last line", `Call wall ${cw}`]); }
+  else { if(cw && pw) tg.push(["Range", `${pw} – ${cw}`]); if(flip) tg.push(["Pivot", `Gamma flip ${flip}`]); }
+  const am = br.implied?.NQ?.amMovePts; if(am && sd.key === "nyam") tg.push(["Expected AM range", `±${am} pts`]);
+  const th = (x.events || []).filter(e => !/cash open/i.test(e)).slice(0, 4);
+  (br.geo?.hotspots || []).filter(h => h.status === "escalating").forEach(h => th.push(`${h.name}: escalating`));
+  if(flashOn(br)) th.push("Bias flip flagged by the news watch");
+  const calls = br.calls || [], c = calls[calls.length-1]; const ref = Number(c?.px?.NQ); const amp = Number(br.implied?.NQ?.amMovePct); const T = amp > 0 ? .5*amp : .35;
+  const q = v => fmtN(Math.round(v*4)/4);
+  const ab = [];
+  if(ref > 0 && bias === "bullish") ab.push(`NQ trades below ${q(ref*(1-T/100))} (−${T.toFixed(2)}% from the ${q(ref)} call)`);
+  if(ref > 0 && bias === "bearish") ab.push(`NQ trades above ${q(ref*(1+T/100))} (+${T.toFixed(2)}% from the ${q(ref)} call)`);
+  if(ref > 0 && bias === "neutral") ab.push(`NQ breaks ${q(ref*(1-T/100))} or ${q(ref*(1+T/100))} (±${T.toFixed(2)}%): the range read is off`);
+  const sc = (br.scenarios || []).find(s => s.status !== "resolved"); if(sc) ab.push(`${sc.event} at ${sc.timeET} ET goes against it`);
+  const obj = x.note || String(I.thesis || "").split(/(?<=\.)\s/)[0];
+  return `<section class="panel mission m-${cls(bias)}"><div class="ms-head"><div><span class="ms-k">Operation</span><b class="ms-t">${esc(sd.name)}</b><span class="ms-w">${esc(sd.window)} ET</span></div>
+      <div class="ms-r"><span class="ms-st ${st}">${st === "live" ? "● Live" : "Up next"}</span><span class="tag ${cls(bias)}">NQ ${label(bias)}</span>${x.conviction ? conviction(x.conviction, bias) : ""}</div></div>
+    ${obj ? `<div class="ms-row"><span class="ms-l">Objective</span><p>${esc(obj)}</p></div>` : ""}
+    ${tg.length ? `<div class="ms-row"><span class="ms-l">Targets</span><div class="ms-grid">${tg.map(([a,b]) => `<div><span>${esc(a)}</span><b>${esc(b)}</b></div>`).join("")}</div></div>` : ""}
+    ${th.length ? `<div class="ms-row"><span class="ms-l threat">Threats</span><ul>${th.map(t => `<li>${esc(t)}</li>`).join("")}</ul></div>` : ""}
+    ${ab.length ? `<div class="ms-row"><span class="ms-l abort">Abort if</span><ul>${ab.map(t => `<li>${esc(t)}</li>`).join("")}</ul></div>` : ""}</section>`;
+}
+
+function recStats(){
+  const rs = chrono().filter(b => b.grade?.NQ?.result && b.grade.NQ.result !== "n/a").map(b => ({id:b.id, r:b.grade.NQ.result, bias:b.grade.NQ.bias, mv:b.grade.NQ.movePct}));
+  let streak = 0; for(let i = rs.length-1; i >= 0; i--){ if(rs[i].r === "hit") streak++; else if(rs[i].r === "scratch") continue; else break; }
+  const d = rs.slice(-30).filter(x => x.bias !== "neutral"); const hits = d.filter(x => x.r === "hit").length, miss = d.filter(x => x.r === "miss").length;
+  const rate = hits + miss ? Math.round(hits/(hits+miss)*100) : null;
+  const n = rs.length; const rank = n < 10 ? `Calibrating ${n}/10` : rate >= 65 ? "Elite" : rate >= 55 ? "Sharp" : "Grinding";
+  return {rs, streak, hits, miss, rate, n, rank};
+}
+function record(){
+  const R = recStats();
+  const C = 2*Math.PI*30, fr = R.rate == null ? 0 : R.rate/100;
+  const dots = R.rs.slice(-12).map(x => `<i class="${x.bias === "neutral" ? (x.r === "hit" ? "nhit" : "nmiss") : x.r}" title="${esc(x.id)} ${esc(x.r)}"></i>`).join("");
+  return `<section class="panel rec"><div class="rec-ring"><svg viewBox="0 0 72 72" aria-hidden="true"><circle cx="36" cy="36" r="30" class="rr-bg"/><circle cx="36" cy="36" r="30" class="rr-fg" stroke-dasharray="${(C*fr).toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 36 36)"/></svg><b>${R.rate == null ? "—" : R.rate + "%"}</b></div>
+    <div class="rec-mid"><span class="eyebrow">Verdict record · NQ AM</span><div class="rec-big">${R.streak >= 2 ? `<span class="fire">🔥 ${R.streak}-session hit streak</span>` : `${R.hits}W – ${R.miss}L`}</div>
+      <div class="dots">${dots || '<span class="muted" style="font-size:12px">First graded session lands after the close.</span>'}</div></div>
+    <div class="rec-r"><span class="rank">${esc(R.rank)}</span><button class="share-btn" id="share-card" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7 8l5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg>Share call</button></div></section>`;
+}
+
+function heatmap(){
+  const w = S.tape?.weights; if(!w?.length) return "";
+  const up = w.filter(x => x.chg > 0).length, avg = w.reduce((a,x) => a + (x.chg || 0), 0) / w.length;
+  const read = up >= 6 ? ["bull","Leaders bid"] : up <= 2 ? ["bear","Leaders heavy"] : ["flat","Mixed"];
+  const tile = x => { const c = x.chg || 0, a = (.1 + Math.min(Math.abs(c)/3, 1)*.55).toFixed(2), rgb = c >= 0 ? "var(--gain-rgb)" : "var(--loss-rgb)";
+    const sp = x.spark || []; let path = "";
+    if(sp.length > 2){ const lo = Math.min(...sp), hi = Math.max(...sp), r = hi - lo || 1; path = sp.map((v,i) => `${i ? "L" : "M"}${(i/(sp.length-1)*100).toFixed(1)} ${(28 - (v-lo)/r*26).toFixed(1)}`).join(""); }
+    return `<div class="hm-t${flashOf(x.k)}" style="background:linear-gradient(160deg,rgba(${rgb},${a}),rgba(${rgb},${(a*.35).toFixed(2)}))"><div class="hm-top"><b>${esc(x.k)}</b><span class="${c >= 0 ? "bull" : "bear"}">${pct(c)}</span></div>
+      <span class="hm-p">${fmtPx(x.k, x.price)}</span>${path ? `<svg viewBox="0 0 100 30" preserveAspectRatio="none" aria-hidden="true"><path d="${path}" fill="none" stroke="rgba(255,255,255,.75)" stroke-width="1.6" vector-effect="non-scaling-stroke"/></svg>` : ""}</div>`; };
+  return `<section class="panel hm"><div class="hm-head"><div><span class="eyebrow">Top NQ weights</span><h3 class="hm-title">${up}/${w.length} green · avg ${pct(avg)}</h3></div><span class="tag ${read[0]}">${read[1]}</span></div>
+    <div class="hm-grid">${w.map(tile).join("")}</div><p class="faint" style="font-size:11.5px">Change vs the prior close, pre- and after-market included. Prices via Yahoo, about a minute behind.</p></section>`;
+}
+
+function voteBox(br){
+  const V = S.vote; if(!V || V.day !== br.id || br.id !== latest()?.id) return "";
+  const closes = Date.parse(V.closesAt), open = Date.now() < closes, tot = (V.bull||0) + (V.bear||0), bp = tot ? Math.round(V.bull/tot*100) : 50;
+  const mv = Number(br.grade?.NQ?.movePct); const won = isFinite(mv) && mv !== 0 ? (mv > 0 ? "bull" : "bear") : null;
+  const me = V.mine;
+  const board = S.board || []; const top = board.slice(0, 5); const mine = board.findIndex(x => x.me);
+  const rows = top.map((x,i) => ({...x, i})).concat(mine >= 5 ? [{...board[mine], i:mine}] : []);
+  const R = recStats();
+  const btn = side => `<button class="vote-btn ${side}${me === side ? " picked" : ""}" data-vote="${side}" ${!open || S.voteBusy ? "disabled" : ""}><b>${side === "bull" ? "▲ Long" : "▼ Short"}</b><span>${side === "bull" ? "Bull" : "Bear"} bias</span></button>`;
+  const status = open ? `Locks at 9:30 ET · <span data-cd="${closes}">${cdTxt(closes)}</span>` : won ? `NQ went ${won === "bull" ? "up" : "down"} ${pct(mv)} in the AM · ${me ? (me === won ? "<b class='bull'>you called it</b>" : "<b class='bear'>you missed</b>") : "you sat out"}` : "Votes locked. Graded after the close.";
+  return `<section class="panel vote"><div class="vote-head"><div><span class="eyebrow">Lock your bias · ${esc(fmtDate(br.date,{weekday:"short",month:"short"}))} NY AM</span><h3 class="vote-title">${open ? (me ? `You're ${me === "bull" ? "long" : "short"}. Change it before the bell.` : "Bull or bear into the open?") : "The desk has spoken"}</h3></div>
+      ${S.callsign ? `<span class="cs">${esc(S.callsign)}</span>` : `<button class="gate-link" id="open-acct" type="button">Set callsign</button>`}</div>
+    <div class="vote-btns">${btn("bull")}${btn("bear")}</div>
+    <div class="crowd"><div class="crowd-bar"><i class="b" style="width:${bp}%"></i><i class="s" style="width:${100-bp}%"></i></div><div class="crowd-lbl"><span class="bull">${bp}% long</span><span class="muted">${tot} vote${tot === 1 ? "" : "s"} · Verdict says <b class="${cls(br.instruments?.NQ?.bias)}">${label(br.instruments?.NQ?.bias)}</b></span><span class="bear">${100-bp}% short</span></div></div>
+    <p class="vote-st">${status}</p>${S.voteMsg ? `<div class="notice err">${esc(S.voteMsg)}</div>` : ""}
+    ${rows.length ? `<div class="lb"><div class="lb-h"><span>Leaderboard</span><span>Hits</span></div>${rows.map(x => `<div class="lb-r${x.me ? " me" : ""}"><span class="lb-i">${x.i + 1}</span><span class="lb-n">${esc(x.name)}</span><span class="lb-s">${x.hits}/${x.n} · ${Math.round(x.hits/x.n*100)}%</span></div>`).join("")}
+      <div class="lb-r ai"><span class="lb-i">◆</span><span class="lb-n">Verdict</span><span class="lb-s">${R.hits + R.miss ? `${R.hits}/${R.hits + R.miss}${R.rate != null ? ` · ${R.rate}%` : ""}` : "—"}</span></div></div>` : `<p class="faint" style="font-size:11.5px">The leaderboard fills in as sessions get graded. A vote hits when NQ's 9:30–12:00 move goes your way.</p>`}</section>`;
+}
+function pushNudge(){
+  const P = S.push; if(!P || P.on || (!P.ok && !P.ios) || store.get("db-push-nudge")) return "";
+  return `<section class="nudge"><span class="nudge-ic">🔔</span><span><b>Get flips on your phone</b><small>Bias flips, breaking news and a heads-up 5 min before CPI, NFP and FOMC.</small></span><button class="pill-btn" id="open-acct" type="button">Set up</button><button class="icon-btn" id="push-nudge-off" aria-label="Dismiss">${IC.close}</button></section>`;
+}
+
+/* share card: a 1080×1350 PNG of today's call */
+function wrapText(x, text, maxW){ const words = String(text).split(/\s+/); const lines = []; let line = "";
+  for(const w of words){ const t = line ? line + " " + w : w; if(x.measureText(t).width > maxW && line){ lines.push(line); line = w; } else line = t; }
+  if(line) lines.push(line); return lines; }
+async function makeCard(br){
+  try{ await document.fonts?.ready; }catch(e){}
+  const W = 1080, H = 1350, cv = document.createElement("canvas"); cv.width = W; cv.height = H; const x = cv.getContext("2d");
+  const cs = getComputedStyle(document.documentElement), v = k => cs.getPropertyValue(k).trim();
+  const I = br.instruments || {}, nq = I.NQ || {}, es = I.ES || {};
+  const light = SKINS.find(z => z.k === effectiveSkin())?.light;
+  const rgb = b => b === "bullish" ? (light ? "60,230,160" : v("--gain-rgb")) : b === "bearish" ? (light ? "255,95,110" : v("--loss-rgb")) : "180,180,195";
+  const acc = light ? "255,150,90" : v("--accent-rgb"), sky = v("--sky1-rgb") || acc;
+  const mono = "'JetBrains Mono', ui-monospace, monospace", disp = "Sora, Manrope, sans-serif";
+  x.fillStyle = "#07070B"; x.fillRect(0,0,W,H);
+  let g0 = x.createRadialGradient(W*.1, H*1.05, 40, W*.1, H*1.05, 900); g0.addColorStop(0, `rgba(${sky},.28)`); g0.addColorStop(1, "rgba(0,0,0,0)"); x.fillStyle = g0; x.fillRect(0,0,W,H);
+  let g = x.createRadialGradient(W*.75, 120, 40, W*.75, 120, 900); g.addColorStop(0, `rgba(${rgb(nq.bias)},.30)`); g.addColorStop(1, "rgba(0,0,0,0)"); x.fillStyle = g; x.fillRect(0,0,W,H);
+  x.strokeStyle = "rgba(255,255,255,.035)"; x.lineWidth = 1;
+  for(let i = 0; i <= W; i += 60){ x.beginPath(); x.moveTo(i,0); x.lineTo(i,H); x.stroke(); }
+  for(let i = 0; i <= H; i += 60){ x.beginPath(); x.moveTo(0,i); x.lineTo(W,i); x.stroke(); }
+  x.fillStyle = "rgba(255,255,255,.02)"; for(let i = 0; i < H; i += 4) x.fillRect(0, i, W, 1);
+  const br4 = (cx, cy, sx, sy) => { x.strokeStyle = `rgba(${acc},.95)`; x.lineWidth = 4; x.beginPath(); x.moveTo(cx + sx*46, cy); x.lineTo(cx, cy); x.lineTo(cx, cy + sy*46); x.stroke(); };
+  br4(40,40,1,1); br4(W-40,40,-1,1); br4(40,H-40,1,-1); br4(W-40,H-40,-1,-1);
+  const day = new Date(br.date + "T12:00:00Z").toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric",timeZone:"UTC"}).toUpperCase();
+  x.fillStyle = "#fff"; x.font = `800 58px ${disp}`; x.fillText("VERDICT", 84, 140);
+  x.fillStyle = `rgb(${acc})`; x.fillRect(84, 160, 70, 6);
+  x.font = `600 26px ${mono}`; x.fillStyle = "rgba(255,255,255,.6)"; x.fillText(`${day} · ${(br.session || "NY AM").toUpperCase()} · NQ / ES`, 84, 214);
+  x.textAlign = "right"; x.font = `700 22px ${mono}`; x.fillStyle = `rgba(${acc},.95)`; x.fillText("// CLASSIFIED BRIEF", W-84, 140);
+  x.fillStyle = "rgba(255,255,255,.55)"; x.fillText(String(PHASE_LABEL[br.phase] || "").toUpperCase(), W-84, 176); x.textAlign = "left";
+  x.font = `600 28px ${mono}`; x.fillStyle = "rgba(255,255,255,.55)"; x.fillText("NQ · NASDAQ-100 FUTURES", 84, 330);
+  x.font = `800 168px ${disp}`; x.fillStyle = `rgb(${rgb(nq.bias)})`; x.shadowColor = `rgba(${rgb(nq.bias)},.55)`; x.shadowBlur = 40; x.fillText(label(nq.bias).toUpperCase(), 72, 490); x.shadowBlur = 0;
+  x.font = `700 40px ${mono}`; x.fillStyle = "#fff"; x.fillText(`SCORE ${signed(nq.score)}`, 84, 560);
+  x.fillStyle = "rgba(255,255,255,.6)"; x.font = `600 30px ${mono}`; x.fillText(`${String(nq.conviction || "").toUpperCase()} CONVICTION`, 420, 560);
+  x.font = `700 34px ${mono}`; x.fillStyle = `rgb(${rgb(es.bias)})`; x.fillText(`ES  ${label(es.bias).toUpperCase()} ${signed(es.score)}`, 84, 628);
+  x.strokeStyle = "rgba(255,255,255,.12)"; x.lineWidth = 2; x.beginPath(); x.moveTo(84, 676); x.lineTo(W-84, 676); x.stroke();
+  const h = String(br.headline || ""), i = h.indexOf(": "), lead = i > 12 && i < 110 ? h.slice(0, i) : h.split(/(?<=\.)\s/)[0];
+  x.font = `700 46px ${disp}`; x.fillStyle = "#fff"; const ll = wrapText(x, lead, W-168).slice(0, 3); ll.forEach((l, k) => x.fillText(l, 84, 750 + k*58));
+  if(br.regime){ x.font = `600 26px ${mono}`; x.fillStyle = `rgba(${acc},.95)`; x.fillText(`▌${String(br.regime).toUpperCase()}`, 84, 750 + ll.length*58 + 26); }
+  const P = br.positioning?.NQ || {}; const lv = [["CALL WALL", P.callWall], ["GAMMA FLIP", P.flip], ["PUT WALL", P.putWall]].filter(z => fin(z[1]));
+  lv.forEach(([k, val], j) => { const bx = 84 + j*312; x.strokeStyle = "rgba(255,255,255,.18)"; x.lineWidth = 2; x.strokeRect(bx, 990, 288, 120);
+    x.font = `600 22px ${mono}`; x.fillStyle = "rgba(255,255,255,.55)"; x.fillText(k, bx + 22, 1032); x.font = `700 44px ${mono}`; x.fillStyle = "#fff"; x.fillText(fmtN(val), bx + 22, 1086); });
+  const R = recStats(); x.font = `700 30px ${mono}`; x.fillStyle = "#fff";
+  x.fillText(R.streak >= 2 ? `🔥 ${R.streak}-SESSION STREAK` : `RECORD ${R.hits}W–${R.miss}L`, 84, 1180);
+  if(R.rate != null){ x.textAlign = "right"; x.fillText(`${R.rate}% HIT RATE · LAST 30`, W-84, 1180); x.textAlign = "left"; }
+  const gr = br.grade?.NQ;
+  if(gr && gr.result && gr.result !== "n/a"){ x.save(); x.translate(W-250, 470); x.rotate(-0.18); const col = gr.result === "hit" ? rgb("bullish") : gr.result === "miss" ? rgb("bearish") : "200,200,200";
+    x.strokeStyle = `rgba(${col},.95)`; x.lineWidth = 8; x.strokeRect(-190, -78, 380, 156); x.font = `800 84px ${disp}`; x.fillStyle = `rgba(${col},.95)`; x.textAlign = "center"; x.fillText(gr.result.toUpperCase(), 0, 18);
+    x.font = `700 28px ${mono}`; x.fillText(`NQ ${pct(gr.movePct)}`, 0, 60); x.restore(); }
+  x.font = `600 22px ${mono}`; x.fillStyle = "rgba(255,255,255,.45)"; x.fillText("GHOSTED/1OF1 · MACRO READ, NOT FINANCIAL ADVICE", 84, H-84);
+  const blob = await new Promise(r => cv.toBlob(r, "image/png"));
+  const file = new File([blob], `verdict-${br.date}.png`, {type:"image/png"});
+  try{ if(navigator.canShare && navigator.canShare({files:[file]})){ await navigator.share({files:[file], title:"Verdict"}); return; } }
+  catch(e){ if(e && e.name === "AbortError") return; }
+  if(S.cardUrl) URL.revokeObjectURL(S.cardUrl);
+  S.cardUrl = URL.createObjectURL(blob); S.cardName = file.name; render();
+}
+function cardSheet(){
+  return `<div class="scrim" id="scrim"><div class="sheet" role="dialog" aria-modal="true" aria-label="Share card">
+    <div class="sheet-head"><h2>Share card</h2><button class="icon-btn" id="sheet-close" aria-label="Close">${IC.close}</button></div>
+    <img class="card-prev" src="${S.cardUrl}" alt="Today's Verdict call card">
+    ${window.claude ? "" : `<div class="form-actions"><a class="icon-btn btn-primary" href="${S.cardUrl}" download="${esc(S.cardName || "verdict.png")}" style="text-decoration:none;display:inline-flex;align-items:center;padding:0 16px">Save image</a></div>`}
+    <p class="muted" style="font-size:12px">On a phone, press and hold the image to save or share it.</p></div></div>`;
+}
+/* ---------- the story: why the bias moved, and the headlines behind it ---------- */
+function ago(iso){ const t = Date.parse(iso); if(!isFinite(t)) return ""; const m = Math.floor((Date.now() - t) / 6e4);
+  if(m < 0) return fmtTime(iso); if(m < 1) return "just now"; if(m < 60) return `${m}m ago`; const h = Math.floor(m/60); return h < 12 ? `${h}h ago` : fmtTime(iso, true); }
+function leadOf(h){ h = String(h || ""); const i = h.indexOf(": "); return i > 12 && i < 110 ? [h.slice(0, i), h.slice(i + 2)] : [h, ""]; }
+const fxPill = (v, sym) => v > 0 ? `<span class="fxp up">▲ ${sym || "NQ"}</span>` : v < 0 ? `<span class="fxp dn">▼ ${sym || "NQ"}</span>` : "";
+function storyData(br){
+  const calls = (br.calls || []).filter(c => c.at).slice().sort((a,b) => String(a.at).localeCompare(String(b.at)));
+  const snaps = Object.values(br.snapshots || {}).filter(Boolean);
+  const prints = (br.calendar || []).filter(c => c.actual && c.impact !== "low" && /^\d{1,2}:\d{2}$/.test(c.timeET || "") && br.date)
+    .map(c => ({t: etToDate(br.date, c.timeET.padStart(5, "0")).getTime(), kind:"data", title:`${c.event}: ${c.actual}`, sub: c.forecast ? `vs ${c.forecast} expected` : "", imp:c.impact}));
+  const news = (br.news || []).filter(n => (n.impact === "high" || n.impact === "medium") && n.at)
+    .map(n => ({t: Date.parse(n.at), kind:"news", title:n.headline, sub:n.source, nq:n.nq, url:n.url, imp:n.impact}));
+  const rank = (a, b) => (a.kind === "data" ? 0 : 1) - (b.kind === "data" ? 0 : 1) || (a.imp === "high" ? 0 : 1) - (b.imp === "high" ? 0 : 1) || b.t - a.t;
+  const steps = calls.map((c, i) => { const p = calls[i-1], t = Date.parse(c.at), t0 = p ? Date.parse(p.at) : t - 14*3600e3;
+    const last = i === calls.length - 1;
+    const snap = last ? {headline: br.headline} : (snaps.find(s => s.at === c.at) || (br.snapshots || {})[c.phase]);
+    const trig = prints.concat(news).filter(x => x.t > t0 && x.t <= t).sort(rank).slice(0, 3);
+    return {c, p, t, why: snap?.headline || "", trig}; });
+  const lastT = steps.length ? steps[steps.length-1].t : 0;
+  const fresh = prints.concat(news).filter(x => x.t > lastT).sort(rank).slice(0, 3);
+  return {steps, fresh};
+}
+function story(br){
+  const {steps, fresh} = storyData(br); if(!steps.length) return "";
+  const path = []; steps.forEach(s => { const b = s.c.NQ?.bias || "neutral"; if(path[path.length-1] !== b) path.push(b); });
+  const title = path.length > 1 ? `NQ went ${path.map(b => `<span class="${cls(b)}">${label(b)}</span>`).join(" → ")}` : `NQ has read <span class="${cls(path[0])}">${label(path[0])}</span> all session`;
+  const f = flashOn(br);
+  const pending = f ? `<div class="st-pend"><span class="st-k">Shifting now · ${esc(ago(f.at))}</span><b>${esc(f.headline || "Bias shifting")}</b>${f.why ? `<span>${esc(f.why)}</span>` : ""}</div>`
+    : fresh.length ? `<div class="st-pend calm"><span class="st-k">Since the last read</span>${fresh.map(x => `<a class="st-t k-${x.kind}" ${x.url ? `href="${esc(x.url)}" target="_blank" rel="noopener"` : ""}><span class="st-badge">${x.kind === "data" ? "Data" : "News"}</span><span class="st-tt">${esc(x.title)}</span>${fxPill(x.nq)}<em>${esc(ago(new Date(x.t).toISOString()))}</em></a>`).join("")}<span class="st-note">Not scored yet. The next check decides if these move the bias.</span></div>` : "";
+  const node = (s, i) => { const b = s.c.NQ?.bias || "neutral", pb = s.p?.NQ?.bias, sc = s.c.NQ?.score, d = s.p ? (Number(sc) || 0) - (Number(s.p.NQ?.score) || 0) : null;
+    const flip = s.p && pb !== b; const [lead, rest] = leadOf(s.why); const latestStep = i === 0;
+    return `<div class="st-step${flip ? " flip" : ""}${latestStep ? " now" : ""}"><div class="st-rail"><i class="${cls(b)}"></i></div><div class="st-body">
+      <div class="st-top"><span class="st-time">${esc(fmtTime(s.c.at))}</span><span class="st-phase">${esc(STEP_LABEL[s.c.phase] || s.c.phase)}${latestStep ? " · now" : ""}</span>
+        ${flip ? `<span class="st-flipchip"><span class="tag ${cls(pb)}">${label(pb)}</span><span class="st-arrow">→</span><span class="tag ${cls(b)}">${label(b)} ${signed(sc)}</span></span>` : `<span class="tag ${cls(b)}">${label(b)} ${signed(sc)}</span>${d ? `<span class="st-d ${d > 0 ? "up" : "dn"}">${d > 0 ? "+" : "−"}${Math.abs(d)} pts</span>` : ""}`}</div>
+      ${lead ? `<p class="st-why"><b>${esc(lead)}</b>${rest ? ` ${esc(rest)}` : ""}</p>` : ""}
+      ${s.trig.length ? `<div class="st-trig"><span class="st-k">${flip ? "What flipped it" : "What moved it"}</span>${s.trig.map(x => `<a class="st-t k-${x.kind}" ${x.url ? `href="${esc(x.url)}" target="_blank" rel="noopener"` : ""}><span class="st-badge">${x.kind === "data" ? "Data" : "News"}</span><span class="st-tt">${esc(x.title)}${x.sub && x.kind === "data" ? ` <small>${esc(x.sub)}</small>` : ""}</span>${fxPill(x.nq)}</a>`).join("")}</div>` : ""}
+      </div></div>`; };
+  const list = steps.slice().reverse();
+  return `<section class="panel story"><div class="st-head"><span class="eyebrow">Why the bias moved</span><h3 class="st-title">${title}</h3></div>${pending}
+    <div class="st-line">${list.slice(0, S.storyAll ? 99 : 3).map(node).join("")}</div>
+    ${list.length > 3 ? `<button class="icon-btn" id="story-more" style="align-self:flex-start;height:32px;font-size:12.5px">${S.storyAll ? "Show less" : `Show all ${list.length} reads`}</button>` : ""}</section>`;
+}
+function lastNews(br){
+  const n = (br.news || []).filter(x => (x.impact === "high" || x.impact === "medium") && x.at && Date.now() - Date.parse(x.at) < 12*3600e3)
+    .sort((a,b) => String(b.at).localeCompare(String(a.at)))[0];
+  if(!n) return "";
+  return `<a class="lastnews ${esc(n.impact)}" ${n.url ? `href="${esc(n.url)}" target="_blank" rel="noopener"` : ""}><span class="ln-k"><i></i>Latest</span><span class="ln-h">${esc(n.headline)}</span><span class="ln-r">${fxPill(n.nq)}<em>${esc(ago(n.at))}</em></span></a>`;
+}
+function headlines(br){
+  const all = (br.news || []).slice().sort((a,b) => String(b.at).localeCompare(String(a.at)));
+  const top = all.filter(n => n.impact === "high" || n.impact === "medium").slice(0, 3);
+  if(!top.length) return "";
+  const eff = v => v > 0 ? `<span class="hl-fx up">Bullish for NQ</span>` : v < 0 ? `<span class="hl-fx dn">Bearish for NQ</span>` : `<span class="hl-fx">Neutral for NQ</span>`;
+  return `<section class="panel hl"><div class="hl-head"><span class="eyebrow">Headlines moving the tape</span><span class="faint" style="font-size:11.5px">${all.length} stories since the close</span></div>
+    <div class="hl-grid">${top.map((n, i) => `<a class="hl-card ${esc(n.impact)}${i === 0 ? " lead" : ""}" ${n.url ? `href="${esc(n.url)}" target="_blank" rel="noopener"` : ""}>
+      <div class="hl-meta"><span class="hl-imp ${esc(n.impact)}">${n.impact === "high" ? "High impact" : "Medium"}</span><span>${esc(n.source || "")}${n.category ? ` · ${esc(n.category)}` : ""}</span><em>${esc(ago(n.at))}</em></div>
+      <b class="hl-h">${esc(n.headline)}</b><div class="hl-foot">${eff(n.nq)}${n.es ? `<span class="hl-es ${n.es > 0 ? "up" : "dn"}">ES ${n.es > 0 ? "▲" : "▼"}</span>` : ""}</div></a>`).join("")}</div></section>`;
+}
+function newsTeaser(br){
+  const {steps} = storyData(br); const last = steps[steps.length-1];
+  const top = (br.news || []).filter(n => (n.impact === "high" || n.impact === "medium") && n.at).sort((a,b) => String(b.at).localeCompare(String(a.at))).slice(0, 2);
+  if(!last && !top.length) return "";
+  let why = "";
+  if(last){ const b = last.c.NQ?.bias || "neutral", pb = last.p?.NQ?.bias, flip = last.p && pb !== b; const [lead] = leadOf(last.why);
+    why = `<div class="nt-why"><div class="nt-top"><span class="st-time">${esc(fmtTime(last.c.at))}</span>${flip ? `<span class="tag ${cls(pb)}">${label(pb)}</span><span class="st-arrow">→</span>` : ""}<span class="tag ${cls(b)}">${label(b)} ${signed(last.c.NQ?.score)}</span></div>${lead ? `<b class="nt-lead">${esc(lead)}</b>` : ""}</div>`; }
+  const n = (br.news || []).length;
+  return `<section class="panel nteaser"><div class="nt-head"><span class="eyebrow">Why it moved</span><button class="nt-go" data-tab="news" type="button">Full story →</button></div>${why}
+    ${top.length ? `<div class="nt-list">${top.map(x => `<a class="nt-row ${esc(x.impact)}" ${x.url ? `href="${esc(x.url)}" target="_blank" rel="noopener"` : ""}><i class="imp ${esc(x.impact)}"></i><span class="nt-h">${esc(x.headline)}</span><span class="nt-r">${fxPill(x.nq)}<em>${esc(ago(x.at))}</em></span></a>`).join("")}</div>` : ""}
+    <button class="nt-more" data-tab="news" type="button"><span>${n} stories · week-ahead calendar · geo radar</span><b>Open News →</b></button></section>`;
+}
+function newsTab(br){
+  return `${tminus(br)}${flashBanner(br)}${alertBanner(br)}<section class="hero news-hero"><span class="eyebrow">News desk</span><h2 class="nh-title">What's moving NQ & ES</h2><p class="muted" style="font-size:13.5px">Every read, the headlines and data behind it, what's coming up this week, and the geopolitical picture.</p></section>
+    ${lastNews(br)}${story(br)}${headlines(br)}${upcoming()}${geoPanel(br)}${newsPanel(br)}${calendar(br)}${surprises(br)}`;
 }
 function sessionMap(br){
   const ss = br.sessions || []; if(!ss.length) return "";
@@ -1118,7 +2086,7 @@ function header(br){
   const run = S.canRun && TRIGGER_ID ? `<button class="run-btn" id="run" ${busy?"disabled":""} aria-label="Run a new read now">${busy?'<svg class="spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-6.2-8.6"/></svg><span>Updating</span>':`${IC.run}<span>Run now</span>`}</button>` : "";
   const ctx = br ? `<div class="ctx"><span>${esc(fmtDate(br.date,{weekday:"long",month:"long"}))}</span><span class="dot-sep"></span><span>${esc(br.session||"NY AM")}</span><span class="dot-sep"></span><span class="${br.phase==="post"||br.phase==="mid"?"ctx-live":""}">${PHASE_LABEL[br.phase]||"Pre-data read"}</span></div>` : "";
   const msg = S.runMsg ? `<div class="notice ${S.runErr?"err":""}">${esc(S.runMsg)}</div>` : "";
-  const old = br && latest() && br.id !== latest().id && (S.tab==="today"||S.tab==="nq"||S.tab==="es") ? `<div class="notice">Viewing ${esc(fmtDate(br.date))}. <a href="#" id="latest">Back to latest</a></div>` : "";
+  const old = br && latest() && br.id !== latest().id && (S.tab==="today"||S.tab==="news"||S.tab==="nq"||S.tab==="es") ? `<div class="notice">Viewing ${esc(fmtDate(br.date))}. <a href="#" id="latest">Back to latest</a></div>` : "";
   return `<header class="top"><div class="brand">${LOGO}<div><b>Verdict</b><small>The macro call for NQ &amp; ES</small></div></div>
     <div class="actions"><button class="round-btn" id="theme" aria-label="Themes">${IC.palette}</button>${typeof acctBtn==="function"?acctBtn():""}${run}</div></header>${ctx}${msg}${old}`;
 }
@@ -1178,7 +2146,7 @@ function newsPanel(br){
   const highs = all.filter(n=>n.impact==="high").length;
   return `<section class="panel"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><span class="eyebrow">Market-moving news · ${all.length} since the close</span>
       <span class="seg" role="group" aria-label="Filter news"><button data-news="all" aria-pressed="${!S.newsHigh}">All</button><button data-news="high" aria-pressed="${!!S.newsHigh}">High impact · ${highs}</button></span></div>
-    <div class="news">${shown.map(n => `<a class="nitem" href="${esc(n.url||"#")}" target="_blank" rel="noopener">
+    <div class="news">${shown.map(n => `<a class="nitem${n.impact==="high"?" hi":""}" href="${esc(n.url||"#")}" target="_blank" rel="noopener">
         <span class="ntime">${esc(fmtTime(n.at).replace(" ET",""))}</span>
         <span class="nbody"><span class="nhead"><i class="imp ${esc(n.impact||"low")}"></i>${esc(n.headline)}</span><span class="nmeta">${esc(n.source||"")}${n.category?` · ${esc(n.category)}`:""}</span></span>
         <span class="nfx"><span>NQ ${arrow(n.nq)}</span><span>ES ${arrow(n.es)}</span></span></a>`).join("")}</div>
@@ -1296,12 +2264,14 @@ async function saveLevels(after){
 }
 
 /* ---------- views ---------- */
+function heroLine(h){ h = String(h||""); const i = h.indexOf(": "); return i > 12 && i < 110 ? `<span class="lead">${esc(h.slice(0,i))}</span>${esc(h.slice(i+2))}` : esc(h); }
 function today(br){
   const I = br.instruments || {};
   const ev = br.scenarios?.length ? scenarios(br.scenarios) : "";
-  return `${flashBanner(br)}${alertBanner(br)}${tapeStrip(br)}<section class="hero">${br.regime?`<span class="regime">${esc(br.regime)}</span>`:""}<p class="headline">${esc(br.headline)}</p></section>
+  return `${tminus(br)}${flashBanner(br)}${alertBanner(br)}${tapeStrip(br)}<section class="hero">${br.regime?`<span class="regime">${esc(br.regime)}</span>`:""}<p class="headline">${heroLine(br.headline)}</p></section>
+    ${lastNews(br)}
     <div class="duo">${instCard("NQ",I.NQ,br)}${instCard("ES",I.ES,br)}</div>
-    ${midPanel(br)}${sessionMap(br)}${geoPanel(br)}${resultPanel(br)}${ev}${newsPanel(br)}${positioning(br)}${surprises(br)}${callLog(br)}${drivers(br)}${calendar(br)}`;
+    ${newsTeaser(br)}${pushNudge()}${voteBox(br)}${mission(br)}${record()}${heatmap()}${midPanel(br)}${sessionMap(br)}${resultPanel(br)}${ev}${positioning(br)}${drivers(br)}`;
 }
 function detail(sym, br){
   const d = (br.instruments||{})[sym];
@@ -1403,7 +2373,7 @@ function sheet(){
   return `<div class="scrim" id="scrim"><div class="sheet" role="dialog" aria-modal="true" aria-label="Themes">
     <div class="sheet-head"><h2 style="font-stretch:120%">Themes</h2><button class="icon-btn" id="sheet-close" aria-label="Close">${IC.close}</button></div>
     ${note}
-    ${grp("desk","Verdict","7 originals")}
+    ${grp("desk","Verdict","8 originals")}
     ${grp("conviction","From Conviction","22 themes")}
     ${grp("holiday","Holidays","switch on by themselves")}
     <div class="fx-opts">
@@ -1416,6 +2386,7 @@ function sheet(){
 
 const TABS = [
   ["today","Today",'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/></svg>'],
+  ["news","News",'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5h12.5v13A1.5 1.5 0 0 0 18 20H6a2 2 0 0 1-2-2z"/><path d="M16.5 9H20v9a2 2 0 0 1-2 2"/><path d="M7.5 9h5.5M7.5 12.5h5.5M7.5 16h3.5"/></svg>'],
   ["nq","NQ",'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13h4l3-8 4 14 3-6h4"/></svg>'],
   ["es","ES",'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18l5-6 4 3 7-9"/><path d="M15 6h5v5"/></svg>'],
   ["replay","Replay",'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 12a8.5 8.5 0 1 0 2.5-6"/><path d="M3 4v4h4"/><path d="M10.5 9.2v5.6l4.6-2.8z" fill="currentColor"/></svg>'],
@@ -1431,11 +2402,17 @@ function render(){
   else if(S.tab === "nq") body = detail("NQ", br);
   else if(S.tab === "es") body = detail("ES", br);
   else if(S.tab === "research") body = research(br);
+  else if(S.tab === "news") body = newsTab(br);
   else body = today(br);
-  const top = header(br) + (br ? strip(latest()) : "") + (S.tab==="today" && br ? ticker(br) : "");
-  document.getElementById("app").innerHTML = top + body + `<p class="foot">Macro read for planning, not trade signals.</p>`;
+  const top = header(br) + mtape() + (br ? strip(latest()) : "") + (S.tab==="today" && br && !S.tape?.macro?.length ? ticker(br) : "");
+  const app = document.getElementById("app");
+  app.innerHTML = top + body + `<p class="foot">Macro read for planning, not trade signals.</p>`;
+  app.style.setProperty("--sync", (-(Date.now() % 42000) / 1000) + "s");
+  const ek = S.tab + "|" + (br?.id || "") + "|" + (S.loaded ? 1 : 0);
+  if(ek !== S.enterKey){ S.enterKey = ek; app.classList.remove("enter"); void app.offsetWidth; app.classList.add("enter"); clearTimeout(S.enterT); S.enterT = setTimeout(() => app.classList.remove("enter"), 1200); }
+  if(document.getElementById("globe-host")) mountGlobe();
   document.getElementById("tabs").innerHTML = TABS.map(([k,l,ic])=>`<button role="tab" data-tab="${k}" aria-selected="${S.tab===k}">${ic}<span>${l}</span></button>`).join("");
-  document.getElementById("sheet-root").innerHTML = S.levels ? levelsSheet() : sheet();
+  document.getElementById("sheet-root").innerHTML = S.levels ? levelsSheet() : S.cardUrl ? cardSheet() : sheet();
   animateNeedles();
   if(S.tab==="replay"){ const sel = document.querySelector('.day[aria-current="true"]'); if(sel && sel.scrollIntoView) sel.scrollIntoView({block:"nearest",inline:"center"}); }
 }
@@ -1463,9 +2440,14 @@ function rpPlay(){
 
 /* ---------- events ---------- */
 document.addEventListener("click", e => {
-  const t = e.target.closest("[data-news],#news-more,[data-tab],[data-go],[data-pick],button[data-skin],[data-rday],[data-rstep],.pt,#run,#scan,#latest,#theme,#levels,#sheet-close,#scrim,#rp-play,#rp-prev,#rp-next,#fx-holiday,#fx-effects,#fx-stars");
+  const t = e.target.closest("#story-more,#share-card,[data-cal],[data-calhi],[data-geo],[data-news],#news-more,[data-tab],[data-go],[data-pick],button[data-skin],[data-rday],[data-rstep],.pt,#run,#scan,#latest,#theme,#levels,#sheet-close,#scrim,#rp-play,#rp-prev,#rp-next,#fx-holiday,#fx-effects,#fx-stars");
   if(!t) return;
   if(t.id === "scrim" && e.target !== t) return;
+  if(t.id === "story-more"){ S.storyAll = !S.storyAll; render(); return; }
+  if(t.id === "share-card"){ const b = current(); if(b) makeCard(b).catch(err => { S.runMsg = "Couldn't make the card: " + err.message; S.runErr = true; render(); }); return; }
+  if(t.dataset.cal){ S.calCur = t.dataset.cal; render(); return; }
+  if(t.dataset.calhi){ S.calHigh = !S.calHigh; render(); return; }
+  if(t.dataset.geo != null){ S.geoSel = +t.dataset.geo; render(); return; }
   if(t.id === "latest"){ e.preventDefault(); S.selected = null; render(); return; }
   if(t.id === "run"){ runNow(); return; }
   if(t.id === "scan"){ scanNow(); return; }
@@ -1473,7 +2455,7 @@ document.addEventListener("click", e => {
   if(t.dataset.news){ S.newsHigh = t.dataset.news === "high"; S.newsAll = false; render(); return; }
   if(t.id === "news-more"){ S.newsAll = !S.newsAll; render(); return; }
   if(t.id === "levels"){ S.levels = true; S.saveMsg = null; render(); return; }
-  if(t.id === "sheet-close" || t.id === "scrim"){ S.sheet = false; S.levels = false; render(); return; }
+  if(t.id === "sheet-close" || t.id === "scrim"){ S.sheet = false; S.levels = false; if(S.cardUrl){ URL.revokeObjectURL(S.cardUrl); S.cardUrl = null; } render(); return; }
   if(t.dataset.skin){ applySkin(t.dataset.skin); store.set("db-skin", S.skin); render(); return; }
   if(t.id === "fx-holiday" || t.id === "fx-effects" || t.id === "fx-stars"){ const k = t.id.slice(3); S.fx[k] = !S.fx[k]; store.set("db-fx-"+k, S.fx[k]?"1":"0"); applySkin(); render(); return; }
   if(t.id === "rp-play"){ S.rp.playing ? (rpStop(), render()) : rpPlay(); return; }
@@ -1486,7 +2468,7 @@ document.addEventListener("click", e => {
   store.set("db-tab", S.tab); render(); window.scrollTo({top:0});
 });
 document.addEventListener("keydown", e => {
-  if(e.key === "Escape" && (S.sheet || S.levels)){ S.sheet = false; S.levels = false; render(); }
+  if(e.key === "Escape" && (S.sheet || S.levels || S.cardUrl)){ S.sheet = false; S.levels = false; S.cardUrl = null; render(); }
   if(S.tab === "replay" && !S.sheet && !S.levels && !/INPUT|SELECT|TEXTAREA/.test(e.target.tagName)){
     if(e.key === "ArrowRight"){ rpStop(); rpAdvance(); render(); }
     if(e.key === "ArrowLeft"){ rpStop(); rpBack(); render(); }
@@ -1498,6 +2480,8 @@ document.addEventListener("submit", e => {
   e.preventDefault(); saveLevels(e.submitter?.dataset?.after || "save");
 });
 const soft = () => { if(!S.levels && !S.rp.playing) render(); };
+setInterval(() => { document.querySelectorAll("[data-tminus]").forEach(el => { const ms = +el.dataset.tminus - Date.now(); el.textContent = clk(ms); if(ms <= 0 && ms > -1500) soft(); }); }, 1000);
+setInterval(() => { document.querySelectorAll("[data-cd]").forEach(el => { el.textContent = cdTxt(+el.dataset.cd); }); }, 15000);
 setInterval(() => { const el = document.getElementById("strip"); if(el && latest()){ el.outerHTML = strip(latest()); } }, 30000);
 
 async function runNow(){
