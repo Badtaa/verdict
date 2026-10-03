@@ -176,14 +176,27 @@
   }
   async function pollQuote() {
     if (W.screen !== "app" || document.visibilityState !== "visible") return;
-    if (!futuresOpen()) { if (S.live) { S.live = null; render(); } return; }
+    if (!futuresOpen()) {
+      // Market shut: show the last price, labeled Closed. Refresh it every 30 minutes at most.
+      if (S.live?.closed && Date.now() - S.live.at < 30 * 60e3) return;
+      try {
+        const r = await fetch("/api/quote", { cache: "no-store" });
+        const q = await r.json();
+        if (!r.ok || !q.ok) throw new Error(q.error || "no quote");
+        S.live = { q, at: Date.now(), closed: true };
+      } catch { S.live = null; }
+      if (!S.levels && !S.rp.playing && !W.acct) render();
+      return;
+    }
     try {
       const r = await fetch("/api/quote", { cache: "no-store" });
       const q = await r.json();
       if (!r.ok || !q.ok) throw new Error(q.error || "no quote");
-      S.live = { q, at: Date.now(), queued: S.live?.queued || null };
+      const prev = S.live && !S.live.closed ? S.live.q?.NQ?.price : null, px = q.NQ?.price;
+      const dir = prev != null && px != null && px !== prev ? Math.sign(px - prev) : 0;
+      S.live = { q, at: Date.now(), queued: S.live?.closed ? null : S.live?.queued || null, dir, dirAt: dir ? Date.now() : 0 };
     } catch (e) {
-      S.live = { ...(S.live || {}), err: "couldn't get a quote" };
+      S.live = { ...(S.live || {}), closed: false, err: "couldn't get a quote" };
     }
     const br = latest(), t = br && S.live.q && tapeRead(br, S.live.q);
     if (t && (t.state === "against" || t.state === "breakout")) trip(br);
