@@ -1117,6 +1117,200 @@ a.nt-row:hover .nt-h{color:var(--accent-hi)}
 .nt-more:hover{background:rgba(var(--accent-rgb),.14)}
 .news-hero{gap:6px}
 .nh-title{font:800 clamp(22px,3.4vw,28px)/1.15 var(--display);letter-spacing:-.02em}
+/* ---------- answer card ---------- */
+.answer{position:relative;display:flex;flex-direction:column;gap:12px;padding:20px 20px 18px;border-radius:calc(var(--r) + 4px);overflow:hidden;
+  border:1px solid rgba(var(--mood-rgb),.45);background:radial-gradient(600px 240px at 0% 0%,rgba(var(--mood-rgb),.22),transparent 70%),linear-gradient(180deg,rgba(var(--panel-rgb),.86),rgba(var(--panel-rgb),.62));
+  box-shadow:0 30px 70px -45px rgba(var(--mood-rgb),.9),inset 0 1px 0 rgba(255,255,255,.06)}
+.ans-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.ans-when{font-size:12px;color:var(--muted);margin-left:auto}
+.ans-verb{font:800 clamp(30px,6.4vw,46px)/1.02 var(--display);letter-spacing:-.03em;margin:2px 0 0}
+.a-bull .ans-verb{color:var(--gain)} .a-bear .ans-verb{color:var(--loss)}
+.ans-lead{font-size:15.5px;line-height:1.5;font-weight:600;max-width:62ch}
+.ans-rest{font-weight:400;color:var(--muted)}
+.ans-more{border:0;background:none;padding:0;color:var(--accent-hi);font:700 13px/1 var(--font);cursor:pointer;white-space:nowrap}
+.ans-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:2px}
+.ans-cell{display:flex;flex-direction:column;gap:3px;padding:11px 13px;border-radius:14px;background:rgba(var(--panel-rgb),.55);border:1px solid rgba(var(--muted-rgb),.14);min-width:0}
+.ans-cell span{font-size:11.5px;color:var(--muted);font-weight:600}
+.ans-cell b{font:800 16px/1.25 var(--display);letter-spacing:-.01em}
+.ans-cell em{font-style:normal;font-size:11.5px;color:var(--faint);line-height:1.35}
+@media (max-width:560px){.ans-grid{grid-template-columns:1fr 1fr}.ans-grid .ans-cell:first-child{grid-column:1/-1}}
+
+/* ---------- folds ---------- */
+.fold{border:1px solid var(--line);border-radius:var(--r);background:linear-gradient(180deg,rgba(var(--panel-rgb),.7),rgba(var(--panel-rgb),.5));overflow:hidden}
+.fold-h{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;width:100%;padding:15px 18px;border:0;background:none;color:var(--text);cursor:pointer;text-align:left}
+.fold-h:hover{background:rgba(var(--accent-rgb),.05)}
+.fold-h:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.fold-t{font:700 15px/1.2 var(--display);letter-spacing:-.01em;white-space:nowrap}
+.fold-s{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right}
+.fold-c{width:9px;height:9px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg) translateY(-2px);transition:transform .2s}
+.fold.open .fold-c{transform:rotate(-135deg) translateY(-2px)}
+.fold.open .fold-h{border-bottom:1px solid rgba(var(--muted-rgb),.12)}
+.fold-b{padding:4px 2px 2px;animation:foldIn .25s ease both}
+@keyframes foldIn{from{opacity:0;transform:translateY(-4px)}}
+.fold-b>.panel,.fold-b>section{border:0!important;background:none!important;box-shadow:none!important;border-radius:0}
+.fold-b>.panel>.eyebrow:first-child{display:none}
+@media (max-width:480px){.fold-h{grid-template-columns:1fr auto;row-gap:3px}.fold-s{grid-column:1;text-align:left}.fold-c{grid-column:2;grid-row:1/span 2}}
+@media (prefers-reduced-motion:reduce){.fold-b{animation:none}}
+
+/* ---------- tug-of-war ---------- */
+.engine{gap:14px}
+.eg-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.eg-title{font:800 19px/1.25 var(--display);letter-spacing:-.01em;margin-top:4px}
+.rope{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px}
+.rope-l,.rope-r{font:700 11px/1 var(--font);color:var(--loss)} .rope-r{color:var(--gain)}
+.rope-track{position:relative;height:10px;border-radius:999px;background:linear-gradient(90deg,rgba(var(--loss-rgb),.85),rgba(var(--loss-rgb),.15) 45%,rgba(var(--gain-rgb),.15) 55%,rgba(var(--gain-rgb),.85));
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
+.rope-track::before{content:"";position:absolute;inset:3px 0;background:repeating-linear-gradient(115deg,rgba(255,255,255,.18) 0 3px,transparent 3px 8px);border-radius:999px}
+.rope-mid{position:absolute;left:50%;top:-6px;bottom:-6px;width:2px;margin-left:-1px;background:var(--muted);opacity:.6}
+.knot{position:absolute;top:50%;transform:translate(-50%,-50%);min-width:40px;height:26px;padding:0 8px;border-radius:999px;display:flex;align-items:center;justify-content:center;
+  background:var(--text);color:var(--bg);font:800 12px/1 var(--display);box-shadow:0 0 0 3px rgba(var(--panel-rgb),1),0 6px 18px -4px rgba(0,0,0,.6)}
+.knot.bull{background:var(--gain);color:#04130d} .knot.bear{background:var(--loss);color:#1a0306}
+#app.enter .knot{animation:knotIn 1.1s cubic-bezier(.3,1.4,.5,1) both .2s}
+@keyframes knotIn{from{left:50%}}
+.eg-rows{display:flex;flex-direction:column;gap:2px}
+.eg-row{display:grid;grid-template-columns:minmax(90px,1.1fr) 1.6fr 34px;align-items:center;gap:10px;padding:8px 6px;border:0;border-radius:10px;background:none;color:inherit;text-align:left;cursor:pointer}
+.eg-row:hover,.eg-row.open{background:rgba(var(--muted-rgb),.08)}
+.eg-name{font-size:13.5px;font-weight:600}
+.eg-bar{position:relative;height:14px}
+.eg-bar::before{content:"";position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:rgba(var(--muted-rgb),.35)}
+.eg-bar i{position:absolute;top:0;bottom:0;width:calc(var(--w) / 2);border-radius:4px}
+.eg-bar i.up{left:50%;background:linear-gradient(90deg,rgba(var(--gain-rgb),.45),var(--gain));box-shadow:0 0 12px -2px rgba(var(--gain-rgb),.8)}
+.eg-bar i.dn{right:50%;background:linear-gradient(270deg,rgba(var(--loss-rgb),.45),var(--loss));box-shadow:0 0 12px -2px rgba(var(--loss-rgb),.8)}
+#app.enter .eg-bar i{animation:barIn .7s ease-out both .3s} @keyframes barIn{from{width:0}}
+.eg-pts{font:800 13px/1 var(--mono);text-align:right}
+.eg-in{grid-column:1/-1;font-size:12.5px;line-height:1.45;color:var(--muted);padding:2px 0 4px}
+.eg-idle{font-size:12.5px;color:var(--muted)} .eg-idle span{color:var(--faint)}
+@media (prefers-reduced-motion:reduce){#app.enter .knot,#app.enter .eg-bar i{animation:none}}
+
+/* ---------- news flow + topic bubbles ---------- */
+.flow{gap:10px}
+.fl-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.fl-title{font:800 22px/1.15 var(--display);letter-spacing:-.02em;margin-top:4px}
+.fl-n{font-size:12px;color:var(--muted)}
+.fl-bar{display:flex;gap:3px;height:12px}
+.fl-bar i{border-radius:999px} .fl-bar .up{background:linear-gradient(90deg,rgba(var(--gain-rgb),.5),var(--gain))} .fl-bar .dn{background:linear-gradient(90deg,var(--loss),rgba(var(--loss-rgb),.5))}
+.fl-lbl{display:flex;justify-content:space-between;font-size:12px;font-weight:700}
+.bubs{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;padding:8px 0 2px}
+.bub{width:var(--s);height:var(--s);border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;cursor:pointer;color:var(--text);
+  border:1px solid rgba(var(--muted-rgb),.3);background:radial-gradient(circle at 30% 25%,rgba(255,255,255,.14),rgba(var(--muted-rgb),.12) 60%);transition:transform .2s}
+.bub:hover{transform:scale(1.06)}
+.bub b{font:800 calc(var(--s) * .3)/1 var(--display)} .bub span{font-size:max(9.5px, calc(var(--s) * .14));font-weight:600;color:var(--muted);text-align:center;line-height:1.1;padding:0 4px}
+.bub.up{border-color:rgba(var(--gain-rgb),.55);background:radial-gradient(circle at 30% 25%,rgba(var(--gain-rgb),.35),rgba(var(--gain-rgb),.08) 65%)}
+.bub.dn{border-color:rgba(var(--loss-rgb),.55);background:radial-gradient(circle at 30% 25%,rgba(var(--loss-rgb),.35),rgba(var(--loss-rgb),.08) 65%)}
+.bub.on{box-shadow:0 0 0 3px var(--accent),0 0 24px -4px rgba(var(--accent-rgb),.9)}
+
+/* ---------- tape × headlines ---------- */
+.tn{gap:10px}
+.tn-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
+.tn-title{font:800 19px/1.25 var(--display);letter-spacing:-.01em;margin-top:4px}
+.tn-clear{border:1px solid rgba(var(--accent-rgb),.5);background:rgba(var(--accent-rgb),.1);color:var(--accent-hi);border-radius:999px;padding:6px 11px;font:700 12px/1 var(--font);cursor:pointer}
+.tn-wrap{margin:0 -4px}
+.tn-svg{display:block;width:100%;height:auto;overflow:visible}
+.tn-h line{stroke:rgba(var(--muted-rgb),.1)} .tn-h text{fill:var(--faint);font:500 10px var(--mono);text-anchor:middle}
+.tn-line{fill:none;stroke:var(--text);stroke-width:2;stroke-linejoin:round;opacity:.9}
+.tn-px{fill:var(--faint);font:500 10px var(--mono)}
+.tn-call line{stroke:var(--muted);stroke-width:1;stroke-dasharray:3 4;opacity:.7}
+.tn-call rect{fill:rgba(var(--panel-rgb),1);stroke:var(--muted);stroke-width:1}
+.tn-call text{fill:var(--muted);font:700 9.5px var(--font);text-anchor:middle}
+.tn-call.bull rect{stroke:var(--gain)} .tn-call.bull text{fill:var(--gain)} .tn-call.bear rect{stroke:var(--loss)} .tn-call.bear text{fill:var(--loss)}
+.tn-call.flip line{stroke-dasharray:none;opacity:1;stroke-width:1.5} .tn-call.flip.bull line{stroke:var(--gain)} .tn-call.flip.bear line{stroke:var(--loss)}
+.tn-dot{cursor:pointer} .tn-dot line{stroke-width:1.2;opacity:.6}
+.tn-dot circle:not(.hit){stroke:rgba(var(--panel-rgb),1);stroke-width:2;transition:r .15s}
+.tn-dot.up circle:not(.hit){fill:var(--gain)} .tn-dot.up line{stroke:var(--gain)}
+.tn-dot.dn circle:not(.hit){fill:var(--loss)} .tn-dot.dn line{stroke:var(--loss)}
+.tn-dot.nz circle:not(.hit){fill:var(--muted)}
+.tn-dot .hit{fill:transparent;stroke:none}
+.tn-dot.sel circle:not(.hit){stroke:var(--text);stroke-width:2.5;filter:drop-shadow(0 0 6px currentColor)}
+.tn-dot.up.sel{color:var(--gain)} .tn-dot.dn.sel{color:var(--loss)}
+.tn-key{display:flex;flex-wrap:wrap;gap:12px;font-size:11.5px;color:var(--muted)}
+.tn-key span{display:inline-flex;align-items:center;gap:6px} .tn-key i{width:9px;height:9px;border-radius:50%}
+.k-up{background:var(--gain)} .k-dn{background:var(--loss)} .k-nz{background:var(--muted)} .tn-key .k-call{width:14px;height:0;border-radius:0;border-top:1.5px dashed var(--muted)}
+.tn-cap{display:flex;flex-direction:column;gap:6px;padding:12px 14px;border-radius:14px;border:1px solid var(--line-hi);background:rgba(var(--panel-rgb),.55);color:inherit;text-decoration:none;animation:foldIn .2s ease both}
+.tn-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:11.5px;color:var(--muted)} .tn-meta .fxp{margin-left:auto}
+.tn-hl{font-size:15px;line-height:1.4}
+.tn-after{font-size:12.5px;color:var(--accent-hi)}
+.tn-cap[href]:hover .tn-hl{color:var(--accent-hi)}
+
+.folds{display:flex;flex-direction:column;gap:8px}
+.ans-share{width:32px;height:32px;border-radius:50%;border:1px solid var(--line-hi);background:rgba(var(--panel-rgb),.6);color:var(--muted);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;margin-left:auto;order:3}
+.ans-share svg{width:15px;height:15px} .ans-share:hover{color:var(--accent-hi);border-color:rgba(var(--accent-rgb),.5)}
+.ans-top .ans-when{order:2}
+
+.ans-top .ans-when{margin-left:0}
+.tn-meta>span:not(.fxp)::before{content:"";display:inline-block;width:3px;height:3px;border-radius:50%;background:var(--faint);margin:0 6px 2px 0;vertical-align:middle}
+.fold-b .st-head .eyebrow,.fold-b .geo2-head .eyebrow,.fold-b .cal-head .eyebrow,.fold-b .hm-head .eyebrow,.fold-b .hl-head .eyebrow{display:none}
+.fold-b .geo2-title,.fold-b .st-title{margin-top:0}
+/* live answer */
+.answer.live{gap:14px}
+.live-pill{display:inline-flex;align-items:center;gap:7px;font:700 11.5px/1 var(--font);padding:6px 10px;border-radius:999px;color:var(--gain);background:rgba(var(--gain-rgb),.12);border:1px solid rgba(var(--gain-rgb),.4)}
+.live-pill i{width:7px;height:7px;border-radius:50%;background:var(--gain);box-shadow:0 0 0 0 rgba(var(--gain-rgb),.7);animation:ping3 1.8s infinite}
+.ans-hero{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.ans-score{font-size:14px;color:var(--muted);margin-top:6px} .ans-score b{font:800 17px/1 var(--display)}
+.ans-flip{font:700 12px/1.3 var(--font);padding:7px 11px;border-radius:12px;color:var(--warn);border:1px solid rgba(var(--muted-rgb),.3);background:rgba(var(--panel-rgb),.5)}
+.bline{display:block;width:100%;height:56px;margin:-2px 0 -4px}
+.bl-zero{stroke:rgba(var(--muted-rgb),.5);stroke-width:1;vector-effect:non-scaling-stroke}
+.bl-th{stroke:rgba(var(--muted-rgb),.22);stroke-width:1;stroke-dasharray:3 5;vector-effect:non-scaling-stroke}
+.bl-fill-up{fill:rgba(var(--gain-rgb),.16)} .bl-fill-dn{fill:rgba(var(--loss-rgb),.16)}
+.bl-line{fill:none;stroke-width:2.2;vector-effect:non-scaling-stroke;stroke-linejoin:round} .bl-line.up{stroke:var(--gain)} .bl-line.dn{stroke:var(--loss)}
+.bl-dot.up{fill:var(--gain)} .bl-dot.dn{fill:var(--loss)}
+.ans-cell.press.up{border-color:rgba(var(--gain-rgb),.45);background:linear-gradient(180deg,rgba(var(--gain-rgb),.12),rgba(var(--panel-rgb),.5))}
+.ans-cell.press.dn{border-color:rgba(var(--loss-rgb),.45);background:linear-gradient(180deg,rgba(var(--loss-rgb),.12),rgba(var(--panel-rgb),.5))}
+.ans-cell.press.up b{color:var(--gain)} .ans-cell.press.dn b{color:var(--loss)}
+.ans-chg{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.ans-chg-k{font-size:12px;color:var(--muted);margin-right:4px} .ans-chg-k b{font-weight:800}
+.chg{font-size:12px;padding:5px 9px;border-radius:999px;border:1px solid rgba(var(--muted-rgb),.22);color:var(--muted)} .chg b{font-family:var(--mono);font-weight:700}
+.chg.up{border-color:rgba(var(--gain-rgb),.45)} .chg.up b{color:var(--gain)} .chg.dn{border-color:rgba(var(--loss-rgb),.45)} .chg.dn b{color:var(--loss)}
+.ans-note{font-size:12px;color:var(--faint);line-height:1.5}
+.eg-live{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--gain);margin-left:6px;vertical-align:2px;box-shadow:0 0 6px rgba(var(--gain-rgb),.9)}
+.inst-live{font-size:11.5px;font-weight:700;color:var(--muted)} .inst-live b{color:var(--text)}
+/* world news map */
+.world{gap:12px;overflow:hidden}
+.w-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
+.w-title{font:800 20px/1.2 var(--display);letter-spacing:-.015em;margin-top:4px}
+.w-sub{font-size:12.5px;color:var(--muted);margin-top:3px}
+.wbox{min-height:300px}
+@media (min-width:720px){.wbox{min-height:400px}}
+.wrail{display:flex;gap:6px;flex-wrap:wrap}
+.wpill{display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 11px;border-radius:999px;border:1px solid rgba(var(--muted-rgb),.22);background:rgba(var(--panel-rgb),.5);color:var(--muted);font:600 12.5px/1 var(--font);cursor:pointer}
+.wpill i{width:8px;height:8px;border-radius:50%;background:var(--warn)} .wpill.up i{background:var(--gain)} .wpill.dn i{background:var(--loss);box-shadow:0 0 8px rgba(var(--loss-rgb),.8)}
+.wpill b{font:700 11px/1 var(--mono);color:var(--text);background:rgba(var(--muted-rgb),.16);padding:3px 6px;border-radius:999px}
+.wpill[aria-pressed="true"]{color:var(--text);border-color:rgba(var(--accent-rgb),.6);background:rgba(var(--accent-rgb),.12)}
+.wcard{display:flex;flex-direction:column;gap:10px;padding:14px 16px;border-radius:16px;border:1px solid rgba(var(--muted-rgb),.2);background:rgba(var(--panel-rgb),.5);animation:foldIn .2s ease both}
+.wcard.dn{border-color:rgba(var(--loss-rgb),.45);background:linear-gradient(180deg,rgba(var(--loss-rgb),.1),rgba(var(--panel-rgb),.45))}
+.wcard.up{border-color:rgba(var(--gain-rgb),.45);background:linear-gradient(180deg,rgba(var(--gain-rgb),.1),rgba(var(--panel-rgb),.45))}
+.wc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.wc-top b{display:block;font:800 18px/1.2 var(--display)} .wc-top span{font-size:12px;color:var(--muted)}
+.wc-tone{font:700 12px/1 var(--font)!important;padding:6px 10px;border-radius:999px;background:rgba(var(--muted-rgb),.14);white-space:nowrap}
+.wcard.up .wc-tone{color:var(--gain)!important;background:rgba(var(--gain-rgb),.14)} .wcard.dn .wc-tone{color:var(--loss)!important;background:rgba(var(--loss-rgb),.14)}
+.wc-hot{display:flex;flex-direction:column;gap:6px;font-size:13px;line-height:1.45}
+.wc-list{display:flex;flex-direction:column}
+.wc-row{display:grid;grid-template-columns:62px 10px 1fr auto;gap:8px;align-items:center;padding:8px 0;border-top:1px solid rgba(var(--muted-rgb),.1);color:inherit;text-decoration:none;font-size:13.5px}
+a.wc-row[href]:hover .wc-h{color:var(--accent-hi)}
+.wc-t{font:500 11.5px/1 var(--mono);color:var(--muted)} .wc-h{font-weight:600;line-height:1.35}
+.whvs{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.w-k{font-size:12px;color:var(--faint);margin-right:2px}
+.whv{font-size:12px;color:var(--muted);padding:5px 9px;border-radius:999px;border:1px solid rgba(var(--muted-rgb),.2)} .whv b{font-family:var(--mono)}
+.whv.up b{color:var(--gain)} .whv.dn b{color:var(--loss)}
+/* movers */
+.movers{gap:10px}
+.mv-head{display:flex;flex-direction:column;gap:3px}
+.mv-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.mv{display:grid;grid-template-columns:34px 1fr auto;gap:12px;align-items:center;padding:12px 14px;border-radius:14px;border:1px solid rgba(var(--muted-rgb),.16);background:rgba(var(--panel-rgb),.45)}
+.mv.top{padding:16px 16px;border-color:rgba(var(--accent-rgb),.45);background:radial-gradient(500px 160px at 0% 0%,rgba(var(--accent-rgb),.14),transparent 70%),rgba(var(--panel-rgb),.5)}
+.mv.top.dn{border-color:rgba(var(--loss-rgb),.5);background:radial-gradient(500px 160px at 0% 0%,rgba(var(--loss-rgb),.16),transparent 70%),rgba(var(--panel-rgb),.5)}
+.mv.top.up{border-color:rgba(var(--gain-rgb),.5);background:radial-gradient(500px 160px at 0% 0%,rgba(var(--gain-rgb),.14),transparent 70%),rgba(var(--panel-rgb),.5)}
+.mv-rank{font:800 20px/1 var(--display);color:var(--faint);text-align:center} .mv.top .mv-rank{font-size:28px;color:var(--accent-hi)}
+.mv-body{display:flex;flex-direction:column;gap:6px;min-width:0}
+.mv-h{font:700 15px/1.35 var(--font);color:var(--text);text-decoration:none} .mv.top .mv-h{font:800 clamp(17px,2.4vw,21px)/1.3 var(--display);letter-spacing:-.01em}
+a.mv-h[href]:hover{color:var(--accent-hi)}
+.mv-meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:11.5px;color:var(--muted)}
+.mv-meta>span:not(.mv-hi)+span:not(.mv-hi)::before,.mv-place+span::before{content:"";display:inline-block;width:3px;height:3px;border-radius:50%;background:var(--faint);margin:0 6px 2px 0;vertical-align:middle}
+.mv-place{border:1px solid rgba(var(--accent-rgb),.4);background:rgba(var(--accent-rgb),.1);color:var(--accent-hi);border-radius:999px;padding:3px 8px;font:700 11px/1 var(--font);cursor:pointer}
+.mv-hi{color:var(--loss);font-weight:700}
+.mv-fx{font:800 12px/1 var(--mono);padding:6px 9px;border-radius:999px;background:rgba(var(--muted-rgb),.14);color:var(--muted);white-space:nowrap}
+.mv.up .mv-fx{color:var(--gain);background:rgba(var(--gain-rgb),.14)} .mv.dn .mv-fx{color:var(--loss);background:rgba(var(--loss-rgb),.14)}
+@media (max-width:480px){.mv{grid-template-columns:26px 1fr;}.mv-fx{grid-column:2;justify-self:start}}
+@media (max-width:480px){.wc-row{grid-template-columns:50px 8px 1fr}.wc-row .fxp{grid-column:3;justify-self:start}}
 </style>
 <style>
 /* ---------- web shell ---------- */
@@ -1290,7 +1484,7 @@ const cls = b => b === "bullish" ? "bull" : b === "bearish" ? "bear" : "flat";
 const label = b => b === "bullish" ? "Bullish" : b === "bearish" ? "Bearish" : "Neutral";
 const short = b => b === "bullish" ? "Bull" : b === "bearish" ? "Bear" : "Flat";
 const signed = n => (Number(n) > 0 ? "+" : Number(n) < 0 ? "−" : "") + Math.abs(Number(n)||0);
-const pct = n => n == null ? "—" : (n > 0 ? "+" : n < 0 ? "−" : "") + Math.abs(Number(n)).toFixed(2) + "%";
+const pct = n => n == null || n === "" || !isFinite(Number(n)) ? "—" : (n > 0 ? "+" : n < 0 ? "−" : "") + Math.abs(Number(n)).toFixed(2) + "%";
 const rgbVar = b => b === "bullish" ? "var(--gain-rgb)" : b === "bearish" ? "var(--loss-rgb)" : "var(--muted-rgb)";
 const SYM = {NQ:"Nasdaq-100", ES:"S&P 500"};
 
@@ -1607,7 +1801,7 @@ const Globe = (() => {
   const N = 16000, GA = Math.PI*(3-Math.sqrt(5)), D2R = Math.PI/180;
   const reduce = (() => { try { return matchMedia("(prefers-reduced-motion: reduce)").matches; } catch(e){ return false; } })();
   let P = null, cv = null, ctx = null, host = null, ro = null, io = null, raf = 0, visible = true;
-  let size = 0, dpr = 1, lon0 = 20, lat0 = 22, tgt = null, drag = null, holdUntil = 0, spots = [], sel = -1, col = {}, onPick = null, last = 0;
+  let size = 0, dpr = 1, lon0 = 20, lat0 = 22, zoom = 1, zoomT = 1, view = "world", tgt = null, drag = null, holdUntil = 0, spots = [], sel = -1, col = {}, onPick = null, last = 0;
   function build(){ const b = atob(MASK); const a = [];
     for(let i=0;i<N;i++) if((b.charCodeAt(i>>3) >> (i&7)) & 1){ const y = 1-(i+.5)*2/N, r = Math.sqrt(1-y*y), th = i*GA; a.push(Math.cos(th)*r, y, Math.sin(th)*r); }
     P = new Float32Array(a); }
@@ -1626,7 +1820,7 @@ const Globe = (() => {
     return out; }
   function draw(t){
     if(!ctx || !P) return;
-    const R = size*.4, cx = size/2, cy = size/2;
+    const R = size*.4*zoom, cx = size/2, cy = size/2;
     ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,size,size);
     // atmosphere + body
     let g = ctx.createRadialGradient(cx, cy, R*.92, cx, cy, R*1.28); g.addColorStop(0, `rgba(${col.acc},.22)`); g.addColorStop(1, `rgba(${col.acc},0)`);
@@ -1644,7 +1838,7 @@ const Globe = (() => {
       for(let i=0;i<arr.length;i+=2){ ctx.moveTo(arr[i]+r, arr[i+1]); ctx.arc(arr[i], arr[i+1], r, 0, 6.283); } ctx.fill(); });
     // arcs to New York
     const ny = xyz(NYC[0], NYC[1]);
-    spots.forEach((s, si) => { if(!s.loc) return; const c = col[s.rgb] || col.warn; const A = s.arc || (s.arc = arcPts(xyz(s.loc[0], s.loc[1]), ny));
+    spots.forEach((s, si) => { if(!s.loc || s.noArc) return; const c = col[s.rgb] || col.warn; const A = s._arc || (s._arc = arcPts(xyz(s.loc[0], s.loc[1]), ny));
       const pr = A.map(q => { const p = proj(q[0],q[1],q[2]); return [cx + R*p[0], cy - R*p[1], p[2] > 0 || (p[0]*p[0] + p[1]*p[1]) > 1.0]; });
       ctx.lineWidth = si === sel ? 1.8 : 1.1; ctx.strokeStyle = `rgba(${c},${si === sel ? .7 : .32})`; ctx.beginPath();
       let on = false; pr.forEach(([x,y,v]) => { if(v){ on ? ctx.lineTo(x,y) : ctx.moveTo(x,y); on = true; } else on = false; }); ctx.stroke();
@@ -1660,9 +1854,10 @@ const Globe = (() => {
       const ph = reduce ? .5 : ((t/1700) + si*.29) % 1;
       ctx.strokeStyle = `rgba(${c},${(.85*(1-ph)).toFixed(2)})`; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.arc(x, y, 4 + ph*(isSel ? 18 : 12), 0, 6.283); ctx.stroke();
       const gg = ctx.createRadialGradient(x, y, 0, x, y, isSel ? 16 : 11); gg.addColorStop(0, `rgba(${c},.55)`); gg.addColorStop(1, `rgba(${c},0)`); ctx.fillStyle = gg; ctx.beginPath(); ctx.arc(x, y, isSel ? 16 : 11, 0, 6.283); ctx.fill();
-      ctx.fillStyle = `rgb(${c})`; ctx.beginPath(); ctx.arc(x, y, isSel ? 5 : 3.8, 0, 6.283); ctx.fill();
-      ctx.fillStyle = `rgba(255,255,255,.9)`; ctx.beginPath(); ctx.arc(x, y, isSel ? 1.9 : 1.3, 0, 6.283); ctx.fill();
-      if(isSel) label(x, y, s.short, c, true); });
+      const rr = (s.size || 3.8) + (isSel ? 1.4 : 0);
+      ctx.fillStyle = `rgb(${c})`; ctx.beginPath(); ctx.arc(x, y, rr, 0, 6.283); ctx.fill();
+      ctx.fillStyle = `rgba(255,255,255,.9)`; ctx.beginPath(); ctx.arc(x, y, Math.max(1.2, rr * .35), 0, 6.283); ctx.fill();
+      if(isSel) label(x, y, s.short, c, true); else if(zoom > 1.6 && s.big) label(x, y, s.short, c, false); });
   }
   function label(x, y, txt, c, pill){ ctx.font = `600 ${pill ? 11 : 10}px ${col.font}`; const w = ctx.measureText(txt).width; let lx = x + 12, ly = y - 12;
     if(lx + w + 12 > size) lx = x - 12 - w - 12; if(ly < 14) ly = y + 22;
@@ -1672,16 +1867,17 @@ const Globe = (() => {
   function step(t){
     raf = 0; if(!cv || !cv.isConnected || !visible || document.hidden) return;
     const dt = Math.min(64, t - (last || t)); last = t;
+    if(Math.abs(zoomT - zoom) > .002) zoom += (zoomT - zoom) * Math.min(1, dt/320); else zoom = zoomT;
     if(tgt){ let dl = ((tgt[1] - lon0 + 540) % 360) - 180; lon0 += dl * Math.min(1, dt/260); lat0 += (tgt[0] - lat0) * Math.min(1, dt/260);
       if(Math.abs(dl) < .05 && Math.abs(tgt[0]-lat0) < .05){ tgt = null; holdUntil = t + 9000; } }
-    else if(!drag && t > holdUntil){ lon0 -= dt * .0035; lat0 += (18 - lat0) * Math.min(1, dt/4000); }
+    else if(!drag && t > holdUntil && zoomT <= 1.01){ lon0 -= dt * .0035; lat0 += (18 - lat0) * Math.min(1, dt/4000); }
     draw(t); raf = requestAnimationFrame(step); }
   function kick(){ if(!raf && !reduce && visible && cv?.isConnected) { last = 0; raf = requestAnimationFrame(step); } else if(reduce) draw(0); }
   function ensure(){
     if(cv) return; build(); cv = document.createElement("canvas"); cv.className = "globe-cv"; cv.setAttribute("role","img"); cv.setAttribute("aria-label","Globe showing geopolitical hotspots and how they reach US index futures");
     ctx = cv.getContext("2d");
     cv.addEventListener("pointerdown", e => { drag = {x:e.clientX, y:e.clientY, lon:lon0, lat:lat0, moved:false}; tgt = null; cv.setPointerCapture?.(e.pointerId); });
-    cv.addEventListener("pointermove", e => { if(!drag) return; const k = 180/(size*.4*Math.PI); const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+    cv.addEventListener("pointermove", e => { if(!drag) return; const k = 180/(size*.4*zoom*Math.PI); const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
       if(Math.abs(dx) + Math.abs(dy) > 4) drag.moved = true; lon0 = drag.lon - dx*k; lat0 = Math.max(-60, Math.min(70, drag.lat + dy*k)); if(reduce) draw(0); });
     const up = e => { if(!drag) return; const moved = drag.moved; drag = null; holdUntil = performance.now() + 4000;
       if(!moved){ const r = cv.getBoundingClientRect(); const x = e.clientX - r.left, y = e.clientY - r.top; let best = -1, bd = 22;
@@ -1690,13 +1886,15 @@ const Globe = (() => {
     cv.addEventListener("pointerup", up); cv.addEventListener("pointercancel", () => { drag = null; });
     document.addEventListener("visibilitychange", kick);
   }
-  function mount(data, selIdx, pick){
+  function mount(data, selIdx, pick, opts){
     const h = document.getElementById("globe-host");
     if(!h){ host = null; return; }
     ensure(); onPick = pick;
-    const key = data.map(s => s.name + s.status).join("|");
+    const key = (opts?.view || "world") + data.map(s => s.name + (s.status || "") + (s.rgb || "") + (s.size || "") + (s.noArc ? "n" : "")).join("|");
     if(key !== spots.key){ spots = data; spots.key = key; }
-    if(selIdx !== sel && spots[selIdx]?.loc){ const L = spots[selIdx].loc; tgt = [Math.max(-50, Math.min(60, L[0]*.8)), L[1]]; }
+    const v = opts?.view || "world";
+    if(v !== view){ view = v; if(v === "us"){ zoomT = 2.6; tgt = [37.5, -95]; } else { zoomT = 1; holdUntil = performance.now() + 2500; } if(reduce){ zoom = zoomT; if(tgt){ lat0 = tgt[0]; lon0 = tgt[1]; tgt = null; } } }
+    if(selIdx !== sel && spots[selIdx]?.loc){ const L = spots[selIdx].loc; tgt = view === "us" ? [Math.max(25, Math.min(48, L[0])), L[1]] : [Math.max(-50, Math.min(60, L[0]*.8)), L[1]]; if(reduce){ lat0 = tgt[0]; lon0 = tgt[1]; tgt = null; } }
     sel = selIdx; readCol();
     if(host !== h){ host = h; h.appendChild(cv);
       ro?.disconnect(); if(window.ResizeObserver){ ro = new ResizeObserver(resize); ro.observe(h); }
@@ -2083,20 +2281,347 @@ function headlines(br){
 }
 function newsTeaser(br){
   const {steps} = storyData(br); const last = steps[steps.length-1];
-  const top = (br.news || []).filter(n => (n.impact === "high" || n.impact === "medium") && n.at).sort((a,b) => String(b.at).localeCompare(String(a.at))).slice(0, 2);
+  const top = movers(br, 3);
   if(!last && !top.length) return "";
   let why = "";
   if(last){ const b = last.c.NQ?.bias || "neutral", pb = last.p?.NQ?.bias, flip = last.p && pb !== b; const [lead] = leadOf(last.why);
     why = `<div class="nt-why"><div class="nt-top"><span class="st-time">${esc(fmtTime(last.c.at))}</span>${flip ? `<span class="tag ${cls(pb)}">${label(pb)}</span><span class="st-arrow">→</span>` : ""}<span class="tag ${cls(b)}">${label(b)} ${signed(last.c.NQ?.score)}</span></div>${lead ? `<b class="nt-lead">${esc(lead)}</b>` : ""}</div>`; }
   const n = (br.news || []).length;
-  return `<section class="panel nteaser"><div class="nt-head"><span class="eyebrow">Why it moved</span><button class="nt-go" data-tab="news" type="button">Full story →</button></div>${why}
+  return `<section class="panel nteaser"><div class="nt-head"><span class="eyebrow">What's moving it</span><button class="nt-go" data-tab="news" type="button">All news →</button></div>${why}
     ${top.length ? `<div class="nt-list">${top.map(x => `<a class="nt-row ${esc(x.impact)}" ${x.url ? `href="${esc(x.url)}" target="_blank" rel="noopener"` : ""}><i class="imp ${esc(x.impact)}"></i><span class="nt-h">${esc(x.headline)}</span><span class="nt-r">${fxPill(x.nq)}<em>${esc(ago(x.at))}</em></span></a>`).join("")}</div>` : ""}
-    <button class="nt-more" data-tab="news" type="button"><span>${n} stories · week-ahead calendar · geo radar</span><b>Open News →</b></button></section>`;
+    <button class="nt-more" data-tab="news" type="button"><span>${n} stories · world news map · week ahead</span><b>Open News →</b></button></section>`;
 }
 function newsTab(br){
-  return `${tminus(br)}${flashBanner(br)}${alertBanner(br)}<section class="hero news-hero"><span class="eyebrow">News desk</span><h2 class="nh-title">What's moving NQ & ES</h2><p class="muted" style="font-size:13.5px">Every read, the headlines and data behind it, what's coming up this week, and the geopolitical picture.</p></section>
-    ${lastNews(br)}${story(br)}${headlines(br)}${upcoming()}${geoPanel(br)}${newsPanel(br)}${calendar(br)}${surprises(br)}`;
+  const usdLeft = (S.cal?.events || []).filter(e => e.country === "USD" && e.impact === "high" && e.t >= Date.now());
+  const g = br.geo, hs = g?.hotspots || [];
+  const sum = {
+    story: (() => { const st = storyData(br).steps; const last = st[st.length-1]; return last ? `Now ${label(last.c.NQ?.bias)} ${signed(last.c.NQ?.score)} · ${st.length} reads today` : ""; })(),
+    geo: g ? `${({calm:"Calm",elevated:"Elevated",high:"High",crisis:"Crisis"})[g.risk] || ""} risk · ${hs.length} hotspot${hs.length === 1 ? "" : "s"}${hs.filter(h => h.status === "escalating").length ? ` · ${hs.filter(h => h.status === "escalating").length} escalating` : ""}` : "",
+    week: S.cal ? (usdLeft.length ? `${usdLeft.length} big USD releases left · next ${usdLeft[0].title}` : "Quiet for USD") : "",
+    all: `${(br.news || []).length} stories${S.topic ? ` · ${S.topic} only` : ""}`,
+    data: br.calendar?.length ? `${br.calendar.length} releases today` : "",
+    surp: br.surprises?.length ? `${br.surprises.length} prints scored` : "",
+  };
+  return `${flashBanner(br)}${alertBanner(br)}${tminus(br)}${moversPanel(br)}${worldPanel(br)}${newsFlow(br)}${tapeNews(br)}
+    <div class="folds">
+    ${fold("story", "Why the bias moved", sum.story, story(br), true)}
+    ${fold("heads", "Headline cards", "", headlines(br))}
+    ${fold("week", "Week ahead", sum.week, upcoming())}
+    ${fold("all", "All headlines", sum.all, newsPanel(br), !!S.topic)}
+    ${fold("data", "Today's data", sum.data, calendar(br))}
+    ${fold("surp", "Beat or miss", sum.surp, surprises(br))}
+    </div>`;
 }
+/* ---------- v3: answer-first layout, folds, tug-of-war, tape × headlines, topic bubbles ---------- */
+S.folds = (() => { try { return JSON.parse(store.get("db-folds") || "{}"); } catch(e){ return {}; } })();
+function fold(id, title, sum, body, def){
+  if(!body) return "";
+  const open = S.folds[id] ?? !!def;
+  return `<section class="fold${open ? " open" : ""}"><button class="fold-h" data-fold="${id}" aria-expanded="${open}" type="button"><span class="fold-t">${title}</span><span class="fold-s">${sum || ""}</span><i class="fold-c" aria-hidden="true"></i></button>${open ? `<div class="fold-b">${body}</div>` : ""}</section>`;
+}
+
+/* the answer: what to do, when it's wrong, what's next */
+function abortLine(br){
+  const b = br.instruments?.NQ?.bias || "neutral";
+  const calls = br.calls || [], c = calls[calls.length-1]; const ref = Number(c?.px?.NQ); const amp = Number(br.implied?.NQ?.amMovePct); const T = amp > 0 ? .5*amp : .35;
+  if(!(ref > 0)) return null;
+  const q = v => fmtN(Math.round(v*4)/4);
+  if(b === "bullish") return {txt:`NQ below ${q(ref*(1-T/100))}`, sub:`${T.toFixed(2)}% under the ${q(ref)} call price`};
+  if(b === "bearish") return {txt:`NQ above ${q(ref*(1+T/100))}`, sub:`${T.toFixed(2)}% over the ${q(ref)} call price`};
+  return {txt:`A break of ${q(ref*(1-T/100))} or ${q(ref*(1+T/100))}`, sub:`±${T.toFixed(2)}% from ${q(ref)} ends the range read`};
+}
+function nextUp(br){
+  const nx = nextHigh(br);
+  if(nx && nx.t > Date.now() - 5*60e3) return {txt: nx.title, sub:`${calDay(nx.t)} ${calTime(nx.t)} ET · ${cdTxt(nx.t)}`, cd: nx.t};
+  const L = br.id === latest()?.id ? liveSession(br) : null;
+  if(L) return {txt: `${L.sd.name} session`, sub: L.st === "live" ? `Live now · ${L.sd.window}` : `${L.sd.window} ET`};
+  return {txt:"Next read", sub:"Sunday 6:24 PM ET"};
+}
+function answer(br){
+  const d = br.instruments?.NQ || {}, b = d.bias || "neutral";
+  const verb = b === "bullish" ? "Lean long NQ" : b === "bearish" ? "Lean short NQ" : "No edge on NQ yet";
+  const conv = d.conviction ? `${d.conviction[0].toUpperCase() + d.conviction.slice(1)} conviction` : "";
+  const ab = abortLine(br), nx = nextUp(br), [lead, rest] = leadOf(br.headline);
+  return `<section class="answer a-${cls(b)}"><div class="ans-top">${br.regime ? `<span class="regime">${esc(br.regime)}</span>` : ""}<button class="ans-share js-share" type="button" aria-label="Share today's call"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7 8l5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg></button><span class="ans-when">${esc(PHASE_LABEL[br.phase] || "")}${br.generatedAt ? ` · ${esc(fmtTime(br.generatedAt))}` : ""}</span></div>
+    <h1 class="ans-verb">${verb}</h1>
+    <p class="ans-lead">${esc(lead)}${rest ? `${S.heroMore ? ` <span class="ans-rest">${esc(rest)}</span>` : ""} <button class="ans-more" id="hero-more" type="button">${S.heroMore ? "Less" : "Full read"}</button>` : ""}</p>
+    <div class="ans-grid">
+      <div class="ans-cell"><span>Call</span><b class="${cls(b)}">${label(b)} ${signed(d.score)}</b><em>${esc(conv)}</em></div>
+      ${ab ? `<div class="ans-cell"><span>Wrong if</span><b>${esc(ab.txt)}</b><em>${esc(ab.sub)}</em></div>` : ""}
+      <div class="ans-cell"><span>Next up</span><b>${esc(nx.txt)}</b><em>${nx.cd ? `${esc(calDay(nx.cd))} ${esc(calTime(nx.cd))} ET · <span data-cd="${nx.cd}">${cdTxt(nx.cd)}</span>` : esc(nx.sub)}</em></div>
+    </div></section>`;
+}
+
+/* tug-of-war: every input in the scorecard pulling the call up or down */
+function shortInput(s){ s = String(s || ""); const i = s.search(/[;(]/); return (i > 18 ? s.slice(0, i) : s).trim().slice(0, 90); }
+function engine(br){
+  const sym = S.engSym || "NQ"; const d = callOf(br, sym); const r = d?.rubric; if(!r?.length) return "";
+  const f = r.map((x, i) => ({...x, i, p: Number(x.points) || 0}));
+  const pull = f.filter(x => x.p).sort((a, b) => b.p - a.p);
+  const idle = f.filter(x => !x.p);
+  const up = pull.filter(x => x.p > 0).reduce((a, x) => a + x.p, 0), dn = -pull.filter(x => x.p < 0).reduce((a, x) => a + x.p, 0);
+  const sc = Number(d.score) || 0, pos = 50 + Math.max(-100, Math.min(100, sc)) / 2;
+  const row = x => { const open = S.engOpen === sym + x.i; const w = Math.min(Math.abs(x.p), 2) / 2 * 100;
+    return `<button class="eg-row${open ? " open" : ""}" data-engf="${sym + x.i}" type="button"><span class="eg-name">${esc(x.factor)}${x.live ? '<i class="eg-live" title="Live"></i>' : ""}</span>
+      <span class="eg-bar"><i class="${x.p > 0 ? "up" : "dn"}" style="--w:${w}%"></i></span><span class="eg-pts ${x.p > 0 ? "bull" : "bear"}">${signed(x.p)}</span>
+      ${open ? `<span class="eg-in">${esc(x.input)}</span>` : ""}</button>`; };
+  return `<section class="panel engine"><div class="eg-head"><div><span class="eyebrow">What's pulling the call${d.live ? " · live" : ""}</span><h3 class="eg-title">${up} up vs ${dn} down → <span class="${cls(d.bias)}">${label(d.bias)} ${signed(sc)}</span></h3></div>
+      <span class="seg" role="group" aria-label="Instrument"><button data-eng="NQ" aria-pressed="${sym === "NQ"}">NQ</button><button data-eng="ES" aria-pressed="${sym === "ES"}">ES</button></span></div>
+    <div class="rope" aria-label="Net score ${sc}"><span class="rope-l">Bear</span><div class="rope-track"><i class="rope-mid"></i><span class="knot ${cls(d.bias)}" style="left:${pos}%"><b>${signed(sc)}</b></span></div><span class="rope-r">Bull</span></div>
+    <div class="eg-rows">${pull.map(row).join("")}</div>
+    ${idle.length ? `<p class="eg-idle"><span>Not pulling either way:</span> ${idle.map(x => esc(x.factor)).join(", ")}</p>` : ""}
+    <p class="faint" style="font-size:11.5px">Tap a row for the reading behind it. Each input scores −2 to +2; the total sets the call.</p></section>`;
+}
+
+/* news: topics, flow, and the tape with headlines on it */
+const TOPICS = [["Fed", /fed|fomc|powell|central bank|ecb|boj|policy/i], ["Rates", /rate|yield|bond|treasur|credit/i], ["Energy", /energy|oil|opec|crude|wti|gas|diesel/i],
+  ["Geopolitics", /geo|war|iran|israel|russia|ukrain|taiwan|houthi|hormuz|sanction|military/i], ["Big tech", /tech|earning|megacap|company|nvidia|apple|microsoft|tesla|ai\b/i],
+  ["Data", /data|macro|jobs|payroll|cpi|pce|gdp|pmi|claims|retail/i], ["Trade", /trade|tariff/i], ["Flows", /position|flow|cftc|fund|market open/i]];
+function topicOf(n){ const c = String(n.category || ""); for(const [k, re] of TOPICS) if(re.test(c)) return k; for(const [k, re] of TOPICS) if(re.test(n.headline || "")) return k; return "Other"; }
+const W8 = {high:3, medium:2, low:1};
+function newsFlow(br){
+  const ns = br.news || []; if(!ns.length) return "";
+  let up = 0, dn = 0; ns.forEach(n => { const w = W8[n.impact] || 1; if(n.nq > 0) up += w; else if(n.nq < 0) dn += w; });
+  const tot = up + dn, bp = tot ? Math.round(up / tot * 100) : 50;
+  const lean = !tot ? "Quiet" : bp >= 60 ? "Leaning bullish" : bp <= 40 ? "Leaning bearish" : "Mixed";
+  const tp = {}; ns.forEach(n => { const k = topicOf(n); const t = tp[k] = tp[k] || {k, n:0, net:0, hi:0}; t.n++; t.net += (Math.sign(n.nq || 0)) * (W8[n.impact] || 1); if(n.impact !== "low") t.hi++; });
+  const list = Object.values(tp).sort((a, b) => b.n - a.n); const mx = Math.max(...list.map(t => t.n));
+  const bub = list.map(t => { const s = 46 + Math.round(t.n / mx * 46); const c = t.net > 0 ? "up" : t.net < 0 ? "dn" : "";
+    return `<button class="bub ${c}${S.topic === t.k ? " on" : ""}" data-topic="${esc(t.k)}" style="--s:${s}px" type="button"><b>${t.n}</b><span>${esc(t.k)}</span></button>`; }).join("");
+  return `<section class="panel flow"><div class="fl-head"><div><span class="eyebrow">News flow today</span><h3 class="fl-title ${bp >= 60 ? "bull" : bp <= 40 ? "bear" : ""}">${lean}</h3></div><span class="fl-n">${ns.length} stories</span></div>
+    <div class="fl-bar"><i class="up" style="width:${bp}%"></i><i class="dn" style="width:${100-bp}%"></i></div>
+    <div class="fl-lbl"><span class="bull">${bp}% bullish for NQ</span><span class="bear">${100-bp}% bearish</span></div>
+    <div class="bubs">${bub}</div><p class="faint" style="font-size:11.5px">Weighted by impact. Tap a topic to filter the headlines below.</p></section>`;
+}
+function tapeSeries(br){
+  const pts = [];
+  (br.watch?.ticks || []).forEach(t => { if(t.nq) pts.push([Date.parse(t.at), Number(t.nq)]); });
+  (br.calls || []).forEach(c => { if(c.px?.NQ) pts.push([Date.parse(c.px.at || c.at), Number(c.px.NQ)]); });
+  const bars = br.id === latest()?.id && !S.live?.closed ? (S.live?.q?.NQ?.bars || []) : [];
+  if(bars.length){ const b0 = bars[0][0]; for(let i = pts.length - 1; i >= 0; i--) if(pts[i][0] >= b0) pts.splice(i, 1);
+    bars.forEach(([t, h, l]) => pts.push([t, (h + l) / 2])); if(S.live.q.NQ.time > bars[bars.length-1][0]) pts.push([S.live.q.NQ.time, S.live.q.NQ.price]); }
+  const s = pts.filter(p => isFinite(p[0]) && p[1] > 0).sort((a, b) => a[0] - b[0]);
+  return s.filter((p, i) => !i || p[0] - s[i-1][0] > 60e3);
+}
+function tapeNews(br){
+  const s = tapeSeries(br); if(s.length < 3) return "";
+  const ns = (br.news || []).map((n, i) => ({...n, i, t: Date.parse(n.at)})).filter(n => isFinite(n.t) && (n.impact !== "low" || n.nq) && (!S.topic || topicOf(n) === S.topic));
+  const calls = (br.calls || []).filter(c => c.at);
+  const t0 = Math.min(s[0][0], ...ns.map(n => n.t)), t1 = Math.max(s[s.length-1][0], ...ns.map(n => n.t));
+  let lo = Math.min(...s.map(p => p[1])), hi = Math.max(...s.map(p => p[1])); const pad = (hi - lo) * .18 || 10; lo -= pad; hi += pad;
+  const W = Math.max(320, Math.min(900, (window.innerWidth || 800) - 72)), H = W < 500 ? 250 : 280, L = 6, R = W - 6, T = 44, B = H - 24;
+  const X = t => L + (t - t0) / Math.max(1, t1 - t0) * (R - L), Y = v => T + (hi - v) / (hi - lo) * (B - T);
+  const at = t => { if(t <= s[0][0]) return s[0][1]; for(let i = 1; i < s.length; i++) if(s[i][0] >= t){ const [a, va] = s[i-1], [b, vb] = s[i]; return va + (vb - va) * (t - a) / Math.max(1, b - a); } return s[s.length-1][1]; };
+  const line = s.map((p, i) => `${i ? "L" : "M"}${X(p[0]).toFixed(1)} ${Y(p[1]).toFixed(1)}`).join("");
+  const sel = S.tnSel != null && ns.find(n => n.i === S.tnSel) ? S.tnSel : (ns.filter(n => n.impact !== "low").sort((a, b) => b.t - a.t)[0] || ns[ns.length-1] || {}).i;
+  const hours = []; for(let h = Math.ceil(t0 / 36e5) * 36e5; h <= t1; h += 36e5){ const p = etParts(new Date(h)); if(p.h % 3 === 0) hours.push([h, p.h === 0 ? "12a" : p.h < 12 ? `${p.h}a` : p.h === 12 ? "12p" : `${p.h - 12}p`]); }
+  let lastX = -99, row = 0;
+  const cm = calls.map((c, i) => { const x0 = X(Date.parse(c.at)); const x = Math.max(L + 24, Math.min(R - 24, x0)); const b = c.NQ?.bias; const flip = i && calls[i-1].NQ?.bias !== b;
+    row = x - lastX < 50 ? 1 - row : 0; lastX = x; const ty = T - 22 - row * 19;
+    return `<g class="tn-call ${cls(b)}${flip ? " flip" : ""}"><line x1="${x0.toFixed(1)}" x2="${x0.toFixed(1)}" y1="${ty + 16}" y2="${B}"/><rect x="${(x - 23).toFixed(1)}" y="${ty}" width="46" height="16" rx="8"/><text x="${x.toFixed(1)}" y="${ty + 11.5}">${short(b)} ${signed(c.NQ?.score)}</text></g>`; }).join("");
+  const dots = ns.map(n => { const x = X(n.t), y0 = Y(at(n.t)), off = n.nq > 0 ? -16 : n.nq < 0 ? 16 : 0, y = Math.max(T + 4, Math.min(B - 4, y0 + off)); const r = n.impact === "high" ? 7 : n.impact === "medium" ? 5.5 : 3.5;
+    return `<g class="tn-dot ${n.nq > 0 ? "up" : n.nq < 0 ? "dn" : "nz"}${n.i === sel ? " sel" : ""}" data-tn="${n.i}">${off ? `<line x1="${x.toFixed(1)}" x2="${x.toFixed(1)}" y1="${y0.toFixed(1)}" y2="${y.toFixed(1)}"/>` : ""}<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r}"/><circle class="hit" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="13"/></g>`; }).join("");
+  const sn = (br.news || [])[sel];
+  const cap = sn ? (() => { const prev = calls.filter(c => Date.parse(c.at) <= Date.parse(sn.at)).pop(), next = calls.find(c => Date.parse(c.at) > Date.parse(sn.at));
+    const after = next ? (prev && prev.NQ?.bias !== next.NQ?.bias ? `The next read (${fmtTime(next.at)}) flipped NQ ${label(prev.NQ?.bias)} → ${label(next.NQ?.bias)}.` : `The next read (${fmtTime(next.at)}) kept NQ ${label(next.NQ?.bias)}.`) : "Not scored yet; the next check decides if it moves the call.";
+    return `<a class="tn-cap" ${sn.url ? `href="${esc(sn.url)}" target="_blank" rel="noopener"` : ""}><span class="tn-meta"><b>${esc(fmtTime(sn.at))}</b><span>${esc(sn.source || "")}</span><span class="tn-topic">${esc(topicOf(sn))}</span>${fxPill(sn.nq)}</span><b class="tn-hl">${esc(sn.headline)}</b><span class="tn-after">${esc(after)}</span></a>`; })() : "";
+  return `<section class="panel tn"><div class="tn-head"><div><span class="eyebrow">Headlines on the tape</span><h3 class="tn-title">NQ today, with every story that hit it</h3></div>${S.topic ? `<button class="tn-clear" data-topic="" type="button">${esc(S.topic)} only · show all</button>` : ""}</div>
+    <div class="tn-wrap"><svg class="tn-svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="NQ price today with headlines and call changes">
+      <defs><linearGradient id="tng" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgb(var(--accent-rgb))" stop-opacity=".28"/><stop offset="1" stop-color="rgb(var(--accent-rgb))" stop-opacity="0"/></linearGradient></defs>
+      ${hours.map(([h, l]) => `<g class="tn-h"><line x1="${X(h).toFixed(1)}" x2="${X(h).toFixed(1)}" y1="${T}" y2="${B}"/><text x="${X(h).toFixed(1)}" y="${H - 6}">${l}</text></g>`).join("")}
+      <path d="${line}L${X(s[s.length-1][0]).toFixed(1)} ${B}L${X(s[0][0]).toFixed(1)} ${B}Z" fill="url(#tng)"/>
+      <path class="tn-line" d="${line}"/>
+      <text class="tn-px" x="${R}" y="${T + 10}" text-anchor="end">${fmtN(Math.round(hi))}</text><text class="tn-px" x="${R}" y="${B - 4}" text-anchor="end">${fmtN(Math.round(lo))}</text>
+      ${cm}${dots}</svg></div>
+    <div class="tn-key"><span><i class="k-up"></i>Bullish for NQ</span><span><i class="k-dn"></i>Bearish</span><span><i class="k-nz"></i>Neutral</span><span><i class="k-call"></i>Verdict read</span></div>
+    ${cap}</section>`;
+}
+/* ---------- live bias (server engine, every 2 min) ---------- */
+function liveFor(br){
+  const L = S.liveBias; if(!L || !br || br.id !== latest()?.id) return null;
+  if(Date.now() - Date.parse(L.at) > 12*60e3) return null;
+  if(L.session < br.id) return null;
+  return L;
+}
+// The call to show: the live engine's when it's fresh, otherwise the last full read.
+function callOf(br, sym){
+  const L = liveFor(br), r = br.instruments?.[sym] || {};
+  if(L && L[sym]) return {...r, score: L[sym].score, bias: L[sym].bias, conviction: L[sym].conviction, rubric: L[sym].rubric, live: true, readScore: r.score, readBias: r.bias};
+  return br.instruments?.[sym] ? {...r, live: false} : null;
+}
+function biasLine(L){
+  const h = (L?.history || []).filter(x => isFinite(x.nq)); if(h.length < 3) return "";
+  const W = 600, H = 56, t0 = h[0].t, t1 = h[h.length-1].t || t0 + 1;
+  const X = t => ((t - t0) / Math.max(1, t1 - t0) * W).toFixed(1), Y = v => (H/2 - Math.max(-60, Math.min(60, v)) / 60 * (H/2 - 4)).toFixed(1);
+  const d = h.map((x, i) => `${i ? "L" : "M"}${X(x.t)} ${Y(x.nq)}`).join("");
+  const last = h[h.length-1];
+  return `<svg class="bline" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-label="Live NQ score through the session">
+    <defs><clipPath id="blUp"><rect x="0" y="0" width="${W}" height="${H/2}"/></clipPath><clipPath id="blDn"><rect x="0" y="${H/2}" width="${W}" height="${H/2}"/></clipPath></defs>
+    <line x1="0" x2="${W}" y1="${H/2}" y2="${H/2}" class="bl-zero"/>
+    <line x1="0" x2="${W}" y1="${Y(15)}" y2="${Y(15)}" class="bl-th"/><line x1="0" x2="${W}" y1="${Y(-15)}" y2="${Y(-15)}" class="bl-th"/>
+    <path d="${d}L${W} ${H/2}L0 ${H/2}Z" class="bl-fill-up" clip-path="url(#blUp)"/><path d="${d}L${W} ${H/2}L0 ${H/2}Z" class="bl-fill-dn" clip-path="url(#blDn)"/>
+    <path d="${d}" class="bl-line up" clip-path="url(#blUp)"/><path d="${d}" class="bl-line dn" clip-path="url(#blDn)"/>
+    <circle cx="${X(last.t)}" cy="${Y(last.nq)}" r="4" class="bl-dot ${last.nq >= 0 ? "up" : "dn"}"/></svg>`;
+}
+function pressureCell(L){
+  const P = L?.pressure; if(!P) return "";
+  const dir = P.score >= 2 ? "up" : P.score <= -2 ? "dn" : "flat";
+  const word = dir === "up" ? (P.strong ? "Building higher" : "Leaning higher") : dir === "dn" ? (P.strong ? "Building lower" : "Leaning lower") : "Balanced";
+  const sig = (P.signals || []).slice(0, 2).map(x => esc(x.txt)).join(" · ");
+  return `<div class="ans-cell press ${dir}"><span>Next move pressure</span><b>${dir === "up" ? "▲" : dir === "dn" ? "▼" : "◆"} ${word}</b><em>${sig || "Rates, dollar and vol are quiet"}${P.event ? ` · ${esc(P.event.title)} ${cdTxt(P.event.t)}` : ""}</em></div>`;
+}
+function changedSince(L, br){
+  const r = (L?.NQ?.rubric || []).filter(x => x.live && x.was != null && Number(x.points) !== Number(x.was));
+  if(!r.length) return "";
+  const read = L.read; const rb = read?.NQ;
+  return `<div class="ans-chg"><span class="ans-chg-k">Since the ${esc(STEP_LABEL[read?.phase] || "last")} read${read?.at ? ` (${esc(fmtTime(read.at))})` : ""}${rb ? `: <b class="${cls(rb.bias)}">${label(rb.bias)} ${signed(rb.score)}</b>` : ""}</span>
+    ${r.sort((a, b) => Math.abs(b.points - b.was) - Math.abs(a.points - a.was)).slice(0, 4).map(x => { const up = x.points > x.was;
+      return `<span class="chg ${up ? "up" : "dn"}" title="${esc(x.input)}">${esc(x.factor)} <b>${signed(x.was)} → ${signed(x.points)}</b></span>`; }).join("")}</div>`;
+}
+function liveAnswer(br){
+  const L = liveFor(br); if(!L) return answer(br);
+  const d = L.NQ, b = d.bias;
+  const verb = b === "bullish" ? "Lean long NQ" : b === "bearish" ? "Lean short NQ" : (d.score >= 8 ? "No edge yet, tilting long" : d.score <= -8 ? "No edge yet, tilting short" : "No edge on NQ yet");
+  const px = L.nq?.price, T = L.T || .35, q = v => fmtN(Math.round(v*4)/4);
+  const wrong = px ? (b === "bullish" ? {txt:`NQ below ${q(px*(1-T/100))}`, sub:`${T.toFixed(2)}% under here, or the score drops under +15`} : b === "bearish" ? {txt:`NQ above ${q(px*(1+T/100))}`, sub:`${T.toFixed(2)}% over here, or the score climbs over −15`} : {txt:`A break of ${q(px*(1-T/100))} / ${q(px*(1+T/100))}`, sub:`or the score crosses ±15`}) : null;
+  const nx = nextUp(br);
+  const flipped = L.read?.NQ?.bias && L.read.NQ.bias !== b;
+  const mins = Math.max(0, Math.round((Date.now() - Date.parse(L.at)) / 6e4));
+  return `<section class="answer live a-${cls(b)}"><div class="ans-top"><span class="live-pill"><i></i>Live · ${mins ? `${mins} min ago` : "just now"}</span>${br.regime ? `<span class="regime">${esc(br.regime)}</span>` : ""}<button class="ans-share js-share" type="button" aria-label="Share today's call"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7 8l5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg></button></div>
+    <div class="ans-hero"><div><h1 class="ans-verb">${verb}</h1><p class="ans-score"><b class="${cls(b)}">NQ ${label(b)} ${signed(d.score)}</b> · ${esc(d.conviction)} conviction · <span class="${cls(L.ES?.bias)}">ES ${label(L.ES?.bias)} ${signed(L.ES?.score)}</span></p></div>
+      ${flipped ? `<span class="ans-flip">Flipped from ${label(L.read.NQ.bias)} since the ${esc(STEP_LABEL[L.read.phase] || "last")} read</span>` : ""}</div>
+    ${biasLine(L)}
+    <div class="ans-grid">${pressureCell(L)}
+      ${wrong ? `<div class="ans-cell"><span>Wrong if</span><b>${esc(wrong.txt)}</b><em>${esc(wrong.sub)}</em></div>` : ""}
+      <div class="ans-cell"><span>Next up</span><b>${esc(nx.txt)}</b><em>${nx.cd ? `${esc(calDay(nx.cd))} ${esc(calTime(nx.cd))} ET · <span data-cd="${nx.cd}">${cdTxt(nx.cd)}</span>` : esc(nx.sub)}</em></div></div>
+    ${changedSince(L, br)}
+    <p class="ans-note">Re-scored every 2 minutes from live yields, dollar, vol, oil, NQ and global markets. ${L.carried ? `No full read for this session yet, so news, data and gamma wait for the next one.` : `News, data and gamma come from the ${esc(STEP_LABEL[L.read?.phase] || "last")} read.`} <button class="ans-more" id="hero-more" type="button">${S.heroMore ? "Hide the read" : "The read"}</button></p>
+    ${S.heroMore ? `<p class="ans-lead">${esc(br.headline)}</p>` : ""}</section>`;
+}
+/* ---------- world news map: every market-moving story, pinned where it happened ---------- */
+// [pattern, place, lat, lon, region]. Specific people and institutions first, then cities, states and countries.
+const PLACES = [
+  // Fed districts and officials
+  [/goolsbee|chicago fed|\bcme\b/i, "Chicago", 41.88, -87.63, "US"], [/logan|dallas fed/i, "Dallas", 32.78, -96.8, "US"],
+  [/williams|new york fed|ny fed/i, "New York Fed", 40.71, -74.01, "US"], [/daly|san francisco fed|sf fed/i, "San Francisco", 37.77, -122.42, "US"],
+  [/kashkari|minneapolis/i, "Minneapolis", 44.98, -93.27, "US"], [/musalem|st\.? louis/i, "St. Louis", 38.63, -90.2, "US"],
+  [/hammack|cleveland/i, "Cleveland", 41.5, -81.69, "US"], [/barkin|richmond fed/i, "Richmond", 37.54, -77.44, "US"],
+  [/bostic|atlanta fed/i, "Atlanta", 33.75, -84.39, "US"], [/collins|boston fed/i, "Boston", 42.36, -71.06, "US"],
+  [/harker|paulson|philadelphia fed|philly fed/i, "Philadelphia", 39.95, -75.17, "US"], [/schmid|kansas city fed|jackson hole/i, "Kansas City", 39.1, -94.58, "US"],
+  [/powell|jefferson|waller|bowman|barr\b|lisa cook|kugler|miran|fomc|fed chair|federal reserve|\bfed\b/i, "Fed · Washington", 38.89, -77.04, "US"],
+  // US government and politics
+  [/white house|trump|truth social|executive order|hassett|oval office/i, "White House", 38.9, -77.04, "US"],
+  [/congress|senate|house of rep|speaker|shutdown|debt ceiling|capitol|fiscal|budget/i, "Capitol Hill", 38.89, -77.01, "US"],
+  [/treasury|bessent|auction|refunding/i, "Treasury · Washington", 38.9, -77.03, "US"],
+  [/supreme court|court ruling|judge/i, "Supreme Court", 38.89, -77.0, "US"],
+  // Middle East and energy
+  [/hormuz/i, "Strait of Hormuz", 26.6, 56.3, "World"], [/red sea|bab.?el|houthi|yemen/i, "Red Sea · Yemen", 15.4, 44.2, "World"],
+  [/gaza|hamas/i, "Gaza", 31.4, 34.4, "World"], [/lebanon|hezbollah|beirut/i, "Lebanon", 33.9, 35.6, "World"], [/israel|netanyahu|idf/i, "Israel", 31.8, 35.0, "World"],
+  [/iran|tehran|irgc/i, "Iran", 35.7, 51.4, "World"], [/opec|vienna/i, "OPEC · Vienna", 48.21, 16.37, "World"], [/saudi|riyadh|aramco/i, "Saudi Arabia", 24.7, 46.7, "World"],
+  [/qatar|doha/i, "Qatar", 25.3, 51.2, "World"], [/emirates|uae|dubai|abu dhabi/i, "UAE", 24.5, 54.4, "World"], [/iraq|baghdad/i, "Iraq", 33.3, 44.4, "World"],
+  [/syria|damascus/i, "Syria", 33.5, 36.3, "World"], [/suez|egypt|cairo/i, "Egypt · Suez", 30.0, 32.5, "World"], [/turkey|türkiye|ankara|erdogan/i, "Turkey", 39.9, 32.9, "World"],
+  // Europe
+  [/ukraine|kyiv|zelensk/i, "Ukraine", 50.45, 30.52, "World"], [/russia|moscow|kremlin|putin/i, "Russia", 55.75, 37.62, "World"],
+  [/lagarde|\becb\b|frankfurt|bund/i, "ECB · Frankfurt", 50.11, 8.68, "World"], [/germany|berlin|merz|german/i, "Germany", 52.52, 13.4, "World"],
+  [/bailey|\bboe\b|bank of england|london|britain|\buk\b|gilts?|reeves|starmer/i, "London", 51.51, -0.13, "World"],
+  [/france|paris|macron|french/i, "Paris", 48.86, 2.35, "World"], [/italy|rome|meloni|btp/i, "Rome", 41.9, 12.5, "World"],
+  [/\bsnb\b|swiss|zurich/i, "Zurich", 47.37, 8.54, "World"], [/\beu\b|european union|brussels|eurozone|euro area|g7|nato|von der leyen/i, "Brussels · EU", 50.85, 4.35, "World"],
+  [/poland|warsaw/i, "Poland", 52.23, 21.01, "World"], [/norway|oslo/i, "Norway", 59.91, 10.75, "World"],
+  // Asia-Pacific
+  [/ueda|\bboj\b|bank of japan|japan|tokyo|nikkei|takaichi|yen\b|jgb/i, "Tokyo", 35.68, 139.69, "World"],
+  [/taiwan|taipei|tsmc|hsinchu/i, "Taiwan", 25.03, 121.56, "World"], [/hong kong|hang seng/i, "Hong Kong", 22.32, 114.17, "World"],
+  [/pboc|beijing|xi jinping|\bxi\b|china|chinese|yuan|shanghai/i, "Beijing", 39.9, 116.4, "World"], [/north korea|pyongyang/i, "North Korea", 39.03, 125.75, "World"],
+  [/korea|seoul|samsung|kospi/i, "Seoul", 37.57, 126.98, "World"], [/india|delhi|modi|rbi\b|mumbai/i, "India", 28.61, 77.21, "World"],
+  [/pakistan|islamabad/i, "Pakistan", 33.68, 73.05, "World"], [/australia|rba\b|sydney|canberra/i, "Australia", -33.87, 151.21, "World"],
+  [/south china sea|philippines|manila/i, "South China Sea", 12.0, 115.0, "World"], [/singapore/i, "Singapore", 1.35, 103.82, "World"],
+  // Americas and Africa
+  [/canada|ottawa|bank of canada|\bboc\b|carney/i, "Ottawa", 45.42, -75.7, "World"], [/mexico|banxico|sheinbaum|peso/i, "Mexico City", 19.43, -99.13, "World"],
+  [/venezuela|caracas|maduro/i, "Venezuela", 10.48, -66.9, "World"], [/brazil|brasilia|lula/i, "Brazil", -15.79, -47.88, "World"],
+  [/argentina|milei|buenos aires/i, "Argentina", -34.6, -58.38, "World"], [/panama/i, "Panama", 9.0, -79.5, "World"], [/cuba|havana/i, "Cuba", 23.11, -82.37, "World"],
+  [/greenland/i, "Greenland", 64.18, -51.72, "World"], [/sudan|khartoum/i, "Sudan", 15.5, 32.56, "World"], [/libya|tripoli/i, "Libya", 32.89, 13.19, "World"],
+  [/nigeria|lagos|abuja/i, "Nigeria", 9.06, 7.49, "World"], [/south africa|pretoria|johannesburg/i, "South Africa", -25.75, 28.19, "World"],
+  // US data (after countries, so 'Japan CPI' lands in Tokyo)
+  [/\bbls\b|payroll|jobs report|nonfarm|unemployment|cpi\b|ppi\b|pce\b|gdp\b|jolts|jobless claims|initial claims|retail sales/i, "US data · Washington", 38.88, -77.02, "US"],
+  [/\bism\b|pmi/i, "ISM · Tempe", 33.43, -111.94, "US"], [/umich|michigan sentiment|consumer sentiment/i, "Ann Arbor", 42.28, -83.74, "US"],
+  // US companies and regions
+  [/nvidia|jensen|amd\b|intel\b|santa clara/i, "Santa Clara", 37.35, -121.95, "US"], [/apple\b|cupertino/i, "Cupertino", 37.32, -122.03, "US"],
+  [/alphabet|google|mountain view/i, "Mountain View", 37.39, -122.08, "US"], [/meta\b|facebook|menlo park/i, "Menlo Park", 37.45, -122.18, "US"],
+  [/openai|anthropic|silicon valley|bay area|san francisco/i, "San Francisco", 37.77, -122.42, "US"], [/microsoft|redmond/i, "Redmond", 47.67, -122.12, "US"],
+  [/amazon|seattle/i, "Seattle", 47.61, -122.33, "US"], [/tesla|musk|austin/i, "Austin", 30.27, -97.74, "US"], [/broadcom|palo alto/i, "Palo Alto", 37.44, -122.14, "US"],
+  [/hurricane|gulf coast|gulf of mexico/i, "Gulf Coast", 28.5, -90.0, "US"], [/houston|texas|ercot|permian/i, "Texas", 29.76, -95.37, "US"],
+  [/detroit|uaw|general motors|\bgm\b|ford\b|stellantis/i, "Detroit", 42.33, -83.05, "US"], [/california|los angeles|newsom/i, "California", 34.05, -118.24, "US"],
+  [/florida|miami|mar-a-lago|palm beach/i, "Florida", 26.71, -80.04, "US"], [/chicago/i, "Chicago", 41.88, -87.63, "US"],
+  // Generic US market news last
+  [/wall street|nyse|nasdaq|s&p 500|stocks|futures|jpmorgan|goldman|morgan stanley|citi|bank of america|new york/i, "Wall Street", 40.71, -74.01, "US"],
+];
+const PLACE_CAT = [[/fed|rates?|data|macro|policy|fiscal|credit/i, "Fed · Washington"], [/market open|positioning|flows|equities|stocks/i, "Wall Street"], [/energy|oil/i, "OPEC · Vienna"]];
+function placeOf(n){
+  const tryText = t => { if(!t) return null; for(const [re, name, la, lo, rg] of PLACES) if(re.test(t)) return {name, lat:la, lon:lo, region:rg}; return null; };
+  return tryText(n.loc) || tryText(n.headline) || (() => { const c = String(n.category || ""); for(const [re, name] of PLACE_CAT) if(re.test(c)){ const p = PLACES.find(x => x[1] === name); return p ? {name, lat:p[2], lon:p[3], region:p[4]} : null; } return null; })();
+}
+const IMPW = {high:3, medium:2, low:1};
+function worldData(br){
+  const by = {};
+  (br.news || []).forEach((n, i) => { if(n.impact === "low" && !n.nq) return; const p = placeOf(n); if(!p) return;
+    const k = p.name; const e = by[k] = by[k] || {...p, items:[], net:0, w:0, hi:0};
+    e.items.push({...n, i}); const w = IMPW[n.impact] || 1; e.w += w; e.net += (Math.sign(n.nq || 0)) * w; if(n.impact === "high") e.hi++; });
+  (br.geo?.hotspots || []).forEach(h => { const p = placeOf({headline: h.name}) || (geoLoc(h) ? {name: h.name, lat: geoLoc(h)[0], lon: geoLoc(h)[1], region: "World"} : null); if(!p) return;
+    const e = by[p.name] = by[p.name] || {...p, items:[], net:0, w:0, hi:0}; e.hot = h; if(!e.w) e.w = h.status === "escalating" ? 3 : 2; });
+  return Object.values(by).sort((a, b) => b.w - a.w || b.items.length - a.items.length);
+}
+function placeTone(e){ const r = e.w ? e.net / e.w : 0; return e.hot?.status === "escalating" && r <= 0 ? "dn" : r > 0.25 ? "up" : r < -0.25 ? "dn" : "mix"; }
+function worldPanel(br){
+  const all = worldData(br); if(!all.length) return geoPanel(br);
+  const view = S.worldView || "world"; const list = view === "us" ? all.filter(e => e.region === "US") : all;
+  if(S.worldSel == null || !all.find(e => e.name === S.worldSel)) S.worldSel = (list[0] || all[0]).name;
+  const cur = all.find(e => e.name === S.worldSel);
+  const g = br.geo, LV = ["calm","elevated","high","crisis"], lv = g ? Math.max(0, LV.indexOf(g.risk)) : -1;
+  const us = all.filter(e => e.region === "US"), wd = all.filter(e => e.region !== "US");
+  const tw = {up:"Bullish for NQ", dn:"Bearish for NQ", mix:"Mixed"};
+  const pill = e => `<button class="wpill ${placeTone(e)}" data-place="${esc(e.name)}" aria-pressed="${e.name === S.worldSel}" type="button"><i></i><span>${esc(e.name)}</span>${e.items.length ? `<b>${e.items.length}</b>` : ""}</button>`;
+  const hv = (g?.havens || []).map(x => { const c = Number(x.chg); const on = !isFinite(c) || c === 0 ? null : (x.riskOffWhenUp ? c < 0 : c > 0);
+    return `<span class="whv ${on == null ? "" : on ? "up" : "dn"}">${esc(x.name)} <b>${isFinite(c) ? pct(c) : "—"}</b></span>`; }).join("");
+  const det = cur ? `<div class="wcard ${placeTone(cur)}"><div class="wc-top"><div><b>${esc(cur.name)}</b><span>${cur.region === "US" ? "United States" : "Overseas"} · ${cur.items.length} stor${cur.items.length === 1 ? "y" : "ies"} today</span></div><span class="wc-tone">${tw[placeTone(cur)]}</span></div>
+      ${cur.hot ? `<div class="wc-hot"><span class="sd-st ${geoSt(cur.hot.status).k}"><i></i>${geoSt(cur.hot.status).txt}</span>${cur.hot.note ? `<p>${esc(cur.hot.note)}</p>` : ""}${cur.hot.watch ? `<p class="sd-watch"><span>Watch</span>${esc(cur.hot.watch)}</p>` : ""}</div>` : ""}
+      ${cur.items.length ? `<div class="wc-list">${cur.items.sort((a, b) => String(b.at).localeCompare(String(a.at))).map(n => `<a class="wc-row" ${n.url ? `href="${esc(n.url)}" target="_blank" rel="noopener"` : ""}><span class="wc-t">${esc(fmtTime(n.at).replace(" ET", ""))}</span><i class="imp ${esc(n.impact || "low")}"></i><span class="wc-h">${esc(n.headline)}</span>${fxPill(n.nq)}</a>`).join("")}</div>` : ""}</div>` : "";
+  return `<section class="panel world"><div class="w-head"><div><span class="eyebrow">World news map</span><h3 class="w-title">${all.length} places moving markets today</h3>
+      <p class="w-sub">${us.length} in the US · ${wd.length} overseas${lv >= 0 ? ` · geopolitical risk ${({calm:"calm",elevated:"elevated",high:"high",crisis:"crisis"})[g.risk]}` : ""}</p></div>
+      <span class="seg" role="group" aria-label="Map view"><button data-wview="world" aria-pressed="${view === "world"}">World</button><button data-wview="us" aria-pressed="${view === "us"}">US</button></span></div>
+    <div class="globe-box wbox"><div id="globe-host" class="globe-host"></div>
+      <div class="globe-legend"><span class="cool"><i></i>Bullish for NQ</span><span class="esc"><i></i>Bearish</span><span class="steady"><i></i>Mixed</span></div>
+      <span class="globe-hint">Bigger dot = more news · drag to spin</span></div>
+    <div class="wrail">${list.map(pill).join("")}</div>${det}
+    ${hv ? `<div class="whvs"><span class="w-k">Haven check</span>${hv}</div>` : ""}</section>`;
+}
+mountGlobe = function(){
+  const br = current(); if(!br) return;
+  const all = worldData(br);
+  if(!all.length){ const hs = (br.geo?.hotspots || []).slice(0, 6); Globe.mount(hs.map(h => { const st = geoSt(h.status); return {name:h.name, status:h.status, rgb:st.rgb, loc:geoLoc(h), short:String(h.name).split(/\s*[\/–—]\s*/)[0]}; }), S.geoSel ?? 0, i => { S.geoSel = i; render(); }); return; }
+  const view = S.worldView || "world";
+  const data = all.map(e => { const t = placeTone(e); return {name:e.name, short:e.name, loc:[e.lat, e.lon], rgb: t === "up" ? "--gain-rgb" : t === "dn" ? "--loss-rgb" : "--warn-rgb",
+    size: 3 + Math.min(6, Math.sqrt(e.w) * 1.6), big: e.w >= 4, noArc: e.region === "US" && view === "us" ? true : e.w < 2, status: e.hot?.status || ""}; });
+  const idx = Math.max(0, data.findIndex(d => d.name === S.worldSel));
+  Globe.mount(data, idx, i => { S.worldSel = data[i].name; render(); }, {view});
+};
+
+/* ranked: what's actually moving markets right now (impact, freshness, macro weight) */
+const MACRO_T = {Fed:1.4, Rates:1.3, Data:1.3, Geopolitics:1.3, Trade:1.3, Energy:1.15, "Big tech":1.1, Flows:.7, Other:.8};
+function movers(br, n){
+  const now = Date.now();
+  return (br.news || []).map((x, i) => ({...x, i})).filter(x => x.at && x.impact !== "low").map(x => {
+    const age = Math.max(0, (now - Date.parse(x.at)) / 36e5); const tp = topicOf(x);
+    return {...x, tp, pl: placeOf(x), sc: (IMPW[x.impact] || 1) * Math.pow(.5, age / 3) * (MACRO_T[tp] || 1) * (x.nq ? 1.2 : 1)}; })
+    .sort((a, b) => b.sc - a.sc).slice(0, n || 4);
+}
+function moversPanel(br){
+  const m = movers(br, 4); if(!m.length) return "";
+  return `<section class="panel movers"><div class="mv-head"><span class="eyebrow">Moving markets now</span><span class="faint" style="font-size:11.5px">Ranked by impact, freshness and how much it matters for the Fed, rates and risk</span></div>
+    <ol class="mv-list">${m.map((x, k) => `<li class="mv ${x.nq > 0 ? "up" : x.nq < 0 ? "dn" : ""}${k === 0 ? " top" : ""}"><span class="mv-rank">${k + 1}</span><div class="mv-body">
+      <a class="mv-h" ${x.url ? `href="${esc(x.url)}" target="_blank" rel="noopener"` : ""}>${esc(x.headline)}</a>
+      <div class="mv-meta">${x.pl ? `<button class="mv-place" data-place="${esc(x.pl.name)}" type="button">${esc(x.pl.name)}</button>` : ""}<span>${esc(x.tp)}</span><span>${esc(ago(x.at))}</span>${x.impact === "high" ? `<span class="mv-hi">High impact</span>` : ""}</div></div>
+      <span class="mv-fx">${x.nq > 0 ? "▲ NQ" : x.nq < 0 ? "▼ NQ" : "◆ NQ"}</span></li>`).join("")}</ol></section>`;
+}
+
 function sessionMap(br){
   const ss = br.sessions || []; if(!ss.length) return "";
   const now = new Date(); const g = br.grade?.sessions || {};
@@ -2150,7 +2675,7 @@ function instCard(sym, d, br){
   if(!d) return "";
   return `<button class="panel inst" data-go="${sym.toLowerCase()}" style="--card-rgb:${rgbVar(d.bias)}" aria-label="Open ${sym} detail">
     <div class="inst-head"><span class="sym">${sym}<small>${SYM[sym]}</small></span>${conviction(d.conviction,d.bias)}</div>
-    <div class="dial-row">${dial("t-"+sym+br.id, d.score, d.bias)}<div style="display:flex;flex-direction:column;gap:8px;min-width:0"><span class="bias-word ${cls(d.bias)}">${label(d.bias)}</span>${nowChip(br, sym, d)}${br.implied?.[sym]?.amMovePts?`<span class="range-chip">AM range <b>±${esc(br.implied[sym].amMovePts)} pts</b></span>`:""}<p class="thesis">${esc(d.thesis)}</p></div></div>
+    <div class="dial-row">${dial("t-"+sym+br.id, d.score, d.bias)}<div style="display:flex;flex-direction:column;gap:8px;min-width:0"><span class="bias-word ${cls(d.bias)}">${label(d.bias)}</span>${nowChip(br, sym, d)}${d.live && d.readScore != null && d.readScore !== d.score ? `<span class="inst-live">Read ${signed(d.readScore)} → live <b>${signed(d.score)}</b></span>` : ""}${br.implied?.[sym]?.amMovePts?`<span class="range-chip">AM range <b>±${esc(br.implied[sym].amMovePts)} pts</b></span>`:""}<p class="thesis">${esc(d.thesis)}</p></div></div>
   </button>`;
 }
 function drivers(br){
@@ -2183,7 +2708,7 @@ function midPanel(br){
     <div class="result">${cell("NQ")}${cell("ES")}</div>${m.note?`<p style="font-size:14px">${esc(m.note)}</p>`:""}</section>`;
 }
 function newsPanel(br){
-  const all = (br.news || []).slice().sort((a,b) => String(b.at).localeCompare(String(a.at)));
+  const all = (br.news || []).slice().filter(n => !S.topic || topicOf(n) === S.topic).sort((a,b) => String(b.at).localeCompare(String(a.at)));
   if(!all.length) return "";
   const list = S.newsHigh ? all.filter(n => n.impact === "high") : all;
   const shown = S.newsAll ? list : list.slice(0, 10);
@@ -2313,10 +2838,37 @@ function heroLine(h){ h = String(h||""); const i = h.indexOf(": "); return i > 1
 function today(br){
   const I = br.instruments || {};
   const ev = br.scenarios?.length ? scenarios(br.scenarios) : "";
-  return `${tminus(br)}${flashBanner(br)}${alertBanner(br)}${tapeStrip(br)}<section class="hero">${br.regime?`<span class="regime">${esc(br.regime)}</span>`:""}<p class="headline">${heroLine(br.headline)}</p></section>
-    ${lastNews(br)}
-    <div class="duo">${instCard("NQ",I.NQ,br)}${instCard("ES",I.ES,br)}</div>
-    ${newsTeaser(br)}${pushNudge()}${voteBox(br)}${mission(br)}${record()}${heatmap()}${midPanel(br)}${sessionMap(br)}${resultPanel(br)}${ev}${positioning(br)}${drivers(br)}`;
+  const R = recStats(), isLatest = br.id === latest()?.id, L = isLatest ? liveSession(br) : null, V = S.vote && S.vote.day === br.id ? S.vote : null;
+  const vt = V ? (V.bull||0) + (V.bear||0) : 0, vbp = vt ? Math.round(V.bull / vt * 100) : 0, vOpen = V && Date.now() < Date.parse(V.closesAt);
+  const sx = L ? (br.sessions || []).find(x => x.key === L.sd.key) : null;
+  const w = S.tape?.weights, m = br.midCheck, g = br.grade?.NQ, sc = br.scenarios || [], P = br.positioning?.NQ, dr = br.drivers || [];
+  const sum = {
+    vote: V ? (vOpen ? `Open until 9:30 · ${vt ? `${vbp}% long so far` : "no votes yet"}` : `${vbp}% of the desk went long`) : "",
+    plan: L ? `${L.sd.name} · ${L.st === "live" ? "live now" : "up next"} · NQ ${label(sx?.nq || I.NQ?.bias)}` : "",
+    mid: m ? ({intact:"Morning read intact", weakening:"Morning read weakening", invalidated:"Morning read invalidated"}[m.status] || "") : "",
+    result: g && g.result && g.result !== "n/a" ? `NQ ${g.result} · ${pct(g.movePct)} in the AM` : "",
+    record: R.rate != null ? `${R.hits}W–${R.miss}L · ${R.rate}% hit rate${R.streak >= 2 ? ` · ${R.streak} in a row` : ""}` : `${R.n} graded so far`,
+    bigtech: w?.length ? `${w.filter(x => x.chg > 0).length} of ${w.length} green` : "",
+    sessions: L ? `${L.sd.name} ${L.st === "live" ? "live" : "next"}` : `${(br.sessions || []).length} sessions`,
+    levels: P ? `NQ ${P.regime === "negative" ? "negative" : "positive"} gamma${P.callWall ? ` · call wall ${fmtN(P.callWall)}` : ""}` : "",
+    scen: sc.length ? `${sc[0].event} · ${sc[0].status === "resolved" ? "resolved" : "pending"}` : "",
+    drivers: dr.length ? (() => { const tw = dr.filter(d => d.effect === "tailwind").length, hw = dr.filter(d => d.effect === "headwind").length; return `${tw} tailwind${tw === 1 ? "" : "s"} · ${hw} headwind${hw === 1 ? "" : "s"}`; })() : "",
+  };
+  return `${flashBanner(br)}${alertBanner(br)}${tminus(br)}${liveAnswer(br)}${tapeStrip(br)}
+    <div class="duo">${instCard("NQ",callOf(br,"NQ"),br)}${instCard("ES",callOf(br,"ES"),br)}</div>
+    ${engine(br)}${newsTeaser(br)}${pushNudge()}
+    <div class="folds">
+    ${fold("vote", "Your call", sum.vote, voteBox(br), vOpen)}
+    ${fold("plan", "Session plan", sum.plan, mission(br))}
+    ${fold("result", "Result", sum.result, resultPanel(br), true)}
+    ${fold("mid", "Mid-session check", sum.mid, midPanel(br))}
+    ${fold("record", "Track record", sum.record, record())}
+    ${fold("bigtech", "Big tech", sum.bigtech, heatmap())}
+    ${fold("sessions", "Session map", sum.sessions, sessionMap(br))}
+    ${fold("levels", "Dealer levels", sum.levels, positioning(br))}
+    ${fold("scen", "Scenarios", sum.scen, ev)}
+    ${fold("drivers", "Macro drivers", sum.drivers, drivers(br))}
+    </div>`;
 }
 function detail(sym, br){
   const d = (br.instruments||{})[sym];
@@ -2485,9 +3037,18 @@ function rpPlay(){
 
 /* ---------- events ---------- */
 document.addEventListener("click", e => {
-  const t = e.target.closest("#story-more,#share-card,[data-cal],[data-calhi],[data-geo],[data-news],#news-more,[data-tab],[data-go],[data-pick],button[data-skin],[data-rday],[data-rstep],.pt,#run,#scan,#latest,#theme,#levels,#sheet-close,#scrim,#rp-play,#rp-prev,#rp-next,#fx-holiday,#fx-effects,#fx-stars");
+  const t = e.target.closest("[data-place],[data-wview],[data-fold],#hero-more,[data-eng],[data-engf],[data-topic],[data-tn],.js-share,#story-more,#share-card,[data-cal],[data-calhi],[data-geo],[data-news],#news-more,[data-tab],[data-go],[data-pick],button[data-skin],[data-rday],[data-rstep],.pt,#run,#scan,#latest,#theme,#levels,#sheet-close,#scrim,#rp-play,#rp-prev,#rp-next,#fx-holiday,#fx-effects,#fx-stars");
   if(!t) return;
   if(t.id === "scrim" && e.target !== t) return;
+  if(t.dataset.place){ S.worldSel = t.dataset.place; if(S.tab !== "news"){ S.tab = "news"; store.set("db-tab", "news"); } render(); const w = document.querySelector(".world"); if(w && e.target.closest(".movers,.nteaser")) w.scrollIntoView({behavior:"smooth", block:"start"}); return; }
+  if(t.dataset.wview){ S.worldView = t.dataset.wview; S.worldSel = null; render(); return; }
+  if(t.dataset.fold){ const id = t.dataset.fold; const fs = S.folds; const cur = t.getAttribute("aria-expanded") === "true"; fs[id] = !cur; store.set("db-folds", JSON.stringify(fs)); render(); return; }
+  if(t.id === "hero-more"){ S.heroMore = !S.heroMore; render(); return; }
+  if(t.dataset.eng){ S.engSym = t.dataset.eng; render(); return; }
+  if(t.dataset.engf){ S.engOpen = S.engOpen === t.dataset.engf ? null : t.dataset.engf; render(); return; }
+  if(t.dataset.topic != null){ const k = t.dataset.topic || null; S.topic = S.topic === k ? null : k; S.tnSel = null; if(S.topic) S.folds.all = true; render(); return; }
+  if(t.dataset.tn != null){ S.tnSel = +t.dataset.tn; render(); return; }
+  if(t.classList.contains("js-share")){ const b = current(); if(b) makeCard(b).catch(err => { S.runMsg = "Couldn't make the card: " + err.message; S.runErr = true; render(); }); return; }
   if(t.id === "story-more"){ S.storyAll = !S.storyAll; render(); return; }
   if(t.id === "share-card"){ const b = current(); if(b) makeCard(b).catch(err => { S.runMsg = "Couldn't make the card: " + err.message; S.runErr = true; render(); }); return; }
   if(t.dataset.cal){ S.calCur = t.dataset.cal; render(); return; }

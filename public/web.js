@@ -105,7 +105,7 @@
     S.loaded = false; render();
     await loadBriefs();
     subscribe();
-    pollQuote(); loadCal(); loadTape(); loadVote(); loadMe(); initPush();
+    pollQuote(); loadCal(); loadTape(); loadVote(); loadMe(); initPush(); loadLive();
   }
 
   async function loadBriefs() {
@@ -125,6 +125,10 @@
         const i = S.briefs.findIndex(b => b.id === row.id);
         if (i >= 0) S.briefs[i] = doc; else { S.briefs.push(doc); S.briefs.sort((a, b) => b.id.localeCompare(a.id)); }
         if (!S.levels && !S.rp.playing && !W.acct) render();
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "live" }, p => {
+        const row = p.new; if (!row || !row.data) return;
+        if (!S.liveBias || row.id >= S.liveBias.id) { S.liveBias = { ...row.data, id: row.id }; if (!S.levels && !S.rp.playing && !W.acct) render(); }
       })
       .subscribe();
   }
@@ -233,6 +237,14 @@
   }
   setInterval(() => { if (W.screen === "app" && document.visibilityState === "visible") loadCal(); }, 10 * 60e3);
 
+  /* ---------- live bias engine (server, every 2 min) ---------- */
+  async function loadLive() {
+    if (W.screen !== "app") return;
+    const { data, error } = await W.sb.from("live").select("id,data").order("id", { ascending: false }).limit(1);
+    if (!error && data?.[0]) { S.liveBias = { ...data[0].data, id: data[0].id }; if (!S.levels && !S.rp.playing && !W.acct) render(); }
+  }
+  setInterval(() => { if (W.screen === "app" && document.visibilityState === "visible") loadLive(); }, 2 * 60e3);
+
   /* ---------- multi-asset tape + top NQ weights ---------- */
   async function loadTape(force) {
     if (W.screen !== "app" || document.visibilityState !== "visible") return;
@@ -328,7 +340,7 @@
 
   function teardown() {
     if (W.chan) { W.sb.removeChannel(W.chan); W.chan = null; }
-    S.live = null; W.tripped = null; S.vote = null; S.board = null; S.callsign = null;
+    S.live = null; W.tripped = null; S.vote = null; S.board = null; S.callsign = null; S.liveBias = null;
     S.briefs = []; S.loaded = false; S.canRun = false; S.db = null; S.inputs = {}; W.acc = null; W.acct = false; W.comps = null;
   }
 
@@ -420,7 +432,7 @@
   document.addEventListener("keydown", e => { if (e.key === "Escape" && W.acct) { W.acct = false; render(); } });
 
   // Catch up after the phone wakes or the tab comes back.
-  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && W.screen === "app") { loadBriefs(); pollQuote(); loadCal(); loadTape(true); loadVote(); } });
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && W.screen === "app") { loadBriefs(); pollQuote(); loadCal(); loadTape(true); loadVote(); loadLive(); } });
 
   /* ---------- boot ---------- */
   async function boot() {
