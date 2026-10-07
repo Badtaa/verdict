@@ -1,6 +1,7 @@
 import { send, rest, configured } from "../lib/server.js";
 import { pushAll, claim } from "../lib/push.js";
 import { getCalendar } from "../lib/calendar.js";
+import { runEngine } from "../lib/engine.js";
 
 // POST /api/push-tick: called every minute by the database (pg_cron + pg_net) with a shared token.
 // Sends, once each: a "bias shifting" flash, a new call (pre/post-data always; others when the NQ bias changed),
@@ -14,6 +15,12 @@ export default async function handler(req, res) {
   try {
     const tok = await rest("app_secrets?k=eq.tick_token&select=v");
     if (!tok?.[0]?.v || req.headers["x-tick"] !== tok[0].v) return send(res, 401, { error: "bad token" });
+
+    // Live bias engine every other minute (free; no Claude runs).
+    let engine = null;
+    if (new Date().getUTCMinutes() % 2 === 0 || req.query?.engine === "1") {
+      try { engine = await runEngine({ force: req.query?.engine === "1" }); } catch (err) { engine = { error: err.message }; }
+    }
 
     const out = [];
     const rows = await rest("briefs?select=id,data&order=id.desc&limit=1");
@@ -52,7 +59,22 @@ export default async function handler(req, res) {
       }
     } catch { /* calendar down: skip */ }
 
-    if (!out.length) return send(res, 200, { ok: true, sent: 0 });
+    // 5) pressure building (from the live engine), at most once per direction every 30 minutes
+    try {
+      const lr = await rest("live?select=id,data&order=id.desc&limit=1"); const L = lr?.[0]?.data;
+      const P = L?.pressure;
+      if (P?.strong && Date.now() - Date.parse(L.at) < 5 * 60e3) {
+        const dir = P.score > 0 ? "up" : "down", pu = L.pushed;
+        if (!pu || pu.dir !== dir || Date.now() - Date.parse(pu.at) > 30 * 60e3) {
+          if (await claim(`press:${lr[0].id}:${dir}:${Math.floor(Date.now() / (30 * 60e3))}`)) {
+            out.push({ kind: "flips", title: `${dir === "up" ? "📈" : "📉"} Pressure building ${dir === "up" ? "higher" : "lower"} for NQ`, body: P.signals.slice(0, 3).map(x => x.txt).join(" · "), tag: "pressure" });
+            await rest(`rpc/set_live_pushed`, { method: "POST", body: { p_id: lr[0].id, p_pushed: { at: new Date().toISOString(), dir } } }).catch(() => {});
+          }
+        }
+      }
+    } catch { /* live table not ready */ }
+
+    if (!out.length) return send(res, 200, { ok: true, sent: 0, engine });
     const [subs, active] = await Promise.all([
       rest("push_subs?select=endpoint,sub,user_id,prefs"),
       rest("members?active=eq.true&select=user_id"),
@@ -63,7 +85,7 @@ export default async function handler(req, res) {
       const to = (subs || []).filter(s => ok.has(s.user_id) && s.prefs?.[n.kind] !== false);
       if (to.length) sent += (await pushAll(to, { title: n.title, body: n.body, tag: n.tag, url: "/", ttl: n.ttl }, `https://${req.headers.host}`)).sent;
     }
-    send(res, 200, { ok: true, notes: out.map(n => n.title), sent });
+    send(res, 200, { ok: true, notes: out.map(n => n.title), sent, engine });
   } catch (err) {
     send(res, 500, { error: err.message });
   }
