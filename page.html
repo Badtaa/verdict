@@ -1,17 +1,3 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="Verdict: the macro call for NQ and ES. Session-by-session bias, live news watch and a graded track record.">
-<meta name="theme-color" content="#0A0918">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Verdict">
-<link rel="manifest" href="/manifest.webmanifest">
-<link rel="icon" href="/icon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <title>Verdict</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1312,44 +1298,13 @@ a.mv-h[href]:hover{color:var(--accent-hi)}
 @media (max-width:480px){.mv{grid-template-columns:26px 1fr;}.mv-fx{grid-column:2;justify-self:start}}
 @media (max-width:480px){.wc-row{grid-template-columns:50px 8px 1fr}.wc-row .fxp{grid-column:3;justify-self:start}}
 </style>
-<style>
-/* ---------- web shell ---------- */
-body{padding-top:env(safe-area-inset-top,0px)}
-.gate{max-width:440px;margin:min(14vh,120px) auto 0;display:flex;flex-direction:column;gap:16px}
-.gate-brand{display:flex;align-items:center;gap:12px}
-.gate-brand svg{width:44px;height:44px}
-.gate-brand b{display:block;font-family:var(--display);font-size:24px;letter-spacing:-.02em}
-.gate-brand small{color:var(--muted);font-size:12.5px}
-.gate-h{font-size:21px}
-.gate-form{display:flex;flex-direction:column;gap:10px}
-.gate-form.inline{flex-direction:row;flex-wrap:wrap}
-.gate-form.inline input{flex:1 1 160px}
-.gate-form input{height:46px;border-radius:14px;border:1px solid var(--line-hi);background:rgba(var(--panel-rgb),.55);color:var(--text);padding:0 14px;font:inherit;font-size:16px;min-width:0}
-.gate-form input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(var(--accent-rgb),.18)}
-.gate-go{width:100%;justify-content:center;height:46px}
-.gate-row{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.gate-link{background:none;border:0;padding:0;color:var(--accent-hi);font:600 13.5px/1.4 var(--font);text-decoration:none;cursor:pointer}
-.gate-link.danger{color:var(--loss)}
-.acct-block{display:flex;flex-direction:column;gap:8px;padding:14px 0;border-top:1px solid var(--line)}
-.acct-block:first-of-type{border-top:0;padding-top:4px}
-.comp-list{display:flex;flex-direction:column;gap:6px}
-.comp{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--line);border-radius:12px}
-.comp small{display:block;color:var(--muted);font-size:12px}
-.pill-btn{display:inline-flex;align-items:center;justify-content:center;height:46px;padding:0 20px;border-radius:999px;border:1px solid var(--line-hi);background:rgba(var(--panel-rgb),.6);color:var(--text);font:700 14px/1 var(--font);cursor:pointer}
-.pill-btn:hover{border-color:var(--accent)}
-#acct-root .sheet>.pill-btn{width:100%;margin-top:6px}
-#acct-root .sheet{max-width:520px}
-</style>
-
 
 <canvas id="fx" aria-hidden="true"></canvas>
 <div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
 <div class="wrap" id="app"></div>
 <nav class="tabs" role="tablist" id="tabs" aria-label="Sections"></nav>
 <div id="sheet-root"></div>
-<div id="acct-root"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const TRIGGER_ID = "trig_019QxpAAF87PSkdXA76D4vpj";
 const WATCH_ID = "trig_01Ckt9w8r2HYsDMByyQzJ4n5";
@@ -3125,6 +3080,22 @@ async function scanNow(){
   render();
 }
 
+render();
+(async () => {
+  const db = await claude.use("db");
+  if(!db){ S.dbMissing = true; S.loaded = true; render(); return; }
+  S.db = db;
+  db.collection("briefs").orderBy("date","desc").limit(120).onSnapshot(snap => {
+    S.briefs = snap.docs.map(d => ({id:d.id, ...d.data()}));
+    const lg = S.briefs[0]?.generatedAt ? Date.parse(S.briefs[0].generatedAt) : 0;
+    if(S.awaitFrom && lg > S.awaitFrom){ S.awaitFrom = null; store.set("db-await", ""); S.runMsg = "New read is in."; S.runErr = false; }
+    const wl = S.briefs[0]?.watch?.lastAt ? Date.parse(S.briefs[0].watch.lastAt) : 0;
+    if(S.scanFrom && wl > S.scanFrom){ S.scanFrom = null; store.set("db-scan", ""); const r = S.briefs[0].watch.lastResult; S.runMsg = r === "alert" ? "Scan found something material. Rescoring." : r === "noted" ? "Scan done: new headlines logged, nothing bias-changing." : "Scan done: all quiet."; S.runErr = false; }
+    S.loaded = true; soft();
+  }, () => { S.loaded = true; S.runMsg = "Couldn't load briefs. Reload the page."; S.runErr = true; render(); });
+})();
+(async () => { const db = await claude.use("db"); if(!db) return;
+  db.collection("inputs").limit(60).onSnapshot(snap => { const m = {}; snap.docs.forEach(d => { m[d.id] = d.data(); }); S.inputs = m; soft(); }, () => {});
+})();
+(async () => { const user = await claude.use("user"); if(user && await user.isOwner()){ S.canRun = true; render(); } })();
 </script>
-<script src="/web.js"></script>
-</html>

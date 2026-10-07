@@ -1,0 +1,213 @@
+// Live bias engine. Runs on the server every couple of minutes (pg_cron → /api/push-tick), costs nothing,
+// and keeps the call moving between Claude's full reads:
+//  1. Re-scores the market-driven rubric factors (yields, dollar, vol, oil, futures trend, gamma, global)
+//     from live Yahoo quotes, using exactly the brief's thresholds, and carries the slow factors
+//     (Fed odds, data surprise, COT, geopolitics, news) from the latest read.
+//  2. Reads short-term "pressure": what rates, the dollar, vol, momentum and fresh news did in the last
+//     30–60 minutes. These usually move before NQ does.
+//  3. Flags a flip when the live call disagrees with the last full read two runs in a row.
+import { rest } from "./server.js";
+import { getCalendar } from "./calendar.js";
+
+const UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Safari/537.36";
+const SYMS = { NQ: "NQ=F", ES: "ES=F", TNX: "^TNX", Y2: "2YY=F", DXY: "DX-Y.NYB", VXN: "^VXN", VIX: "^VIX", VIX3M: "^VIX3M", WTI: "CL=F", GOLD: "GC=F", N225: "^N225", DAX: "^GDAXI" };
+
+async function chart(sym) {
+  for (const host of ["query1", "query2"]) {
+    try {
+      const r = await fetch(`https://${host}.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?interval=5m&range=1d&includePrePost=true`, { headers: { "user-agent": UA, accept: "application/json" } });
+      if (!r.ok) continue;
+      const j = await r.json(); const res = j?.chart?.result?.[0], m = res?.meta;
+      if (!m || m.regularMarketPrice == null) continue;
+      const ts = res.timestamp || [], q = res.indicators?.quote?.[0] || {};
+      const bars = []; ts.forEach((t, i) => { const c = q.close?.[i], h = q.high?.[i], l = q.low?.[i]; if (c != null) bars.push({ t: t * 1000, c, h: h ?? c, l: l ?? c }); });
+      const last = bars.length ? bars[bars.length - 1].c : m.regularMarketPrice;
+      return { price: last, prev: m.chartPreviousClose ?? m.previousClose ?? null, time: (m.regularMarketTime || 0) * 1000, bars };
+    } catch { /* next host */ }
+  }
+  return null;
+}
+const pctChg = q => q && q.prev ? (q.price - q.prev) / q.prev * 100 : null;
+const y = v => v > 20 ? v / 10 : v;                       // ^TNX quoted ×10 on some feeds
+const bpChg = q => q && q.prev != null ? (y(q.price) - y(q.prev)) * 100 : null;
+function ago(q, mins) {                                      // value about `mins` ago from 5-minute bars
+  if (!q?.bars?.length) return null; const t = q.bars[q.bars.length - 1].t - mins * 60e3;
+  let b = null; for (const x of q.bars) { if (x.t <= t) b = x; else break; } return b ? b.c : null;
+}
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const r2 = v => v == null || !isFinite(v) ? null : Math.round(v * 100) / 100;
+
+function etParts(d = new Date()) {
+  const p = {}; new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hour12: false, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", weekday: "short" })
+    .formatToParts(d).forEach(x => { p[x.type] = x.value; });
+  return { y: +p.year, m: +p.month, d: +p.day, h: +p.hour % 24, mi: +p.minute, wd: p.weekday };
+}
+export function futuresOpen(d = new Date()) {
+  const p = etParts(d); if (p.wd === "Sat") return false; if (p.wd === "Sun") return p.h >= 18; if (p.wd === "Fri") return p.h < 17; return p.h !== 17;
+}
+// Session date: after 18:00 ET (and on weekends) the next weekday, otherwise today.
+export function sessionDate(d = new Date()) {
+  const p = etParts(d); let dt = new Date(Date.UTC(p.y, p.m - 1, p.d, 12));
+  const step = () => { dt = new Date(dt.getTime() + 864e5); };
+  if (p.h >= 18) step();
+  while ([0, 6].includes(dt.getUTCDay())) step();
+  return dt.toISOString().slice(0, 10);
+}
+
+// Rubric thresholds, copied from the brief prompt.
+const sc10y = (bp, k) => bp == null ? null : bp <= -5 * k ? 2 : bp <= -2 * k ? 1 : bp < 2 * k ? 0 : bp < 5 * k ? -1 : -2;
+const scDxy = p => p == null ? null : p <= -0.4 ? 2 : p <= -0.15 ? 1 : p < 0.15 ? 0 : p < 0.4 ? -1 : -2;
+function scVol(chg, vix, vix3m) { if (chg == null) return null; let s = chg > 5 ? -1 : chg < -5 ? 1 : 0; if (vix != null && vix3m != null && vix > vix3m) s -= 1; return clamp(s, -2, 2); }
+const scWti = (p, sym) => p == null ? null : sym === "ES" ? 0 : p >= 2 ? -1 : p <= -2 ? 1 : 0;
+const scTrend = p => p == null ? null : p >= 0.5 ? 1 : p <= -0.5 ? -1 : 0;
+const scGlobal = (n, d) => n == null || d == null ? null : n >= 0.5 && d >= 0.5 ? 1 : n <= -0.5 && d <= -0.5 ? -1 : 0;
+function scGamma(spot, P, inp) {
+  const n = v => v !== "" && v != null && isFinite(Number(v)) ? Number(v) : null;
+  const flip = n(inp?.flip) ?? n(P?.flip), cw = n(inp?.callWall) ?? n(P?.callWall), pw = n(inp?.putWall) ?? n(P?.putWall);
+  const pos = (inp?.gex || P?.regime) === "positive";
+  if (spot == null || flip == null) return null;
+  let s; if (Math.abs(spot - flip) / flip < 0.0015) s = 0; else s = spot > flip && pos ? 1 : -1;
+  if (pos && pw != null && spot >= pw && (spot - pw) / pw <= 0.003) s += 1;
+  if (cw != null && spot <= cw && (cw - spot) / cw <= 0.003) s -= 1;
+  return { pts: clamp(s, -2, 2), txt: `${Math.round(spot)} vs flip ${Math.round(flip)}${cw ? `, call wall ${Math.round(cw)}` : ""}${pw ? `, put wall ${Math.round(pw)}` : ""} (${pos ? "positive" : "negative"} gamma)`, between: pos && cw != null && pw != null && spot > pw && spot < cw };
+}
+function scAuction(spot, inp) {
+  const vah = Number(inp?.vah), val = Number(inp?.val); if (!vah || !val || spot == null) return null;
+  return spot > vah ? 1 : spot < val ? -1 : 0;
+}
+const W8 = { high: 1, medium: 0.5, low: 0 };
+function scNews(news, sym, since) {
+  const k = sym.toLowerCase(); let s = 0, n = 0;
+  (news || []).forEach(x => { if (x.category === "geopolitics" || Date.parse(x.at) < since) return; const w = W8[x.impact] || 0; if (!w || !x[k]) return; s += x[k] * w; n++; });
+  return { pts: clamp(Math.round(s), -2, 2), n, sum: s };
+}
+
+function rubricFor(sym, Q, br, inp, since, carried) {
+  const k = sym === "ES" ? 1.5 : 1;
+  const old = {}; (br?.instruments?.[sym]?.rubric || []).forEach(f => { old[f.factor] = f; });
+  // Day-specific factors don't carry over from an older read; weekly/slow ones do (marked with their date).
+  const DAILY = ["Fed odds shift", "Data surprise", "News", "Auction", "Dealer gamma"];
+  const keep = name => carried && DAILY.includes(name)
+    ? { factor: name, points: 0, input: `No full read yet for this session (last read ${carried})`, live: false, stale: true }
+    : { factor: name, points: Number(old[name]?.points) || 0, input: (carried ? `From the ${carried} read: ` : "") + (old[name]?.input || "n/a"), live: false, stale: !!carried };
+  const live = (name, pts, input) => pts == null ? keep(name) : { factor: name, points: pts, input, live: true, was: old[name] ? Number(old[name].points) || 0 : null };
+  const tnx = bpChg(Q.TNX), y2 = bpChg(Q.Y2), dxy = pctChg(Q.DXY), vol = sym === "NQ" ? Q.VXN : Q.VIX, volChg = pctChg(vol), wti = pctChg(Q.WTI);
+  const fut = Q[sym], futChg = pctChg(fut), nik = pctChg(Q.N225), dax = pctChg(Q.DAX);
+  const g = carried ? null : scGamma(fut?.price, br?.positioning?.[sym], inp?.[sym]);
+  const news = scNews(br?.news, sym, since);
+  const f = [
+    live("10Y change", sc10y(tnx, k), tnx != null ? `${tnx >= 0 ? "+" : ""}${tnx.toFixed(1)} bp to ${y(Q.TNX.price).toFixed(3)}% (live)` : ""),
+    live("2Y change", sc10y(y2, k), y2 != null ? `${y2 >= 0 ? "+" : ""}${y2.toFixed(1)} bp (live)` : ""),
+    live("DXY", scDxy(dxy), dxy != null ? `${Q.DXY.price.toFixed(2)}, ${dxy >= 0 ? "+" : ""}${dxy.toFixed(2)}% (live)` : ""),
+    live("Volatility", scVol(volChg, Q.VIX?.price, Q.VIX3M?.price), volChg != null ? `${sym === "NQ" ? "VXN" : "VIX"} ${vol.price.toFixed(2)}, ${volChg >= 0 ? "+" : ""}${volChg.toFixed(1)}%${Q.VIX && Q.VIX3M ? `; VIX ${Q.VIX.price > Q.VIX3M.price ? "above" : "below"} VIX3M` : ""} (live)` : ""),
+    keep("Fed odds shift"),
+    keep("Data surprise"),
+    live("WTI", scWti(wti, sym), wti != null ? `${Q.WTI.price.toFixed(2)}, ${wti >= 0 ? "+" : ""}${wti.toFixed(2)}% (live)` : ""),
+    live("Futures trend", scTrend(futChg), futChg != null ? `${sym} ${Math.round(fut.price).toLocaleString("en-US")}, ${futChg >= 0 ? "+" : ""}${futChg.toFixed(2)}% vs settle (live)` : ""),
+    news.n ? live("News", news.pts, `${news.n} scored headlines today, net ${news.sum >= 0 ? "+" : ""}${news.sum.toFixed(1)} (live)`) : keep("News"),
+    g ? live("Dealer gamma", g.pts, g.txt + " (live price)") : keep("Dealer gamma"),
+    keep("COT positioning"),
+    (() => { const a = scAuction(fut?.price, inp?.[sym]); return a == null ? keep("Auction") : live("Auction", a, "vs your prior value area (live price)"); })(),
+    live("Global overnight", scGlobal(nik, dax), nik != null && dax != null ? `Nikkei ${nik >= 0 ? "+" : ""}${nik.toFixed(2)}%, DAX ${dax >= 0 ? "+" : ""}${dax.toFixed(2)}% (live)` : ""),
+    keep("Geopolitics"),
+  ];
+  const sum = f.reduce((a, x) => a + (Number(x.points) || 0), 0);
+  const score = clamp(Math.round(sum / 28 * 100), -100, 100);
+  const bias = score >= 15 ? "bullish" : score <= -15 ? "bearish" : "neutral";
+  let conv = Math.abs(score) < 25 ? 0 : Math.abs(score) <= 50 ? 1 : 2;
+  if (g?.between) conv = Math.max(0, conv - 1);
+  return { score, bias, conviction: ["low", "medium", "high"][conv], rubric: f, livePts: f.filter(x => x.live).length };
+}
+
+// Short-term pressure: what moved in the last 30–60 minutes, which tends to lead NQ.
+function pressure(Q, br, T, cal) {
+  const s = [];
+  const d10 = Q.TNX && ago(Q.TNX, 30) != null ? (y(Q.TNX.price) - y(ago(Q.TNX, 30))) * 100 : null;
+  if (d10 != null && Math.abs(d10) >= 1.5) s.push({ k: "Rates", pts: d10 >= 4 ? -2 : d10 >= 1.5 ? -1 : d10 <= -4 ? 2 : 1, txt: `10Y ${d10 > 0 ? "+" : ""}${d10.toFixed(1)} bp in 30 min` });
+  const dd = Q.DXY && ago(Q.DXY, 30) ? (Q.DXY.price / ago(Q.DXY, 30) - 1) * 100 : null;
+  if (dd != null && Math.abs(dd) >= 0.12) s.push({ k: "Dollar", pts: dd > 0 ? -1 : 1, txt: `Dollar ${dd > 0 ? "+" : ""}${dd.toFixed(2)}% in 30 min` });
+  const dv = Q.VXN && ago(Q.VXN, 30) ? (Q.VXN.price / ago(Q.VXN, 30) - 1) * 100 : null;
+  if (dv != null && Math.abs(dv) >= 3) s.push({ k: "Vol", pts: dv >= 6 ? -2 : dv > 0 ? -1 : dv <= -6 ? 2 : 1, txt: `VXN ${dv > 0 ? "+" : ""}${dv.toFixed(1)}% in 30 min` });
+  const dn = Q.NQ && ago(Q.NQ, 30) ? (Q.NQ.price / ago(Q.NQ, 30) - 1) * 100 : null;
+  if (dn != null && Math.abs(dn) >= T / 2) s.push({ k: "Momentum", pts: dn > 0 ? 1 : -1, txt: `NQ ${dn > 0 ? "+" : ""}${dn.toFixed(2)}% in 30 min` });
+  const since = Date.now() - 60 * 60e3; let ns = 0, nn = 0;
+  (br?.news || []).forEach(x => { if (Date.parse(x.at) < since) return; const w = { high: 1, medium: 0.5 }[x.impact] || 0; if (w && x.nq) { ns += x.nq * w; nn++; } });
+  if (nn && Math.abs(ns) >= 0.5) s.push({ k: "Headlines", pts: Math.sign(ns), txt: `${nn} headline${nn === 1 ? "" : "s"} in the last hour lean ${ns > 0 ? "bullish" : "bearish"}` });
+  // Divergence: price going one way while rates/vol argue the other usually doesn't last.
+  const macro = s.filter(x => ["Rates", "Dollar", "Vol"].includes(x.k)).reduce((a, x) => a + x.pts, 0);
+  if (dn != null && dn > T / 3 && macro <= -2) s.push({ k: "Divergence", pts: -1, txt: "NQ rising while rates and vol point down: fragile" });
+  if (dn != null && dn < -T / 3 && macro >= 2) s.push({ k: "Divergence", pts: 1, txt: "NQ falling while rates and vol point up: dip likely bought" });
+  const total = s.reduce((a, x) => a + x.pts, 0);
+  const now = Date.now();
+  const ev = (cal?.events || []).filter(e => e.country === "USD" && e.impact === "high" && e.t > now && e.t - now <= 45 * 60e3);
+  const event = ev.length ? { title: ev[0].title + (ev.length > 1 ? ` +${ev.length - 1}` : ""), t: ev[0].t } : null;
+  return { score: total, lean: total >= 2 ? "bullish" : total <= -2 ? "bearish" : "neutral", strong: Math.abs(total) >= 3, signals: s, event };
+}
+
+export async function runEngine({ force } = {}) {
+  if (!force && !futuresOpen()) return { skipped: "closed" };
+  const keys = Object.keys(SYMS);
+  const got = await Promise.all(keys.map(k => chart(SYMS[k])));
+  const Q = {}; keys.forEach((k, i) => { if (got[i]) Q[k] = got[i]; });
+  if (!Q.NQ) return { skipped: "no NQ quote" };
+
+  const id = sessionDate();
+  const rows = await rest(`briefs?select=id,data&id=lte.${id}&order=id.desc&limit=1`);
+  const row = rows?.[0], br = row?.data || {};
+  const inpRows = await rest(`inputs?select=data&id=eq.${row?.id || id}`).catch(() => []);
+  const inp = inpRows?.[0]?.data || {};
+  let cal = null; try { cal = await getCalendar(); } catch { /* optional */ }
+
+  // News window starts at the most recent 4pm ET close.
+  const p = etParts(); const today = new Date(Date.UTC(p.y, p.m - 1, p.d, 12));
+  const closeDay = p.h >= 16 ? today : new Date(today.getTime() - 864e5);
+  const since = Date.parse(closeDay.toISOString().slice(0, 10) + "T20:00:00Z");
+  const carried = row?.id && row.id !== id ? row.id : null;
+  const NQ = rubricFor("NQ", Q, br, inp, since, carried), ES = rubricFor("ES", Q, br, inp, since, carried);
+  const am = Number(br?.implied?.NQ?.amMovePct); const T = am > 0 ? 0.5 * am : 0.35;
+  const press = pressure(Q, br, T, cal);
+
+  // A high-impact US release still ahead before 9:30 caps conviction at low (brief rule).
+  const pend = (cal?.events || []).some(e => e.country === "USD" && e.impact === "high" && e.t > Date.now() && etParts(new Date(e.t)).h < 10 && sessionDate(new Date(e.t)) === id);
+  if (pend) { NQ.conviction = "low"; ES.conviction = "low"; }
+
+  const calls = br?.calls || [], last = calls[calls.length - 1];
+  const prevRows = await rest(`live?select=data&id=eq.${id}`).catch(() => []);
+  const prev = prevRows?.[0]?.data || {};
+  const hist = (prev.history || []).filter(h => Date.now() - h.t < 20 * 3600e3);
+  hist.push({ t: Date.now(), px: Math.round(Q.NQ.price * 4) / 4, nq: NQ.score, es: ES.score, pr: press.score });
+  while (hist.length > 400) hist.shift();
+
+  // Flip: live NQ bias differs from the last full read for two runs in a row.
+  const readBias = last?.NQ?.bias || br?.instruments?.NQ?.bias || null;
+  const diff = readBias && NQ.bias !== readBias;
+  const streak = diff ? (prev.flip?.bias === NQ.bias ? (prev.flip.n || 0) + 1 : 1) : 0;
+  const flip = diff ? { bias: NQ.bias, n: streak, since: prev.flip?.bias === NQ.bias ? prev.flip.since : new Date().toISOString(), from: readBias } : null;
+
+  const quotes = {}; keys.forEach(k => { if (Q[k]) quotes[k] = { price: r2(k === "TNX" ? y(Q[k].price) : Q[k].price), chg: r2(k === "TNX" || k === "Y2" ? bpChg(Q[k]) : pctChg(Q[k])), unit: k === "TNX" || k === "Y2" ? "bp" : "%" }; });
+  const nqBars = Q.NQ.bars; const sessHi = Math.max(...nqBars.map(b => b.h)), sessLo = Math.min(...nqBars.map(b => b.l));
+  const data = {
+    at: new Date().toISOString(), session: id, briefId: row?.id || null, carried: row?.id && row.id !== id ? row.id : null,
+    NQ, ES, pressure: press, quotes, T: Math.round(T * 100) / 100,
+    nq: { price: Q.NQ.price, prev: Q.NQ.prev, hi: sessHi, lo: sessLo },
+    read: last ? { at: last.at, phase: last.phase, NQ: last.NQ, ES: last.ES } : null,
+    flip, history: hist,
+    flagged: prev.flagged || null, pushed: prev.pushed || null,
+  };
+
+  const out = { id, nq: NQ.score, bias: NQ.bias, pressure: press.score, flip: flip?.n || 0 };
+  // Confirmed flip (2 runs): flag the brief, queue a full rescore for the next Claude check.
+  if (flip && flip.n >= 2 && row?.id === id && data.flagged !== flip.since) {
+    const top = NQ.rubric.filter(x => x.live && x.was != null && x.points !== x.was).sort((a, b) => Math.abs(b.points - b.was) - Math.abs(a.points - a.was)).slice(0, 2);
+    const why = top.length ? top.map(x => `${x.factor} ${x.was > 0 ? "+" : ""}${x.was} → ${x.points > 0 ? "+" : ""}${x.points}`).join(", ") : press.signals.slice(0, 2).map(x => x.txt).join(", ");
+    await rest("rpc/set_flash", { method: "POST", body: { p_id: id, p_flash: {
+      at: data.at, kind: "live", callAt: last?.at || null, nq: NQ.bias, es: ES.bias,
+      headline: `Live read flipped NQ ${readBias} → ${NQ.bias} (${NQ.score > 0 ? "+" : ""}${NQ.score})`,
+      why: `Live inputs moved since the ${last?.phase || "last"} read: ${why}. A full rescore is queued for the next check.` } } });
+    const recent = await rest(`requests?kind=eq.run&created_at=gt.${encodeURIComponent(new Date(Date.now() - 45 * 60e3).toISOString())}&select=id`);
+    if (!recent?.length) await rest("requests", { method: "POST", prefer: "return=minimal", body: { kind: "run" } });
+    data.flagged = flip.since; out.flagged = true;
+  }
+  await rest("live?on_conflict=id", { method: "POST", prefer: "resolution=merge-duplicates,return=minimal", body: { id, data, updated_at: data.at } });
+  return out;
+}

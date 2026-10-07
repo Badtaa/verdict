@@ -41,5 +41,10 @@
         }
       ]
     }
-  ]
+  ],
+  "functions": {
+    "api/push-tick.js": {
+      "maxDuration": 30
+    }
+  }
 }
