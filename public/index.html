@@ -1311,6 +1311,13 @@ a.mv-h[href]:hover{color:var(--accent-hi)}
 .mv.up .mv-fx{color:var(--gain);background:rgba(var(--gain-rgb),.14)} .mv.dn .mv-fx{color:var(--loss);background:rgba(var(--loss-rgb),.14)}
 @media (max-width:480px){.mv{grid-template-columns:26px 1fr;}.mv-fx{grid-column:2;justify-self:start}}
 @media (max-width:480px){.wc-row{grid-template-columns:50px 8px 1fr}.wc-row .fxp{grid-column:3;justify-self:start}}
+.turn-rec{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin:10px 0 2px;font-size:12.5px;color:var(--muted)}
+.tr-k{font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:600}
+.tr-dots{display:flex;gap:4px}
+.tr-dot{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:6px;font-size:10px;border:1px solid var(--line);color:var(--muted)}
+.tr-dot.win{background:color-mix(in srgb,var(--gain) 18%,transparent);border-color:var(--gain);color:var(--gain)}
+.tr-dot.loss{background:color-mix(in srgb,var(--loss) 18%,transparent);border-color:var(--loss);color:var(--loss)}
+.tr-rate b{color:var(--text)}
 </style>
 <style>
 /* ---------- web shell ---------- */
@@ -2478,6 +2485,14 @@ function changedSince(L, br){
     ${r.sort((a, b) => Math.abs(b.points - b.was) - Math.abs(a.points - a.was)).slice(0, 4).map(x => { const up = x.points > x.was;
       return `<span class="chg ${up ? "up" : "dn"}" title="${esc(x.input)}">${esc(x.factor)} <b>${signed(x.was)} → ${signed(x.points)}</b></span>`; }).join("")}</div>`;
 }
+function turnRecord(L){
+  const T = L?.turnStats; if(!T || !(T.recent || []).length) return "";
+  const dots = T.recent.slice().reverse().map(x => { const st = x.hit30 == null ? "wait" : x.hit30 ? "win" : "loss";
+    const mv = x.px30 != null ? Math.round((x.lean === "bullish" ? x.px30 - x.px : x.px - x.px30)) : null;
+    return `<span class="tr-dot ${st}" title="${esc(fmtTime(x.at))} · ${x.lean === "bullish" ? "▲ higher" : "▼ lower"}${x.strong ? " (strong)" : ""} · ${mv == null ? "grading…" : `${mv > 0 ? "+" : ""}${mv} pts after 30 min`}">${x.lean === "bullish" ? "▲" : "▼"}</span>`; }).join("");
+  const rate = T.n ? `<b>${T.hit30}%</b> right after 30 min · ${T.hit60 ?? "–"}% after 60 · ${T.n} signal${T.n === 1 ? "" : "s"}${T.strongN ? ` · strong ${T.strongHit30}%` : ""}${T.avgPts30 != null ? ` · avg ${T.avgPts30 > 0 ? "+" : ""}${T.avgPts30} pts` : ""}` : "First signals are being graded. Live hit rate shows after 30 min.";
+  return `<div class="turn-rec"><span class="tr-k">Live record</span><span class="tr-dots">${dots}</span><span class="tr-rate">${rate}</span></div>`;
+}
 function liveAnswer(br){
   const L = liveFor(br); if(!L) return answer(br);
   const d = L.NQ, b = d.bias;
@@ -2494,6 +2509,7 @@ function liveAnswer(br){
     <div class="ans-grid">${pressureCell(L)}
       ${wrong ? `<div class="ans-cell"><span>Wrong if</span><b>${esc(wrong.txt)}</b><em>${esc(wrong.sub)}</em></div>` : ""}
       <div class="ans-cell"><span>Next up</span><b>${esc(nx.txt)}</b><em>${nx.cd ? `${esc(calDay(nx.cd))} ${esc(calTime(nx.cd))} ET · <span data-cd="${nx.cd}">${cdTxt(nx.cd)}</span>` : esc(nx.sub)}</em></div></div>
+    ${turnRecord(L)}
     ${changedSince(L, br)}
     <p class="ans-note">Re-scored every 2 minutes from live yields, dollar, vol, oil, NQ and global markets. ${L.carried ? `No full read for this session yet, so news, data and gamma wait for the next one.` : `News, data and gamma come from the ${esc(STEP_LABEL[L.read?.phase] || "last")} read.`} <button class="ans-more" id="hero-more" type="button">${S.heroMore ? "Hide the read" : "The read"}</button></p>
     ${S.heroMore ? `<p class="ans-lead">${esc(br.headline)}</p>` : ""}</section>`;
