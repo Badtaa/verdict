@@ -105,7 +105,7 @@
     S.loaded = false; render();
     await loadBriefs();
     subscribe();
-    pollQuote(); loadCal(); loadTape(); loadVote(); loadMe(); initPush(); loadLive();
+    pollQuote(); loadCal(); loadTape(); loadVote(); loadMe(); initPush(); loadLive(); loadWire();
   }
 
   async function loadBriefs() {
@@ -126,6 +126,7 @@
         if (i >= 0) S.briefs[i] = doc; else { S.briefs.push(doc); S.briefs.sort((a, b) => b.id.localeCompare(a.id)); }
         if (!S.levels && !S.rp.playing && !W.acct) render();
       })
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "headlines" }, p => { if (window.hlIncoming) window.hlIncoming(p.new); if (!S.levels && !S.rp.playing && !W.acct && S.tab === "news") render(); })
       .on("postgres_changes", { event: "*", schema: "public", table: "live" }, p => {
         const row = p.new; if (!row || !row.data) return;
         if (!S.liveBias || row.id >= S.liveBias.id) { S.liveBias = { ...row.data, id: row.id }; if (!S.levels && !S.rp.playing && !W.acct) render(); }
@@ -244,6 +245,15 @@
     if (!error && data?.[0]) { S.liveBias = { ...data[0].data, id: data[0].id }; if (!S.levels && !S.rp.playing && !W.acct) render(); }
   }
   setInterval(() => { if (W.screen === "app" && document.visibilityState === "visible") loadLive(); }, 2 * 60e3);
+  async function loadWire() {
+    if (W.screen !== "app") return;
+    const { data, error } = await W.sb.from("headlines").select("id,at,src,topic,who,weight,url,seen_at").order("at", { ascending: false }).limit(30);
+    if (error || !data) return;
+    const fresh = !S.wire;
+    if (fresh) S.wire = data; else data.slice().reverse().forEach(h => { if (!S.wire.some(x => x.id === h.id) && window.hlIncoming) window.hlIncoming(h); });
+    if (!S.levels && !S.rp.playing && !W.acct) render();
+  }
+  setInterval(() => { if (W.screen === "app" && document.visibilityState === "visible") loadWire(); }, 60e3);
 
   /* ---------- multi-asset tape + top NQ weights ---------- */
   async function loadTape(force) {
@@ -432,7 +442,7 @@
   document.addEventListener("keydown", e => { if (e.key === "Escape" && W.acct) { W.acct = false; render(); } });
 
   // Catch up after the phone wakes or the tab comes back.
-  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && W.screen === "app") { loadBriefs(); pollQuote(); loadCal(); loadTape(true); loadVote(); loadLive(); } });
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && W.screen === "app") { loadBriefs(); pollQuote(); loadCal(); loadTape(true); loadVote(); loadLive(); loadWire(); } });
 
   /* ---------- boot ---------- */
   async function boot() {

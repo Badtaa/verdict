@@ -1318,6 +1318,28 @@ a.mv-h[href]:hover{color:var(--accent-hi)}
 .tr-dot.win{background:color-mix(in srgb,var(--gain) 18%,transparent);border-color:var(--gain);color:var(--gain)}
 .tr-dot.loss{background:color-mix(in srgb,var(--loss) 18%,transparent);border-color:var(--loss);color:var(--loss)}
 .tr-rate b{color:var(--text)}
+.wire .wire-h{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.wire-pref{display:flex;gap:4px;font-size:12px;color:var(--muted);align-items:center}
+.wp{border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:999px;padding:3px 9px;font:inherit;font-size:12px;cursor:pointer}
+.wp.on{background:var(--text);color:var(--bg);border-color:var(--text)}
+.wire-row{display:flex;align-items:center;gap:12px;padding:9px 0;border-top:1px solid var(--line);color:inherit;text-decoration:none}
+.wire-row:first-of-type{border-top:0}
+.wr-t{font-variant-numeric:tabular-nums;color:var(--muted);font-size:12.5px;min-width:56px}
+.wr-main{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0}
+.wr-main em{font-style:normal;font-size:12px;color:var(--muted)}
+.wd{display:flex;gap:3px}.wd i{width:6px;height:6px;border-radius:50%;background:var(--line)}.wd i.on{background:var(--warn)}
+.wire-row.w3 .wd i.on{background:var(--loss)}
+.wire-note{font-size:12px;color:var(--faint);margin:8px 0 0}
+.live-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--loss);margin-right:6px;vertical-align:1px;animation:wpulse 1.4s infinite}
+@keyframes wpulse{50%{opacity:.35}}
+.wire-toast{position:fixed;left:50%;top:12px;transform:translate(-50%,-140%);z-index:9999;width:min(560px,calc(100vw - 24px));display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:center;padding:12px 14px;border-radius:14px;background:var(--panel-hi,var(--panel));border:1px solid var(--line-hi,var(--line));box-shadow:0 18px 40px rgba(0,0,0,.45);transition:transform .35s cubic-bezier(.2,.9,.3,1.2)}
+.wire-toast.in{transform:translate(-50%,0)}
+.wire-toast.w3{border-color:var(--loss)}
+.wt-k{grid-column:1;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.wire-toast b{grid-column:1;font-size:15px}
+.wt-act{grid-column:2;grid-row:1/span 2;display:flex;gap:6px;align-items:center}
+.wt-see{background:var(--text);color:var(--bg);border-radius:999px;padding:7px 13px;font-size:13px;font-weight:600;text-decoration:none}
+.wt-x{background:transparent;border:0;color:var(--muted);font-size:15px;cursor:pointer;padding:6px}
 </style>
 <style>
 /* ---------- web shell ---------- */
@@ -2309,7 +2331,7 @@ function newsTab(br){
     data: br.calendar?.length ? `${br.calendar.length} releases today` : "",
     surp: br.surprises?.length ? `${br.surprises.length} prints scored` : "",
   };
-  return `${flashBanner(br)}${alertBanner(br)}${tminus(br)}${moversPanel(br)}${worldPanel(br)}${newsFlow(br)}${tapeNews(br)}
+  return `${flashBanner(br)}${alertBanner(br)}${tminus(br)}${wirePanel()}${moversPanel(br)}${worldPanel(br)}${newsFlow(br)}${tapeNews(br)}
     <div class="folds">
     ${fold("story", "Why the bias moved", sum.story, story(br), true)}
     ${fold("heads", "Headline cards", "", headlines(br))}
@@ -2485,6 +2507,36 @@ function changedSince(L, br){
     ${r.sort((a, b) => Math.abs(b.points - b.was) - Math.abs(a.points - a.was)).slice(0, 4).map(x => { const up = x.points > x.was;
       return `<span class="chg ${up ? "up" : "dn"}" title="${esc(x.input)}">${esc(x.factor)} <b>${signed(x.was)} → ${signed(x.points)}</b></span>`; }).join("")}</div>`;
 }
+/* ---------- live wire: breaking headlines slide in while the app is open ---------- */
+const WIRE = { boot: Date.now(), shown: new Set() };
+function wirePref(){ try { return localStorage.getItem("vd-wire") || "big"; } catch { return "big"; } }
+function setWirePref(v){ try { localStorage.setItem("vd-wire", v); } catch {} }
+function wireLabel(h){ return `${esc(h.topic)}${h.who ? ` · ${esc(h.who)}` : ""}`; }
+function wireDots(w){ return `<span class="wd">${[1,2,3].map(i => `<i class="${i <= w ? "on" : ""}"></i>`).join("")}</span>`; }
+function wireRow(h){
+  return `<a class="wire-row w${h.weight}" ${h.url ? `href="${esc(h.url)}" target="_blank" rel="noopener"` : ""}>
+    <span class="wr-t">${esc(fmtTime(h.at))}</span><span class="wr-main"><b>${wireLabel(h)}</b><em>${esc(h.src)}${h.url ? " · open story ↗" : ""}</em></span>${wireDots(h.weight)}</a>`;
+}
+function wirePanel(){
+  const L = (S.wire || []).slice(0, 8); if(!L.length) return "";
+  const p = wirePref();
+  return `<section class="card wire"><div class="wire-h"><span class="eyebrow"><i class="live-dot"></i>Live wire</span>
+    <span class="wire-pref">Banners: ${["all","big","off"].map(v => `<button type="button" class="wp ${p === v ? "on" : ""}" data-wire-pref="${v}">${v === "all" ? "All" : v === "big" ? "Big only" : "Off"}</button>`).join("")}</span></div>
+    ${L.map(wireRow).join("")}<p class="wire-note">Topic and who it's about, tagged automatically from MarketWatch, CNBC, the Fed and the White House within about a minute. Tap to read the story. Verdict's own read of the big ones lands in the news list after the next watch.</p></section>`;
+}
+function wireToast(h){
+  const p = wirePref(); if(p === "off" || (p === "big" && h.weight < 3)) return;
+  if(WIRE.shown.has(h.id) || Date.parse(h.seen_at || h.at) < WIRE.boot - 60e3) return; WIRE.shown.add(h.id);
+  const el = document.createElement("div"); el.className = `wire-toast w${h.weight}`;
+  el.innerHTML = `<span class="wt-k"><i class="live-dot"></i>${h.weight >= 3 ? "Breaking" : "Headline"} · ${esc(h.src)}</span><b>${wireLabel(h)}</b>
+    <span class="wt-act">${h.url ? `<a class="wt-see" href="${esc(h.url)}" target="_blank" rel="noopener">See it</a>` : ""}<button type="button" class="wt-x" aria-label="Dismiss">✕</button></span>`;
+  document.body.appendChild(el); requestAnimationFrame(() => el.classList.add("in"));
+  const bye = () => { el.classList.remove("in"); setTimeout(() => el.remove(), 400); };
+  el.querySelector(".wt-x").onclick = bye; const a = el.querySelector(".wt-see"); if(a) a.addEventListener("click", () => setTimeout(bye, 50));
+  setTimeout(bye, 14000);
+}
+window.hlIncoming = h => { if(!h || !h.id) return; S.wire = [h, ...(S.wire || []).filter(x => x.id !== h.id)].sort((a, b) => Date.parse(b.at) - Date.parse(a.at)).slice(0, 30); wireToast(h); };
+document.addEventListener("click", e => { const b = e.target.closest("[data-wire-pref]"); if(!b) return; setWirePref(b.dataset.wirePref); render(); });
 function turnRecord(L){
   const T = L?.turnStats; if(!T || !(T.recent || []).length) return "";
   const dots = T.recent.slice().reverse().map(x => { const st = x.hit30 == null ? "wait" : x.hit30 ? "win" : "loss";
