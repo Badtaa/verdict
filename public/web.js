@@ -247,7 +247,7 @@
   setInterval(() => { if (W.screen === "app" && document.visibilityState === "visible") loadLive(); }, 2 * 60e3);
   async function loadWire() {
     if (W.screen !== "app") return;
-    const { data, error } = await W.sb.from("headlines").select("id,at,src,topic,who,weight,url,seen_at").order("at", { ascending: false }).limit(30);
+    const { data, error } = await W.sb.from("headlines").select("id,at,src,topic,who,weight,url,seen_at,px0,px30").order("at", { ascending: false }).limit(30);
     if (error || !data) return;
     const fresh = !S.wire;
     if (fresh) S.wire = data; else data.slice().reverse().forEach(h => { if (!S.wire.some(x => x.id === h.id) && window.hlIncoming) window.hlIncoming(h); });

@@ -1547,7 +1547,7 @@ function applySkin(k){
   if(e === "daybreak") document.documentElement.removeAttribute("data-skin"); else document.documentElement.setAttribute("data-skin", e);
   if(typeof FX !== "undefined") FX.set(e);
 }
-function setMood(br){ const b = br?.instruments?.NQ?.bias; document.documentElement.style.setProperty("--mood-rgb", rgbVar(b)); }
+function setMood(br){ const b = (br && callOf(br,"NQ")?.bias) || br?.instruments?.NQ?.bias; document.documentElement.style.setProperty("--mood-rgb", rgbVar(b)); }
 
 /* ---------- dial ---------- */
 function dial(key, score, bias, opts){
@@ -2178,7 +2178,7 @@ function voteBox(br){
   return `<section class="panel vote"><div class="vote-head"><div><span class="eyebrow">Lock your bias · ${esc(fmtDate(br.date,{weekday:"short",month:"short"}))} NY AM</span><h3 class="vote-title">${open ? (me ? `You're ${me === "bull" ? "long" : "short"}. Change it before the bell.` : "Bull or bear into the open?") : "The desk has spoken"}</h3></div>
       ${S.callsign ? `<span class="cs">${esc(S.callsign)}</span>` : `<button class="gate-link" id="open-acct" type="button">Set callsign</button>`}</div>
     <div class="vote-btns">${btn("bull")}${btn("bear")}</div>
-    <div class="crowd"><div class="crowd-bar"><i class="b" style="width:${bp}%"></i><i class="s" style="width:${100-bp}%"></i></div><div class="crowd-lbl"><span class="bull">${bp}% long</span><span class="muted">${tot} vote${tot === 1 ? "" : "s"} · Verdict says <b class="${cls(br.instruments?.NQ?.bias)}">${label(br.instruments?.NQ?.bias)}</b></span><span class="bear">${100-bp}% short</span></div></div>
+    <div class="crowd"><div class="crowd-bar"><i class="b" style="width:${bp}%"></i><i class="s" style="width:${100-bp}%"></i></div><div class="crowd-lbl"><span class="bull">${bp}% long</span><span class="muted">${tot} vote${tot === 1 ? "" : "s"} · Verdict says <b class="${cls(callOf(br,"NQ")?.bias)}">${label(callOf(br,"NQ")?.bias)}</b></span><span class="bear">${100-bp}% short</span></div></div>
     <p class="vote-st">${status}</p>${S.voteMsg ? `<div class="notice err">${esc(S.voteMsg)}</div>` : ""}
     ${rows.length ? `<div class="lb"><div class="lb-h"><span>Leaderboard</span><span>Hits</span></div>${rows.map(x => `<div class="lb-r${x.me ? " me" : ""}"><span class="lb-i">${x.i + 1}</span><span class="lb-n">${esc(x.name)}</span><span class="lb-s">${x.hits}/${x.n} · ${Math.round(x.hits/x.n*100)}%</span></div>`).join("")}
       <div class="lb-r ai"><span class="lb-i">◆</span><span class="lb-n">Verdict</span><span class="lb-s">${R.hits + R.miss ? `${R.hits}/${R.hits + R.miss}${R.rate != null ? ` · ${R.rate}%` : ""}` : "—"}</span></div></div>` : `<p class="faint" style="font-size:11.5px">The leaderboard fills in as sessions get graded. A vote hits when NQ's 9:30–12:00 move goes your way.</p>`}</section>`;
@@ -2196,7 +2196,7 @@ async function makeCard(br){
   try{ await document.fonts?.ready; }catch(e){}
   const W = 1080, H = 1350, cv = document.createElement("canvas"); cv.width = W; cv.height = H; const x = cv.getContext("2d");
   const cs = getComputedStyle(document.documentElement), v = k => cs.getPropertyValue(k).trim();
-  const I = br.instruments || {}, nq = I.NQ || {}, es = I.ES || {};
+  const I = br.instruments || {}, nq = callOf(br,"NQ") || I.NQ || {}, es = callOf(br,"ES") || I.ES || {};
   const light = SKINS.find(z => z.k === effectiveSkin())?.light;
   const rgb = b => b === "bullish" ? (light ? "60,230,160" : v("--gain-rgb")) : b === "bearish" ? (light ? "255,95,110" : v("--loss-rgb")) : "180,180,195";
   const acc = light ? "255,150,90" : v("--accent-rgb"), sky = v("--sky1-rgb") || acc;
@@ -2496,7 +2496,7 @@ function pressureCell(L){
   const P = L?.pressure; if(!P) return "";
   const dir = P.score >= 2 ? "up" : P.score <= -2 ? "dn" : "flat";
   const word = dir === "up" ? (P.strong ? "Upside turn likely" : "Leaning higher") : dir === "dn" ? (P.strong ? "Downside turn likely" : "Leaning lower") : "No turn signal";
-  const sig = (P.signals || []).slice(0, 2).map(x => esc(x.txt)).join(" · ") + (P.odds ? ` · <b>${esc(P.odds)}</b>` : "") + (P.model && P.rth === false ? " · outside cash hours, lower confidence" : "");
+  const sig = (P.signals || []).slice(0, 2).map(x => esc(x.txt)).join(" · ") + (P.odds ? ` · <b>${esc(P.odds)}</b>` : "") + (P.model && P.rth === false ? " · outside cash hours, lower confidence" : "") + (P.fitAt ? ` · model refit ${esc(fmtDate(String(P.fitAt).slice(0,10)))}` : "");
   return `<div class="ans-cell press ${dir}"><span>Next 30–60 min</span><b>${dir === "up" ? "▲" : dir === "dn" ? "▼" : "◆"} ${word}</b><em>${sig || "Rates, dollar and vol are quiet"}${P.event ? ` · ${esc(P.event.title)} ${cdTxt(P.event.t)}` : ""}</em></div>`;
 }
 function changedSince(L, br){
@@ -2513,9 +2513,10 @@ function wirePref(){ try { return localStorage.getItem("vd-wire") || "big"; } ca
 function setWirePref(v){ try { localStorage.setItem("vd-wire", v); } catch {} }
 function wireLabel(h){ return `${esc(h.topic)}${h.who ? ` · ${esc(h.who)}` : ""}`; }
 function wireDots(w){ return `<span class="wd">${[1,2,3].map(i => `<i class="${i <= w ? "on" : ""}"></i>`).join("")}</span>`; }
+function hlMove(h){ const st = S.liveBias?.hlStats?.[h.topic]; return st && st.n >= 8 ? `${h.topic} headlines moved NQ ~${st.pts} pts in 30 min on avg (${st.n} so far)` : ""; }
 function wireRow(h){
   return `<a class="wire-row w${h.weight}" ${h.url ? `href="${esc(h.url)}" target="_blank" rel="noopener"` : ""}>
-    <span class="wr-t">${esc(fmtTime(h.at))}</span><span class="wr-main"><b>${wireLabel(h)}</b><em>${esc(h.src)}${h.url ? " · open story ↗" : ""}</em></span>${wireDots(h.weight)}</a>`;
+    <span class="wr-t">${esc(fmtTime(h.at))}</span><span class="wr-main"><b>${wireLabel(h)}</b><em>${esc(h.src)}${h.url ? " · open story ↗" : ""}${h.px0 != null && h.px30 != null ? ` · NQ ${h.px30 - h.px0 >= 0 ? "+" : ""}${Math.round(h.px30 - h.px0)} pts after` : ""}</em></span>${wireDots(h.weight)}</a>`;
 }
 function wirePanel(){
   const L = (S.wire || []).slice(0, 8); if(!L.length) return "";
@@ -2528,7 +2529,7 @@ function wireToast(h){
   const p = wirePref(); if(p === "off" || (p === "big" && h.weight < 3)) return;
   if(WIRE.shown.has(h.id) || Date.parse(h.seen_at || h.at) < WIRE.boot - 60e3) return; WIRE.shown.add(h.id);
   const el = document.createElement("div"); el.className = `wire-toast w${h.weight}`;
-  el.innerHTML = `<span class="wt-k"><i class="live-dot"></i>${h.weight >= 3 ? "Breaking" : "Headline"} · ${esc(h.src)}</span><b>${wireLabel(h)}</b>
+  el.innerHTML = `<span class="wt-k"><i class="live-dot"></i>${h.weight >= 3 ? "Breaking" : "Headline"} · ${esc(h.src)}</span><b>${wireLabel(h)}</b>${hlMove(h) ? `<span class="wt-k" style="text-transform:none;letter-spacing:0">${esc(hlMove(h))}</span>` : ""}
     <span class="wt-act">${h.url ? `<a class="wt-see" href="${esc(h.url)}" target="_blank" rel="noopener">See it</a>` : ""}<button type="button" class="wt-x" aria-label="Dismiss">✕</button></span>`;
   document.body.appendChild(el); requestAnimationFrame(() => el.classList.add("in"));
   const bye = () => { el.classList.remove("in"); setTimeout(() => el.remove(), 400); };
@@ -2561,6 +2562,7 @@ function liveAnswer(br){
     <div class="ans-grid">${pressureCell(L)}
       ${wrong ? `<div class="ans-cell"><span>Wrong if</span><b>${esc(wrong.txt)}</b><em>${esc(wrong.sub)}</em></div>` : ""}
       <div class="ans-cell"><span>Next up</span><b>${esc(nx.txt)}</b><em>${nx.cd ? `${esc(calDay(nx.cd))} ${esc(calTime(nx.cd))} ET · <span data-cd="${nx.cd}">${cdTxt(nx.cd)}</span>` : esc(nx.sub)}</em></div></div>
+    ${L.reaction ? `<div class="turn-rec"><span class="tr-k">After the data</span><span class="tr-rate"><b class="${cls(L.reaction.dir)}">${esc(L.reaction.txt)}</b> · moves like this held into the close <b>${L.reaction.odds}%</b> of the time (2 yrs)</span></div>` : ""}
     ${turnRecord(L)}
     ${changedSince(L, br)}
     <p class="ans-note">Re-scored every 2 minutes from live yields, dollar, vol, oil, NQ and global markets. ${L.carried ? `No full read for this session yet, so news, data and gamma wait for the next one.` : `News, data and gamma come from the ${esc(STEP_LABEL[L.read?.phase] || "last")} read.`} <button class="ans-more" id="hero-more" type="button">${S.heroMore ? "Hide the read" : "The read"}</button></p>
@@ -2939,12 +2941,13 @@ function today(br){
     </div>`;
 }
 function detail(sym, br){
-  const d = (br.instruments||{})[sym];
+  const d = callOf(br, sym);
   if(!d) return `<section class="panel empty"><h2>No ${sym} read in this brief</h2></section>`;
   const sec = (t, arr, k) => arr?.length ? `<section class="panel"><h2>${t}</h2><ul class="list ${k}">${arr.map(x=>`<li><span>${esc(x)}</span></li>`).join("")}</ul></section>` : "";
   return `<section class="panel inst" style="--card-rgb:${rgbVar(d.bias)};cursor:default">
       <div class="inst-head"><span class="sym">${sym}<small>${SYM[sym]} · ${esc(br.session||"NY AM")}</small></span>${conviction(d.conviction,d.bias)}</div>
       <div class="dial-row">${dial("d-"+sym+br.id, d.score, d.bias)}<span class="bias-word ${cls(d.bias)}" style="font-size:38px">${label(d.bias)}</span></div>
+      ${d.live ? `<p class="muted" style="margin:6px 0 0;font-size:13px"><span class="live-pill"><i></i>Live</span> Same call as the home page, re-scored every 2 min${d.readBias && d.readBias !== d.bias ? ` · the ${esc(STEP_LABEL[liveFor(br)?.read?.phase] || "last")} read said <b class="${cls(d.readBias)}">${label(d.readBias)} ${signed(d.readScore)}</b>` : ""}.</p>` : ""}
       <p class="thesis" style="display:block">${esc(d.thesis)}</p>
     </section>
     ${positioning(br, sym)}${rubric(d)}${sec("Why this window", d.why, "pro")}${sec("Opposing case", d.opposing, "con")}${sec("What would change it", d.changeIt, "flip")}`;
