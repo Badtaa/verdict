@@ -2466,9 +2466,9 @@ function biasLine(L){
 function pressureCell(L){
   const P = L?.pressure; if(!P) return "";
   const dir = P.score >= 2 ? "up" : P.score <= -2 ? "dn" : "flat";
-  const word = dir === "up" ? (P.strong ? "Building higher" : "Leaning higher") : dir === "dn" ? (P.strong ? "Building lower" : "Leaning lower") : "Balanced";
-  const sig = (P.signals || []).slice(0, 2).map(x => esc(x.txt)).join(" · ");
-  return `<div class="ans-cell press ${dir}"><span>Next move pressure</span><b>${dir === "up" ? "▲" : dir === "dn" ? "▼" : "◆"} ${word}</b><em>${sig || "Rates, dollar and vol are quiet"}${P.event ? ` · ${esc(P.event.title)} ${cdTxt(P.event.t)}` : ""}</em></div>`;
+  const word = dir === "up" ? (P.strong ? "Upside turn likely" : "Leaning higher") : dir === "dn" ? (P.strong ? "Downside turn likely" : "Leaning lower") : "No turn signal";
+  const sig = (P.signals || []).slice(0, 2).map(x => esc(x.txt)).join(" · ") + (P.odds ? ` · <b>${esc(P.odds)}</b>` : "") + (P.model && P.rth === false ? " · outside cash hours, lower confidence" : "");
+  return `<div class="ans-cell press ${dir}"><span>Next 30–60 min</span><b>${dir === "up" ? "▲" : dir === "dn" ? "▼" : "◆"} ${word}</b><em>${sig || "Rates, dollar and vol are quiet"}${P.event ? ` · ${esc(P.event.title)} ${cdTxt(P.event.t)}` : ""}</em></div>`;
 }
 function changedSince(L, br){
   const r = (L?.NQ?.rubric || []).filter(x => x.live && x.was != null && Number(x.points) !== Number(x.was));
