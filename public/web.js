@@ -318,7 +318,7 @@
       const reg = W.swReg || await navigator.serviceWorker.register("/sw.js");
       let sub = await reg.pushManager.getSubscription();
       if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64u(key) });
-      await api("/api/push", { sub: sub.toJSON() });
+      await api("/api/push", { sub: sub.toJSON(), prefs: (typeof MY !== "undefined" && MY.alerts) || undefined });
       S.push.on = true; S.push.msg = "Alerts are on for this device."; store.set("db-push-nudge", "1");
     } catch (e) { S.push.msg = e.message; S.push.err = true; }
     S.push.busy = false; render();
@@ -338,6 +338,11 @@
     catch (e) { S.push.msg = e.message; S.push.err = true; }
     S.push.busy = false; render();
   }
+  window.pushSavePrefs = async prefs => {
+    const sub = await (W.swReg || await navigator.serviceWorker.ready).pushManager.getSubscription();
+    if (!sub) throw new Error("Alerts aren't on for this device.");
+    await api("/api/push", { sub: sub.toJSON(), prefs });
+  };
   window.pushBlock = () => {
     const P = S.push; if (!P) return "";
     if (P.ios && !P.standalone) return `<p class="muted" style="font-size:13px">On iPhone, alerts only work from the Home Screen app: tap Share → <b>Add to Home Screen</b>, open Verdict from there, then turn alerts on.</p>`;
