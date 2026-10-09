@@ -27,7 +27,11 @@ export default async function handler(req, res) {
     }
     const sub = b.sub;
     if (!sub?.endpoint || !/^https:\/\//.test(sub.endpoint) || !sub.keys?.p256dh || !sub.keys?.auth) return send(res, 400, { error: "Bad subscription." });
-    const prefs = { flips: b.prefs?.flips !== false, events: b.prefs?.events !== false, calls: b.prefs?.calls !== false };
+    const P = b.prefs || {}, TOP = ["Fed & rates","US data","Tariffs & trade","Geopolitics","Oil & energy","China","Treasury & yields","Big tech & AI","Washington","Markets"];
+    const prefs = { flips: P.flips !== false, events: P.events !== false, calls: P.calls !== false, turns: P.turns !== false,
+      topics: Array.isArray(P.topics) ? P.topics.filter(t => TOP.includes(t)).slice(0, 10) : [],
+      levels: Array.isArray(P.levels) ? P.levels.map(Number).filter(n => n > 0 && n < 1e6).slice(0, 8) : [],
+      quiet: Array.isArray(P.quiet) && P.quiet.length === 2 && P.quiet.every(h => Number.isInteger(h) && h >= 0 && h < 24) ? P.quiet : null };
     await rest("push_subs?on_conflict=endpoint", { method: "POST", prefer: "resolution=merge-duplicates,return=minimal",
       body: { endpoint: sub.endpoint, user_id: user.id, sub: { endpoint: sub.endpoint, keys: { p256dh: sub.keys.p256dh, auth: sub.keys.auth } }, prefs } });
     send(res, 200, { ok: true, on: true, prefs });
