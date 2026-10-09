@@ -245,6 +245,16 @@
     if (!error && data?.[0]) { S.liveBias = { ...data[0].data, id: data[0].id }; if (!S.levels && !S.rp.playing && !W.acct) render(); }
   }
   setInterval(() => { if (W.screen === "app" && document.visibilityState === "visible") loadLive(); }, 2 * 60e3);
+  window.loadDayLive = async day => {
+    S.rpLive = S.rpLive || {}; if (S.rpLive[day] && S.rpLive[day].at > Date.now() - 60e3) return;
+    S.rpLive[day] = { loading: true, at: Date.now() };
+    const [lv, tl] = await Promise.all([
+      W.sb.from("live").select("id,data").eq("id", day).limit(1),
+      W.sb.from("turn_log").select("at,lean,strong,px,px30,hit30").gte("at", new Date(Date.parse(day + "T00:00:00Z") - 8 * 3600e3).toISOString()).lte("at", new Date(Date.parse(day + "T21:00:00Z")).toISOString()).order("at", { ascending: true }).limit(200),
+    ]);
+    S.rpLive[day] = { at: Date.now(), hist: lv.data?.[0]?.data?.history || [], turns: tl.data || [] };
+    if (S.tab === "replay" && !S.rp.playing) render();
+  };
   async function loadWire() {
     if (W.screen !== "app") return;
     const { data, error } = await W.sb.from("headlines").select("id,at,src,topic,who,weight,url,seen_at,px0,px30").order("at", { ascending: false }).limit(30);

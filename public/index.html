@@ -1365,6 +1365,14 @@ a.mv-h[href]:hover{color:var(--accent-hi)}
 .my-sw button i{width:26px;height:26px;border-radius:50%;background:var(--sw,conic-gradient(var(--gain),var(--accent),var(--loss),var(--gain)))}
 .my-sw button[aria-pressed="true"]{border-color:var(--text);color:var(--text)}
 .my-in{display:flex;gap:8px;align-items:center}.my-in input{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;color:var(--text);font:inherit}
+.rl-wrap{position:relative;touch-action:pan-y}.rl-svg{width:100%;height:230px;display:block;margin-top:8px;cursor:crosshair}
+.rl-px{fill:none;stroke:var(--text);stroke-width:1.6;opacity:.85;vector-effect:non-scaling-stroke}
+.rl-rth{fill:var(--text);opacity:.04}.rl-read{stroke:var(--accent);stroke-dasharray:3 4;opacity:.7;vector-effect:non-scaling-stroke}
+.rl-cur{stroke:var(--text);opacity:.5;vector-effect:non-scaling-stroke}
+.rl-m path{fill:var(--muted)}.rl-m.win path{fill:var(--gain)}.rl-m.loss path{fill:var(--loss)}.rl-m.strong path{stroke:var(--text);stroke-width:1.2}
+.rl-read-out{font-size:13px;margin-top:6px;min-height:20px}
+.rl-legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:11.5px;color:var(--muted);margin-top:8px}
+.lg{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:3px;margin-right:5px}.lg.px{background:var(--text)}.lg.sc{background:linear-gradient(90deg,var(--gain),var(--loss))}.lg.rd{background:var(--accent)}.lg.rt{background:var(--text);opacity:.25;height:8px;vertical-align:0}
 </style>
 <style>
 /* ---------- web shell ---------- */
@@ -3154,6 +3162,51 @@ function trendChart(){
       <span class="legend"><span><i style="width:14px;height:3px;border-radius:2px;background:var(--accent);display:inline-block"></i>NQ</span><span><i style="width:14px;height:3px;border-radius:2px;background:var(--ice);display:inline-block"></i>ES</span><span><i style="width:9px;height:9px;border-radius:50%;box-shadow:0 0 0 2px var(--gain);display:inline-block"></i>Hit</span><span><i style="width:9px;height:9px;border-radius:50%;box-shadow:0 0 0 2px var(--loss);display:inline-block"></i>Miss</span></span></div>
     <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Final bias score per day for NQ and ES">${grid}${series("ES","var(--ice)")}${series("NQ","var(--accent)")}${labels}</svg></section>`;
 }
+
+/* ---------- replay: the live line, minute by minute ---------- */
+function liveDay(b){
+  const R = (S.rpLive || {})[b.id];
+  if(!R){ if(typeof window.loadDayLive === "function") setTimeout(() => window.loadDayLive(b.id), 0); return `<section class="panel"><span class="eyebrow">Live line</span><p class="muted">Loading what Verdict said through the day…</p></section>`; }
+  if(R.loading) return `<section class="panel"><span class="eyebrow">Live line</span><p class="muted">Loading…</p></section>`;
+  const h = (R.hist || []).filter(x => isFinite(x.px) && isFinite(x.nq));
+  if(h.length < 5) return `<section class="panel"><span class="eyebrow">Live line</span><p class="muted">No live record for this day. The 2-minute engine started on Oct 8.</p></section>`;
+  const W = 640, H = 230, top = 12, pH = 120, bTop = 150, bH = 64;
+  const t0 = h[0].t, t1 = h[h.length - 1].t, X = t => ((t - t0) / Math.max(1, t1 - t0) * W);
+  const lo = Math.min(...h.map(x => x.px)), hi = Math.max(...h.map(x => x.px)), Y = v => top + (hi - v) / Math.max(1, hi - lo) * pH;
+  const Ys = v => bTop + bH / 2 - Math.max(-60, Math.min(60, v)) / 60 * (bH / 2);
+  const px = h.map((x, i) => `${i ? "L" : "M"}${X(x.t).toFixed(1)} ${Y(x.px).toFixed(1)}`).join("");
+  const sl = h.map((x, i) => `${i ? "L" : "M"}${X(x.t).toFixed(1)} ${Ys(x.nq).toFixed(1)}`).join("");
+  const z = (bTop + bH / 2).toFixed(1);
+  const marks = (R.turns || []).filter(x => { const t = Date.parse(x.at); return t >= t0 && t <= t1; }).map(x => { const t = Date.parse(x.at), up = x.lean === "bullish";
+    const st = x.hit30 == null ? "wait" : x.hit30 ? "win" : "loss", y = Y(x.px) + (up ? 14 : -14);
+    return `<g class="rl-m ${st}${x.strong ? " strong" : ""}"><title>${esc(fmtTime(x.at))} · ${up ? "▲ higher" : "▼ lower"}${x.strong ? " (strong)" : ""} at ${fmtN(x.px)}${x.px30 != null ? ` → ${fmtN(x.px30)} after 30 min` : ""}</title><path d="${up ? `M${X(t)} ${y - 7}l6 9h-12z` : `M${X(t)} ${y + 7}l6 -9h-12z`}"/></g>`; }).join("");
+  const reads = steps(b).filter(s => s.at && Date.parse(s.at) >= t0 && Date.parse(s.at) <= t1).map(s => `<line x1="${X(Date.parse(s.at))}" x2="${X(Date.parse(s.at))}" y1="${top}" y2="${bTop + bH}" class="rl-read"><title>${esc(STEP_LABEL[s.kind])} read · ${esc(fmtTime(s.at))}</title></line>`).join("");
+  const ticks = []; for(let hh = 0; hh < 24; hh += 3){ const d = new Date(t0); } 
+  const open = (() => { const e = new Date(t1); const d = e.toLocaleDateString("en-CA", { timeZone: "America/New_York" }); for(const x of h){ const p = etParts(new Date(x.t)); if(p.h * 60 + p.mi >= 570 && new Date(x.t).toLocaleDateString("en-CA", { timeZone: "America/New_York" }) === d) return x.t; } return null; })();
+  const wins = (R.turns || []).filter(x => x.hit30 === true).length, graded = (R.turns || []).filter(x => x.hit30 != null).length;
+  return `<section class="panel rl"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap"><span class="eyebrow">Live line · what Verdict said all session</span><span class="muted" style="font-size:12px">${graded ? `Turn signals ${wins}/${graded} right after 30 min` : ""}</span></div>
+    <div class="rl-wrap" data-rl="${esc(b.id)}"><svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" class="rl-svg">
+      ${open ? `<rect x="${X(open)}" y="${top}" width="${W - X(open)}" height="${bTop + bH - top}" class="rl-rth"/>` : ""}
+      ${reads}<path d="${px}" class="rl-px"/>
+      <line x1="0" x2="${W}" y1="${z}" y2="${z}" class="bl-zero"/><line x1="0" x2="${W}" y1="${Ys(15)}" y2="${Ys(15)}" class="bl-th"/><line x1="0" x2="${W}" y1="${Ys(-15)}" y2="${Ys(-15)}" class="bl-th"/>
+      <clipPath id="rlUp"><rect x="0" y="${bTop}" width="${W}" height="${bH / 2}"/></clipPath><clipPath id="rlDn"><rect x="0" y="${z}" width="${W}" height="${bH / 2}"/></clipPath>
+      <path d="${sl}L${W} ${z}L0 ${z}Z" class="bl-fill-up" clip-path="url(#rlUp)"/><path d="${sl}L${W} ${z}L0 ${z}Z" class="bl-fill-dn" clip-path="url(#rlDn)"/>
+      <path d="${sl}" class="bl-line up" clip-path="url(#rlUp)"/><path d="${sl}" class="bl-line dn" clip-path="url(#rlDn)"/>
+      ${marks}<line class="rl-cur" x1="-10" x2="-10" y1="${top}" y2="${bTop + bH}"/></svg>
+      <div class="rl-read-out muted">Drag across the chart to see what Verdict said at each moment.</div></div>
+    <div class="rl-legend"><span><i class="lg px"></i>NQ price</span><span><i class="lg sc"></i>Live bias (±15 = flip lines)</span><span>▲▼ turn signals (green right, red wrong)</span><span><i class="lg rd"></i>Full reads</span><span><i class="lg rt"></i>Cash session</span></div></section>`;
+}
+function rlScrub(e){
+  const w = e.target.closest(".rl-wrap"); if(!w) return; const R = (S.rpLive || {})[w.dataset.rl]; if(!R) return;
+  const h = (R.hist || []).filter(x => isFinite(x.px) && isFinite(x.nq)); if(!h.length) return;
+  const r = w.querySelector("svg").getBoundingClientRect(), cx = (e.touches ? e.touches[0].clientX : e.clientX) - r.left, f = Math.max(0, Math.min(1, cx / r.width));
+  const t = h[0].t + f * (h[h.length - 1].t - h[0].t); let x = h[0]; for(const y of h){ if(y.t <= t) x = y; else break; }
+  const ln = w.querySelector(".rl-cur"); ln.setAttribute("x1", f * 640); ln.setAttribute("x2", f * 640);
+  const b = x.nq >= 15 ? "bullish" : x.nq <= -15 ? "bearish" : "neutral", pr = Number(x.pr) || 0;
+  w.querySelector(".rl-read-out").innerHTML = `<b>${esc(fmtTime(new Date(x.t).toISOString()))}</b> · NQ ${fmtN(x.px)} · bias <b class="${cls(b)}">${label(b)} ${signed(x.nq)}</b> · next 30–60 min <b class="${pr >= 2 ? "bull" : pr <= -2 ? "bear" : ""}">${pr >= 2 ? "leaning higher" : pr <= -2 ? "leaning lower" : "no turn signal"} (${signed(pr)})</b>`;
+}
+document.addEventListener("pointermove", e => { if(e.target.closest && e.target.closest(".rl-wrap")) rlScrub(e); });
+document.addEventListener("pointerdown", e => { if(e.target.closest && e.target.closest(".rl-wrap")) rlScrub(e); });
 function replay(){
   if(!S.briefs.length) return empty();
   const days = chrono();
@@ -3186,7 +3239,7 @@ function replay(){
         <button class="icon-btn" id="rp-next" aria-label="Next step">${IC.next}</button>
       </div>
       <p class="foot">Play runs through each step, then on to the next day.</p>
-    </section>${sc}`;
+    </section>${liveDay(b)}${sc}`;
 }
 function trackRecord(){
   const graded = chrono().filter(b => b.grade);
