@@ -59,6 +59,26 @@ export default async function handler(req, res) {
       }
     } catch { /* calendar down: skip */ }
 
+    // 5a) 9:30 game plan: one push every weekday between 9:12 and 9:25 ET with the live call going into the open.
+    try {
+      const e = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hour: "2-digit", minute: "2-digit", weekday: "short", hour12: false }).formatToParts(new Date()).reduce((a, x) => (a[x.type] = x.value, a), {});
+      const mm = (+e.hour % 24) * 60 + +e.minute;
+      if (!["Sat", "Sun"].includes(e.weekday) && mm >= 552 && mm <= 565) {
+        const lr = await rest("live?select=id,data&order=id.desc&limit=1"); const Lv = lr?.[0]?.data;
+        if (Lv?.NQ && Date.now() - Date.parse(Lv.at) < 6 * 60e3 && await claim(`open:${lr[0].id}`)) {
+          const nq = Lv.NQ, es = Lv.ES || {}, P = Lv.pressure || {}, px = Lv.nq?.price, T = Lv.T || 0.35, q = v => Math.round(v * 4) / 4;
+          const side = nq.bias === "bullish" ? "lean long" : nq.bias === "bearish" ? "lean short" : (nq.score >= 8 ? "no edge, tilting long" : nq.score <= -8 ? "no edge, tilting short" : "no edge yet");
+          const next = P.lean === "bullish" ? "next 30–60 min leaning higher" : P.lean === "bearish" ? "next 30–60 min leaning lower" : "no turn signal";
+          const wrong = px ? (nq.bias === "bullish" ? `wrong below ${q(px * (1 - T / 100))}` : nq.bias === "bearish" ? `wrong above ${q(px * (1 + T / 100))}` : `range ${q(px * (1 - T / 100))}–${q(px * (1 + T / 100))}`) : "";
+          const G = br?.positioning?.NQ || {}, lv = [G.flip ? `flip ${Math.round(G.flip)}` : "", G.callWall ? `CW ${Math.round(G.callWall)}` : "", G.putWall ? `PW ${Math.round(G.putWall)}` : ""].filter(Boolean).join(" · ");
+          let ev = ""; try { const cal = await getCalendar(); const up = (cal?.events || []).filter(x => x.country === "USD" && x.impact === "high" && x.t > Date.now() && x.t - Date.now() < 7 * 3600e3)[0];
+            if (up) ev = `${up.title} ${new Date(up.t).toLocaleTimeString("en-US", { timeZone: "America/New_York", hour: "numeric", minute: "2-digit" })}`; } catch {}
+          out.push({ kind: "calls", title: `🔔 9:30 plan: NQ ${L(nq.bias)} ${sg(nq.score)} · ${side}`,
+            body: [px ? `NQ ${px}` : "", next, wrong, Lv.reaction ? Lv.reaction.txt : "", lv, ev ? `next: ${ev}` : "", `ES ${L(es.bias)} ${sg(es.score)}`].filter(Boolean).join(" · "), tag: "open" });
+        }
+      }
+    } catch { /* live table not ready */ }
+
     // 5) pressure building (from the live engine), at most once per direction every 30 minutes
     try {
       const lr = await rest("live?select=id,data&order=id.desc&limit=1"); const L = lr?.[0]?.data;
@@ -67,7 +87,7 @@ export default async function handler(req, res) {
         const dir = P.score > 0 ? "up" : "down", pu = L.pushed;
         if (!pu || pu.dir !== dir || Date.now() - Date.parse(pu.at) > 30 * 60e3) {
           if (await claim(`press:${lr[0].id}:${dir}:${Math.floor(Date.now() / (30 * 60e3))}`)) {
-            out.push({ kind: "turns", title: `${dir === "up" ? "📈" : "📉"} Pressure building ${dir === "up" ? "higher" : "lower"} for NQ`, body: P.signals.slice(0, 3).map(x => x.txt).join(" · "), tag: "pressure" });
+            out.push({ kind: "turns", title: `${dir === "up" ? "📈 Upside" : "📉 Downside"} turn likely for NQ (next 30–60 min)`, body: P.signals.slice(0, 3).map(x => x.txt).join(" · ") + (P.odds ? ` · ${P.odds}` : ""), tag: "pressure" });
             await rest(`rpc/set_live_pushed`, { method: "POST", body: { p_id: lr[0].id, p_pushed: { at: new Date().toISOString(), dir } } }).catch(() => {});
           }
         }
@@ -113,6 +133,9 @@ export default async function handler(req, res) {
     } catch { /* live table not ready */ }
 
     if (!out.length) return send(res, 200, { ok: true, sent: 0, engine });
+    // Everything that goes to every member also lands in the in-app alert feed (personal level/topic pings don't).
+    const shared = out.filter(n => !n.to);
+    if (shared.length) await rest("alerts_feed", { method: "POST", prefer: "return=minimal", body: shared.map(n => ({ kind: n.kind, title: n.title, body: n.body || null, url: n.url || null, tag: n.tag || null })) }).catch(() => {});
     let sent = 0;
     for (const n of out) {
       const to = n.to || live.filter(s => s.prefs?.[n.kind] !== false);
