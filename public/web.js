@@ -105,7 +105,7 @@
     S.loaded = false; render();
     await loadBriefs();
     subscribe();
-    pollQuote(); loadCal(); loadTape(); loadVote(); loadMe(); initPush(); loadLive(); loadWire();
+    pollQuote(); loadCal(); loadTape(); loadVote(); loadMe(); initPush(); loadLive(); loadWire(); loadAlerts();
   }
 
   async function loadBriefs() {
@@ -126,6 +126,7 @@
         if (i >= 0) S.briefs[i] = doc; else { S.briefs.push(doc); S.briefs.sort((a, b) => b.id.localeCompare(a.id)); }
         if (!S.levels && !S.rp.playing && !W.acct) render();
       })
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "alerts_feed" }, p => { if (window.alertIncoming) window.alertIncoming(p.new); })
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "headlines" }, p => { if (window.hlIncoming) window.hlIncoming(p.new); if (!S.levels && !S.rp.playing && !W.acct && S.tab === "news") render(); })
       .on("postgres_changes", { event: "*", schema: "public", table: "live" }, p => {
         const row = p.new; if (!row || !row.data) return;
@@ -255,6 +256,15 @@
     S.rpLive[day] = { at: Date.now(), hist: lv.data?.[0]?.data?.history || [], turns: tl.data || [] };
     if (S.tab === "replay" && !S.rp.playing) render();
   };
+  async function loadAlerts() {
+    if (W.screen !== "app") return;
+    const { data, error } = await W.sb.from("alerts_feed").select("id,at,kind,title,body,url,tag").order("id", { ascending: false }).limit(40);
+    if (error || !data) return;
+    const had = S.alerts; S.alerts = data;
+    if (had) data.slice().reverse().forEach(a => { if (!had.some(x => x.id === a.id) && window.alertIncoming) window.alertIncoming(a, true); });
+    if (!S.levels && !S.rp.playing && !W.acct) render();
+  }
+  setInterval(() => { if (W.screen === "app" && document.visibilityState === "visible") loadAlerts(); }, 60e3);
   async function loadWire() {
     if (W.screen !== "app") return;
     const { data, error } = await W.sb.from("headlines").select("id,at,src,topic,who,weight,url,seen_at,px0,px30").order("at", { ascending: false }).limit(30);
@@ -457,7 +467,7 @@
   document.addEventListener("keydown", e => { if (e.key === "Escape" && W.acct) { W.acct = false; render(); } });
 
   // Catch up after the phone wakes or the tab comes back.
-  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && W.screen === "app") { loadBriefs(); pollQuote(); loadCal(); loadTape(true); loadVote(); loadLive(); loadWire(); } });
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && W.screen === "app") { loadBriefs(); pollQuote(); loadCal(); loadTape(true); loadVote(); loadLive(); loadWire(); loadAlerts(); } });
 
   /* ---------- boot ---------- */
   async function boot() {

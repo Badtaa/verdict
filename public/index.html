@@ -1373,6 +1373,21 @@ a.mv-h[href]:hover{color:var(--accent-hi)}
 .rl-read-out{font-size:13px;margin-top:6px;min-height:20px}
 .rl-legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:11.5px;color:var(--muted);margin-top:8px}
 .lg{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:3px;margin-right:5px}.lg.px{background:var(--text)}.lg.sc{background:linear-gradient(90deg,var(--gain),var(--loss))}.lg.rd{background:var(--accent)}.lg.rt{background:var(--text);opacity:.25;height:8px;vertical-align:0}
+.atop{position:relative;border-radius:18px;padding:14px 16px;margin-bottom:12px;border:1.5px solid var(--line-hi,var(--line));background:linear-gradient(135deg,rgba(var(--accent-rgb),.14),transparent 60%),var(--panel)}
+.atop.up{border-color:var(--gain);background:linear-gradient(135deg,color-mix(in srgb,var(--gain) 18%,transparent),transparent 65%),var(--panel)}
+.atop.dn{border-color:var(--loss);background:linear-gradient(135deg,color-mix(in srgb,var(--loss) 18%,transparent),transparent 65%),var(--panel)}
+.atop-k{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.atop-t{display:block;font-size:19px;line-height:1.25;margin:6px 0 4px;font-family:var(--display)}
+.atop.up .atop-t{color:var(--gain)}.atop.dn .atop-t{color:var(--loss)}
+.atop-b{margin:0;font-size:13.5px;color:var(--text);opacity:.85}.atop-act{margin-top:8px}
+.bell{position:relative}.bell-n{position:absolute;top:-3px;right:-3px;min-width:18px;height:18px;border-radius:9px;background:var(--loss);color:#fff;font-style:normal;font-size:11px;font-weight:700;display:grid;place-items:center;padding:0 4px}
+.al-row{display:flex;gap:12px;padding:11px 0;border-top:1px solid var(--line)}
+.al-row.new{background:linear-gradient(90deg,rgba(var(--accent-rgb),.10),transparent)}
+.al-t{min-width:64px;font-variant-numeric:tabular-nums;font-size:12.5px;color:var(--muted);display:flex;flex-direction:column}.al-t small{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em}
+.al-m{display:flex;flex-direction:column;gap:3px}.al-m em{font-style:normal;font-size:12.5px;color:var(--muted)}
+.al-row.up b{color:var(--gain)}.al-row.dn b{color:var(--loss)}
+.alert-toast.up{border-color:var(--gain)}.alert-toast.dn{border-color:var(--loss)}
+@media (max-width:420px){.actions{gap:6px}.actions .round-btn{width:38px;height:38px}}
 </style>
 <style>
 /* ---------- web shell ---------- */
@@ -2762,7 +2777,7 @@ function header(br){
   const msg = S.runMsg ? `<div class="notice ${S.runErr?"err":""}">${esc(S.runMsg)}</div>` : "";
   const old = br && latest() && br.id !== latest().id && (S.tab==="today"||S.tab==="news"||S.tab==="nq"||S.tab==="es") ? `<div class="notice">Viewing ${esc(fmtDate(br.date))}. <a href="#" id="latest">Back to latest</a></div>` : "";
   return `<header class="top"><div class="brand">${LOGO}<div><b>Verdict</b><small>The macro call for NQ &amp; ES</small></div></div>
-    <div class="actions"><button class="round-btn" id="mine" aria-label="Make it yours"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></button><button class="round-btn" id="theme" aria-label="Themes">${IC.palette}</button>${typeof acctBtn==="function"?acctBtn():""}${run}</div></header>${ctx}${msg}${old}`;
+    <div class="actions">${bellBtn()}<button class="round-btn" id="mine" aria-label="Make it yours"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></button><button class="round-btn" id="theme" aria-label="Themes">${IC.palette}</button>${typeof acctBtn==="function"?acctBtn():""}${run}</div></header>${ctx}${msg}${old}`;
 }
 function ticker(br){
   const ds = br?.drivers || []; if(!ds.length) return "";
@@ -3207,6 +3222,47 @@ function rlScrub(e){
 }
 document.addEventListener("pointermove", e => { if(e.target.closest && e.target.closest(".rl-wrap")) rlScrub(e); });
 document.addEventListener("pointerdown", e => { if(e.target.closest && e.target.closest(".rl-wrap")) rlScrub(e); });
+
+/* ---------- alerts in the app: the same calls your phone gets ---------- */
+const AK = { turns: ["Turn", "turn"], flips: ["Flip", "flip"], calls: ["New read", "call"], events: ["Data", "event"] };
+function alertDir(a){ const t = (a.title || "") + " " + (a.body || ""); return /📈|Upside|Bullish|long/i.test(a.title || "") ? "up" : /📉|Downside|Bearish|short/i.test(a.title || "") ? "dn" : "flat"; }
+function agoA(iso){ const m = Math.max(0, Math.round((Date.now() - Date.parse(iso)) / 6e4)); return m < 1 ? "just now" : m < 60 ? `${m} min ago` : m < 1440 ? `${Math.floor(m / 60)}h ${m % 60}m ago` : fmtDate(new Date(iso).toLocaleDateString("en-CA", { timeZone: "America/New_York" })); }
+function seenId(){ return Number(store.get("vd-alert-seen") || 0); }
+function unread(){ return (S.alerts || []).filter(a => a.id > seenId()).length; }
+function alertTop(){
+  const a = (S.alerts || [])[0]; if(!a || Date.now() - Date.parse(a.at) > 90 * 60e3) return "";
+  const d = alertDir(a), k = AK[a.kind] || ["Alert", "alert"];
+  return `<section class="atop ${d} k-${k[1]}" role="status"><div class="atop-k"><i class="live-dot"></i>Latest alert · ${esc(k[0])} · <span data-ago="${esc(a.at)}">${agoA(a.at)}</span></div>
+    <b class="atop-t">${esc(a.title)}</b>${a.body ? `<p class="atop-b">${esc(a.body)}</p>` : ""}
+    <div class="atop-act"><button type="button" class="ans-more" id="alerts-open">All alerts${(S.alerts || []).length > 1 ? ` (${S.alerts.length})` : ""}</button></div></section>`;
+}
+function alertsSheet(){
+  const L = S.alerts || [];
+  const row = a => { const d = alertDir(a), k = AK[a.kind] || ["Alert", "alert"];
+    return `<div class="al-row ${d} ${a.id > (S.seenAtOpen || 0) ? "new" : ""}"><span class="al-t">${esc(fmtTime(a.at))}<small>${esc(k[0])}</small></span><span class="al-m"><b>${esc(a.title)}</b>${a.body ? `<em>${esc(a.body)}</em>` : ""}</span></div>`; };
+  return `<div class="scrim" id="scrim"><div class="sheet" role="dialog" aria-modal="true" aria-label="Alerts">
+    <div class="sheet-head"><h2 style="font-stretch:120%">Alerts</h2><button class="icon-btn" id="sheet-close" aria-label="Close">${IC.close}</button></div>
+    <p class="muted" style="font-size:12.5px;margin:0 0 10px">Every alert Verdict sends to phones, newest first. Your personal level and topic pings stay on your phone.</p>
+    ${L.length ? L.map(row).join("") : `<p class="muted">No alerts yet. They'll show here as they go out.</p>`}</div></div>`;
+}
+function bellBtn(){ const n = unread(); return `<button class="round-btn bell" id="alerts-bell" aria-label="Alerts${n ? `, ${n} new` : ""}"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16V11a6 6 0 1 1 12 0v5l1.5 2h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>${n ? `<i class="bell-n">${n > 9 ? "9+" : n}</i>` : ""}</button>`; }
+window.alertIncoming = (a, quiet) => {
+  if(!a || !a.id) return; S.alerts = [a, ...(S.alerts || []).filter(x => x.id !== a.id)].sort((x, y) => y.id - x.id).slice(0, 40);
+  if(Date.now() - Date.parse(a.at) < 10 * 60e3){
+    const d = alertDir(a), el = document.createElement("div"); el.className = `wire-toast alert-toast ${d}`;
+    el.innerHTML = `<span class="wt-k"><i class="live-dot"></i>Verdict alert</span><b>${esc(a.title)}</b>${a.body ? `<span class="wt-k" style="text-transform:none;letter-spacing:0">${esc(a.body.slice(0, 140))}</span>` : ""}<span class="wt-act"><button type="button" class="wt-see" data-open-alerts="1">Open</button><button type="button" class="wt-x" aria-label="Dismiss">✕</button></span>`;
+    document.body.appendChild(el); requestAnimationFrame(() => el.classList.add("in"));
+    const bye = () => { el.classList.remove("in"); setTimeout(() => el.remove(), 400); };
+    el.querySelector(".wt-x").onclick = bye; el.querySelector("[data-open-alerts]").onclick = () => { bye(); S.alertsOpen = true; S.seenAtOpen = seenId(); store.set("vd-alert-seen", String(S.alerts[0]?.id || 0)); render(); };
+    setTimeout(bye, 20000);
+    try { if(navigator.vibrate) navigator.vibrate(d === "flat" ? 60 : [40, 60, 40]); } catch {}
+  }
+  if(!S.levels && !(S.rp && S.rp.playing)) render();
+};
+document.addEventListener("click", e => { const t = e.target.closest("button"); if(!t) return;
+  if(t.id === "alerts-bell" || t.id === "alerts-open"){ S.alertsOpen = true; S.seenAtOpen = seenId(); store.set("vd-alert-seen", String((S.alerts || [])[0]?.id || 0)); render(); }
+});
+setInterval(() => document.querySelectorAll("[data-ago]").forEach(x => { x.textContent = agoA(x.dataset.ago); }), 30e3);
 function replay(){
   if(!S.briefs.length) return empty();
   const days = chrono();
@@ -3309,7 +3365,7 @@ function render(){
   else if(S.tab === "research") body = research(br);
   else if(S.tab === "news") body = newsTab(br);
   else body = today(br);
-  const top = header(br) + mtape() + (br ? strip(latest()) : "") + (S.tab==="today" && br && !S.tape?.macro?.length ? ticker(br) : "");
+  const top = header(br) + (S.tab === "today" || S.tab === "news" ? alertTop() : "") + mtape() + (br ? strip(latest()) : "") + (S.tab==="today" && br && !S.tape?.macro?.length ? ticker(br) : "");
   const app = document.getElementById("app");
   app.innerHTML = top + body + `<p class="foot">Macro read for planning, not trade signals.</p>`;
   app.style.setProperty("--sync", (-(Date.now() % 42000) / 1000) + "s");
@@ -3317,7 +3373,7 @@ function render(){
   if(ek !== S.enterKey){ S.enterKey = ek; app.classList.remove("enter"); void app.offsetWidth; app.classList.add("enter"); clearTimeout(S.enterT); S.enterT = setTimeout(() => app.classList.remove("enter"), 1200); }
   if(document.getElementById("globe-host")) mountGlobe();
   document.getElementById("tabs").innerHTML = TABS.map(([k,l,ic])=>`<button role="tab" data-tab="${k}" aria-selected="${S.tab===k}">${ic}<span>${l}</span></button>`).join("");
-  document.getElementById("sheet-root").innerHTML = S.levels ? levelsSheet() : S.cardUrl ? cardSheet() : S.mySheet ? mySheet() : sheet();
+  document.getElementById("sheet-root").innerHTML = S.levels ? levelsSheet() : S.cardUrl ? cardSheet() : S.mySheet ? mySheet() : S.alertsOpen ? alertsSheet() : sheet();
   startOrb();
   animateNeedles();
   if(S.tab==="replay"){ const sel = document.querySelector('.day[aria-current="true"]'); if(sel && sel.scrollIntoView) sel.scrollIntoView({block:"nearest",inline:"center"}); }
@@ -3370,7 +3426,7 @@ document.addEventListener("click", e => {
   if(t.dataset.news){ S.newsHigh = t.dataset.news === "high"; S.newsAll = false; render(); return; }
   if(t.id === "news-more"){ S.newsAll = !S.newsAll; render(); return; }
   if(t.id === "levels"){ S.levels = true; S.saveMsg = null; render(); return; }
-  if(t.id === "sheet-close" || t.id === "scrim"){ S.sheet = false; S.levels = false; S.mySheet = false; if(S.cardUrl){ URL.revokeObjectURL(S.cardUrl); S.cardUrl = null; } render(); return; }
+  if(t.id === "sheet-close" || t.id === "scrim"){ S.sheet = false; S.levels = false; S.mySheet = false; S.alertsOpen = false; if(S.cardUrl){ URL.revokeObjectURL(S.cardUrl); S.cardUrl = null; } render(); return; }
   if(t.dataset.skin){ applySkin(t.dataset.skin); store.set("db-skin", S.skin); render(); return; }
   if(t.id === "fx-holiday" || t.id === "fx-effects" || t.id === "fx-stars"){ const k = t.id.slice(3); S.fx[k] = !S.fx[k]; store.set("db-fx-"+k, S.fx[k]?"1":"0"); applySkin(); render(); return; }
   if(t.id === "rp-play"){ S.rp.playing ? (rpStop(), render()) : rpPlay(); return; }
