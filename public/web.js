@@ -105,7 +105,7 @@
     S.loaded = false; render();
     await loadBriefs();
     subscribe();
-    pollQuote(); loadCal(); loadTape(); loadVote(); loadMe(); initPush(); loadLive(); loadWire(); loadAlerts();
+    pollQuote(); loadCal(); loadTape(); loadVote(); loadMe(); initPush(); loadLive(); loadWire(); loadAlerts(); loadEarnings();
   }
 
   async function loadBriefs() {
@@ -265,6 +265,15 @@
     if (!S.levels && !S.rp.playing && !W.acct) render();
   }
   setInterval(() => { if (W.screen === "app" && document.visibilityState === "visible") loadAlerts(); }, 60e3);
+  async function loadEarnings() {
+    if (W.screen !== "app") return;
+    const from = new Date(Date.now() - 8 * 864e5).toISOString().slice(0, 10), to = new Date(Date.now() + 15 * 864e5).toISOString().slice(0, 10);
+    const { data, error } = await W.sb.from("earnings").select("day,sym,name,mcap,timing,eps_fc,eps,surprise,weight,ah_pct,react_pct,nq_pct,exp_pct").gte("day", from).lte("day", to).gte("weight", 2).order("day").order("mcap", { ascending: false }).limit(200);
+    if (error || !data) return;
+    S.earn = data.filter(r => r.sym !== "GOOG" && r.sym !== "BRK.A");
+    if (!S.levels && !S.rp.playing && !W.acct) render();
+  }
+  setInterval(() => { if (W.screen === "app" && document.visibilityState === "visible") loadEarnings(); }, 5 * 60e3);
   async function loadWire() {
     if (W.screen !== "app") return;
     const { data, error } = await W.sb.from("headlines").select("id,at,src,topic,who,weight,url,seen_at,px0,px30").order("at", { ascending: false }).limit(30);
@@ -467,7 +476,7 @@
   document.addEventListener("keydown", e => { if (e.key === "Escape" && W.acct) { W.acct = false; render(); } });
 
   // Catch up after the phone wakes or the tab comes back.
-  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && W.screen === "app") { loadBriefs(); pollQuote(); loadCal(); loadTape(true); loadVote(); loadLive(); loadWire(); loadAlerts(); } });
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && W.screen === "app") { loadBriefs(); pollQuote(); loadCal(); loadTape(true); loadVote(); loadLive(); loadWire(); loadAlerts(); loadEarnings(); } });
 
   /* ---------- boot ---------- */
   async function boot() {

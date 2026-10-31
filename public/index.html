@@ -1388,6 +1388,34 @@ a.mv-h[href]:hover{color:var(--accent-hi)}
 .al-row.up b{color:var(--gain)}.al-row.dn b{color:var(--loss)}
 .alert-toast.up{border-color:var(--gain)}.alert-toast.dn{border-color:var(--loss)}
 @media (max-width:420px){.actions{gap:6px}.actions .round-btn{width:38px;height:38px}}
+.earn .earn-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.er{display:grid;grid-template-columns:86px 1fr auto;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--line)}
+.er-s{display:flex;flex-direction:column}.er-s b{font-family:var(--display);font-size:15px}.er-s small,.er-r small{font-size:11px;color:var(--muted)}
+.er-big{font-style:normal;color:var(--warn);font-size:11px;margin-left:4px}
+.er-m{font-size:13px;color:var(--muted)}.er-m b{color:var(--text)}.er-m b.bull{color:var(--gain)}.er-m b.bear{color:var(--loss)}
+.er-r{display:flex;flex-direction:column;align-items:flex-end;text-align:right}.er-r b{font-family:var(--mono)}
+.er-sub{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:12px 0 2px;font-weight:600}
+.er-day{font-size:12.5px;font-weight:600;margin:8px 0 0}
+.subsw{display:flex;gap:4px;margin:0 0 14px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:4px}
+.subsw button{flex:1;border:0;background:transparent;color:var(--muted);padding:9px 6px;border-radius:9px;font:inherit;font-weight:600;cursor:pointer}
+.subsw button[aria-selected="true"]{background:var(--text);color:var(--bg)}
+.hub-i{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:12px;border:1px solid var(--line);border-radius:14px;background:var(--panel);color:var(--text);font:inherit;margin-bottom:8px;cursor:pointer}
+.hub-ic{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:rgba(var(--accent-rgb),.15);font-size:17px}
+.hub-i>span:nth-child(2){flex:1;display:flex;flex-direction:column}.hub-i small{color:var(--muted);font-size:12.5px}.hub-go{color:var(--muted);font-size:20px}
+.hub-help{margin-top:14px;padding:12px;border-radius:14px;border:1px dashed var(--line);font-size:13px}.hub-help p{margin:6px 0 0;color:var(--muted)}.hub-help p b{color:var(--text)}
+.gp{margin:12px 0 4px;padding:12px;border-radius:14px;border:1px solid var(--line);background:rgba(var(--panel-rgb,20,20,30),.5)}
+.gp-h{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px}.gp-h span{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.gp-h b{font-size:20px;font-family:var(--display)}.gp-h em{font-style:normal;font-size:12px;color:var(--muted)}
+.gp-bar{position:relative;height:10px;border-radius:6px;margin:10px 0;background:linear-gradient(90deg,var(--loss),color-mix(in srgb,var(--loss) 25%,transparent) 25%,transparent 25%,transparent 75%,color-mix(in srgb,var(--gain) 25%,transparent) 75%,var(--gain));opacity:.9}
+.gp-1{position:absolute;left:25%;right:25%;top:0;bottom:0;border-left:1px dashed var(--muted);border-right:1px dashed var(--muted)}
+.gp-px{position:absolute;top:-4px;width:4px;height:18px;margin-left:-2px;border-radius:2px;background:var(--text);box-shadow:0 0 0 2px var(--bg)}
+.gp-t{display:grid;grid-template-columns:1fr auto 1fr;gap:8px}
+.gp-c{display:flex;flex-direction:column;gap:1px;padding:8px;border-radius:10px;border:1px solid transparent}
+.gp-c span{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}.gp-c b{font-family:var(--mono);font-size:16px}.gp-c em{font-style:normal;font-size:11.5px;color:var(--muted)}
+.gp-c.bear b{color:var(--loss)}.gp-c.bull{text-align:right;align-items:flex-end}.gp-c.bull b{color:var(--gain)}.gp-c.mid{text-align:center;align-items:center}
+.gp-c.fav.bear{border-color:var(--loss);background:color-mix(in srgb,var(--loss) 10%,transparent)}.gp-c.fav.bull{border-color:var(--gain);background:color-mix(in srgb,var(--gain) 10%,transparent)}
+.gp-note{margin:8px 0 0;font-size:11.5px;color:var(--muted)}
+.er-x{font-size:11px;color:var(--muted)}
 </style>
 <style>
 /* ---------- web shell ---------- */
@@ -2379,7 +2407,7 @@ function newsTab(br){
     data: br.calendar?.length ? `${br.calendar.length} releases today` : "",
     surp: br.surprises?.length ? `${br.surprises.length} prints scored` : "",
   };
-  return `${flashBanner(br)}${alertBanner(br)}${tminus(br)}${wirePanel()}${moversPanel(br)}${worldPanel(br)}${newsFlow(br)}${tapeNews(br)}
+  return `${flashBanner(br)}${alertBanner(br)}${tminus(br)}${wirePanel()}${earnPanel()}${moversPanel(br)}${worldPanel(br)}${newsFlow(br)}${tapeNews(br)}
     <div class="folds">
     ${fold("story", "Why the bias moved", sum.story, story(br), true)}
     ${fold("heads", "Headline cards", "", headlines(br))}
@@ -2569,7 +2597,7 @@ function wireRow(h){
 function wirePanel(){
   const L = (S.wire || []).slice(0, 8); if(!L.length) return "";
   const p = wirePref();
-  return `<section class="card wire"><div class="wire-h"><span class="eyebrow"><i class="live-dot"></i>Live wire</span>
+  return `<section class="panel wire"><div class="wire-h"><span class="eyebrow"><i class="live-dot"></i>Live wire</span>
     <span class="wire-pref">Banners: ${["all","big","off"].map(v => `<button type="button" class="wp ${p === v ? "on" : ""}" data-wire-pref="${v}">${v === "all" ? "All" : v === "big" ? "Big only" : "Off"}</button>`).join("")}</span></div>
     ${L.map(wireRow).join("")}<p class="wire-note">Topic and who it's about, tagged automatically from MarketWatch, CNBC, the Fed and the White House within about a minute. Tap to read the story. Verdict's own read of the big ones lands in the news list after the next watch.</p></section>`;
 }
@@ -2607,6 +2635,7 @@ function liveAnswer(br){
   return `<section class="answer live a-${cls(b)}"><div class="ans-top"><span class="live-pill"><i></i>Live · ${mins ? `${mins} min ago` : "just now"}</span>${br.regime ? `<span class="regime">${esc(br.regime)}</span>` : ""}<button class="ans-share js-share" type="button" aria-label="Share today's call"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7 8l5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg></button></div>
     <div class="ans-hero"><div><h1 class="ans-verb">${verb}</h1><p class="ans-score"><b class="${cls(b)}">${SY} ${label(b)} ${signed(d.score)}</b> · ${esc(d.conviction)} conviction · <span class="${cls(L.ES?.bias)}">ES ${label(L.ES?.bias)} ${signed(L.ES?.score)}</span></p></div>
       ${flipped ? `<span class="ans-flip">Flipped from ${label(L.read.NQ.bias)} since the ${esc(STEP_LABEL[L.read.phase] || "last")} read</span>` : ""}${pulseOrb(L)}</div>
+    ${gamePlan(L, SY)}
     ${biasLine(L)}
     <div class="ans-grid">${pressureCell(L)}
       ${wrong ? `<div class="ans-cell"><span>Wrong if</span><b>${esc(wrong.txt)}</b><em>${esc(wrong.sub)}</em></div>` : ""}
@@ -2777,7 +2806,7 @@ function header(br){
   const msg = S.runMsg ? `<div class="notice ${S.runErr?"err":""}">${esc(S.runMsg)}</div>` : "";
   const old = br && latest() && br.id !== latest().id && (S.tab==="today"||S.tab==="news"||S.tab==="nq"||S.tab==="es") ? `<div class="notice">Viewing ${esc(fmtDate(br.date))}. <a href="#" id="latest">Back to latest</a></div>` : "";
   return `<header class="top"><div class="brand">${LOGO}<div><b>Verdict</b><small>The macro call for NQ &amp; ES</small></div></div>
-    <div class="actions">${bellBtn()}<button class="round-btn" id="mine" aria-label="Make it yours"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></button><button class="round-btn" id="theme" aria-label="Themes">${IC.palette}</button>${typeof acctBtn==="function"?acctBtn():""}${run}</div></header>${ctx}${msg}${old}`;
+    <div class="actions">${bellBtn()}<button class="round-btn" id="menu" aria-label="Menu"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>${run}</div></header>${ctx}${msg}${old}`;
 }
 function ticker(br){
   const ds = br?.drivers || []; if(!ds.length) return "";
@@ -2955,7 +2984,7 @@ async function saveLevels(after){
 /* ---------- views ---------- */
 function heroLine(h){ h = String(h||""); const i = h.indexOf(": "); return i > 12 && i < 110 ? `<span class="lead">${esc(h.slice(0,i))}</span>${esc(h.slice(i+2))}` : esc(h); }
 /* ---------- Make it yours: home layout, look, trader profile, alerts ---------- */
-const HOME_BLOCKS = [["answer","Live call","The big card: lean, next 30–60 min, wrong-if"],["recap","Daily recap","End-of-day scorecard, after 4 PM"],["tape","Price tape","NQ price and the session chart"],["duo","NQ / ES cards","Both calls side by side"],["engine","Tug of war","What's pushing each way"],["news","News teaser","Why the bias moved"],["wire","Live wire","Breaking headlines, on the home page too"],["nudge","Alerts nudge","Reminder to turn on phone alerts"],["folds","Deep dives","Vote, plan, record, levels and more"]];
+const HOME_BLOCKS = [["answer","Live call","The big card: lean, next 30–60 min, wrong-if"],["earnings","Earnings today","Big reports today and tomorrow morning"],["recap","Daily recap","End-of-day scorecard, after 4 PM"],["tape","Price tape","NQ price and the session chart"],["duo","NQ / ES cards","Both calls side by side"],["engine","Tug of war","What's pushing each way"],["news","News teaser","Why the bias moved"],["wire","Live wire","Breaking headlines, on the home page too"],["nudge","Alerts nudge","Reminder to turn on phone alerts"],["folds","Deep dives","Vote, plan, record, levels and more"]];
 const ACCENTS = [["","Theme"],["#FF8A3D","Ember"],["#22D3A6","Mint"],["#4DA3FF","Cobalt"],["#B57BFF","Violet"],["#FF4D6D","Crimson"],["#F5C542","Gold"],["#E8E8E8","Chrome"]];
 const FONTS = [["","Theme"],["terminal","Terminal"],["rounded","Rounded"],["editorial","Editorial"]];
 const PV = { NQ: 20, MNQ: 2, ES: 50, MES: 5 };
@@ -2964,7 +2993,8 @@ const MY = (() => { let m = {}; try { m = JSON.parse(store.get("vd-my") || "{}")
   return { order: Array.isArray(m.order) ? m.order : HOME_BLOCKS.map(b => b[0]), hidden: m.hidden || {}, accent: m.accent || "", font: m.font || "", motion: m.motion || "full",
     density: m.density || "comfy", orb: m.orb !== false, inst: m.inst || "NQ", risk: Number(m.risk) || 0,
     alerts: { flips: true, calls: true, events: true, turns: true, topics: [], levels: [], quiet: null, ...(m.alerts || {}) } }; })();
-HOME_BLOCKS.forEach(b => { if(!MY.order.includes(b[0])) MY.order.push(b[0]); });
+HOME_BLOCKS.forEach(b => { if(!MY.order.includes(b[0])) MY.order.splice(Math.min(1, MY.order.length), 0, b[0]); });
+if(!store.get("vd-tidy1")){ ["duo","engine","news","nudge"].forEach(k => { MY.hidden[k] = true; }); store.set("vd-tidy1", "1"); store.set("vd-my", JSON.stringify(MY)); }
 function saveMy(){ store.set("vd-my", JSON.stringify(MY)); applyMy(); }
 function hexRgb(h){ const n = parseInt(h.slice(1), 16); return `${n >> 16 & 255},${n >> 8 & 255},${n & 255}`; }
 function applyMy(){
@@ -3033,7 +3063,7 @@ function recapData(br){
 function recapCard(br){
   const R = recapData(br); if(!R) return "";
   const v = R.callRight == null ? "No directional call" : R.callRight ? "Morning call was right" : "Morning call missed";
-  return `<section class="card recap"><div class="rc-h"><span class="eyebrow">Daily recap · ${esc(R.s)}</span><button class="ans-more" id="share-recap" type="button">Share</button></div>
+  return `<section class="panel recap"><div class="rc-h"><span class="eyebrow">Daily recap · ${esc(R.s)}</span><button class="ans-more" id="share-recap" type="button">Share</button></div>
     <div class="rc-grid">
       <div><span>Morning call</span><b class="${cls(R.rd.bias)}">${label(R.rd.bias)} ${signed(R.rd.score)}</b><em>${esc(v)}</em></div>
       <div><span>${esc(R.s)} on the day</span><b class="${R.chg > 0 ? "bull" : R.chg < 0 ? "bear" : ""}">${R.chg != null ? pct(R.chg) : "–"}</b><em>${R.px ? fmtN(R.px) : ""}</em></div>
@@ -3132,7 +3162,7 @@ function today(br){
   };
   const B = { answer: () => liveAnswer(br), recap: () => recapCard(br), tape: () => tapeStrip(br),
     duo: () => `<div class="duo">${instCard("NQ",callOf(br,"NQ"),br)}${instCard("ES",callOf(br,"ES"),br)}</div>`,
-    engine: () => engine(br), news: () => newsTeaser(br), wire: () => wirePanel(), nudge: () => pushNudge(), folds: () => foldsHtml };
+    engine: () => engine(br), news: () => newsTeaser(br), wire: () => wirePanel(), earnings: () => earnToday(), nudge: () => pushNudge(), folds: () => foldsHtml };
   const foldsHtml = `<div class="folds">
     ${fold("vote", "Your call", sum.vote, voteBox(br), vOpen)}
     ${fold("plan", "Session plan", sum.plan, mission(br))}
@@ -3263,6 +3293,80 @@ document.addEventListener("click", e => { const t = e.target.closest("button"); 
   if(t.id === "alerts-bell" || t.id === "alerts-open"){ S.alertsOpen = true; S.seenAtOpen = seenId(); store.set("vd-alert-seen", String((S.alerts || [])[0]?.id || 0)); render(); }
 });
 setInterval(() => document.querySelectorAll("[data-ago]").forEach(x => { x.textContent = agoA(x.dataset.ago); }), 30e3);
+
+/* ---------- earnings: who reports, what they printed, what it did ---------- */
+const EARN_T = { bmo: "Before open", amc: "After close", tbd: "Time TBA" };
+const usd2 = n => n == null ? "–" : `${n < 0 ? "−" : ""}$${Math.abs(n).toFixed(2)}`;
+const pctS = n => n == null ? "–" : `${n > 0 ? "+" : n < 0 ? "−" : ""}${Math.abs(n).toFixed(1)}%`;
+function etToday(off = 0){ return new Date(Date.now() + off * 864e5).toLocaleDateString("en-CA", { timeZone: "America/New_York" }); }
+function earnRow(r, past){
+  const beat = r.eps == null ? null : r.surprise == null ? "flat" : r.surprise >= 0 ? "beat" : "miss";
+  const mv = r.ah_pct != null && r.react_pct == null ? r.ah_pct : r.react_pct;
+  return `<div class="er ${beat || ""}"><span class="er-s"><b>${esc(r.sym)}</b>${r.weight >= 3 ? `<i class="er-big" title="Big index weight">★</i>` : ""}<small>${esc(EARN_T[r.timing] || "")}</small></span>
+    <span class="er-m">${beat ? `<b class="${beat === "beat" ? "bull" : beat === "miss" ? "bear" : ""}">${beat === "beat" ? "Beat" : beat === "miss" ? "Missed" : "In line"} ${r.surprise != null ? pctS(r.surprise) : ""}</b> · EPS ${usd2(r.eps)} vs ${usd2(r.eps_fc)}` : `Est. EPS ${usd2(r.eps_fc)}${r.exp_pct != null ? ` · <b>expected move ±${r.exp_pct}%</b>` : ""}`}</span>
+    <span class="er-r">${beat ? `<b class="${mv > 0 ? "bull" : mv < 0 ? "bear" : ""}">${pctS(mv)}</b><small>${r.react_pct != null ? "stock" : r.ah_pct != null ? "after hours" : "waiting"}${r.exp_pct != null && mv != null ? ` · ${(Math.abs(mv) / r.exp_pct).toFixed(1)}× expected` : ""}${r.nq_pct != null ? ` · NQ ${pctS(r.nq_pct)}` : ""}</small>` : r.exp_pct != null ? `<b>±${r.exp_pct}%</b><small>options expect</small>` : ""}</span></div>`;
+}
+function earnToday(){
+  const L = S.earn || []; const t = etToday(), t1 = etToday(1);
+  const today = L.filter(r => r.day === t), next = L.filter(r => r.day === t1 && r.timing === "bmo");
+  if(!today.length && !next.length) return "";
+  return `<section class="panel earn"><div class="earn-h"><span class="eyebrow">Earnings today</span><button type="button" class="ans-more" data-go="news">Full calendar</button></div>
+    ${today.map(r => earnRow(r)).join("")}${next.length ? `<div class="er-sub">Tomorrow before the open</div>${next.map(r => earnRow(r)).join("")}` : ""}</section>`;
+}
+function earnPanel(){
+  const L = S.earn || []; if(!L.length) return "";
+  const t = etToday(), up = L.filter(r => r.day >= t && r.eps == null), past = L.filter(r => r.eps != null).sort((a, b) => b.day.localeCompare(a.day) || b.weight - a.weight);
+  const days = [...new Set(up.map(r => r.day))].slice(0, 7);
+  const dl = d => fmtDate(d, { weekday: "short" });
+  const big = past.filter(r => r.weight >= 3 && r.nq_pct != null), avg = big.length ? big.reduce((a, r) => a + Math.abs(r.nq_pct), 0) / big.length : null;
+  return `<section class="panel earn"><div class="earn-h"><span class="eyebrow">Earnings · big names only</span><span class="muted" style="font-size:12px">★ = big NQ weight</span></div>
+    ${days.length ? `<div class="er-sub">Coming up</div>${days.map(d => `<div class="er-day">${esc(dl(d))}${d === t ? " · today" : ""}</div>${up.filter(r => r.day === d).map(r => earnRow(r)).join("")}`).join("")}` : ""}
+    ${past.length ? `<div class="er-sub">Recent reports · what it did</div>${past.slice(0, 12).map(r => earnRow(r, true)).join("")}` : ""}
+    ${avg != null ? `<p class="muted" style="font-size:12px;margin:8px 0 0">The session after a ★ report, NQ moved ${avg.toFixed(1)}% on average (either way, ${big.length} reports).</p>` : ""}
+    <p class="muted" style="font-size:11.5px;margin:6px 0 0">Earnings from Nasdaq's calendar; reactions are the stock's move into the next close (after-hours until then).</p></section>`;
+}
+
+/* ---------- simpler navigation: 4 tabs, one menu ---------- */
+const NAV = [["today","Today"],["news","News"],["mkt","NQ / ES"],["hist","History"]];
+const navOf = t => t === "nq" || t === "es" ? "mkt" : t === "replay" || t === "research" ? "hist" : t;
+function subSwitch(){
+  const g = navOf(S.tab); if(g !== "mkt" && g !== "hist") return "";
+  const opts = g === "mkt" ? [["nq","NQ"],["es","ES"]] : [["replay","Day by day"],["research","Track record"]];
+  return `<div class="subsw" role="tablist">${opts.map(([k, l]) => `<button type="button" role="tab" data-tab="${k}" aria-selected="${S.tab === k}">${l}</button>`).join("")}</div>`;
+}
+function hubSheet(){
+  const item = (id, t, sub, ic) => `<button type="button" class="hub-i" id="${id}"><span class="hub-ic">${ic}</span><span><b>${t}</b><small>${sub}</small></span><span class="hub-go">›</span></button>`;
+  return `<div class="scrim" id="scrim"><div class="sheet" role="dialog" aria-modal="true" aria-label="Menu">
+    <div class="sheet-head"><h2 style="font-stretch:120%">Menu</h2><button class="icon-btn" id="sheet-close" aria-label="Close">${IC.close}</button></div>
+    ${item("mine", "Make it yours", "Home layout, colors, what you trade, your alerts", "⚙︎")}
+    ${item("theme", "Themes", "30+ looks", "🎨")}
+    ${item("alerts-open", "Alerts", "Everything Verdict has sent today", "🔔")}
+    ${typeof acctBtn === "function" && acctBtn() ? item("open-acct", "Account", "Callsign, phone alerts, sign out", "👤") : ""}
+    <div class="hub-help"><b>How to read Verdict</b>
+      <p><b>Today</b>: the call (bullish, bearish or no edge), the expected range in points, bull and bear targets, and what could flip it.</p>
+      <p><b>News</b>: breaking headlines, earnings, the data calendar and the world map.</p>
+      <p><b>NQ / ES</b>: the full scorecard behind each call.</p>
+      <p><b>History</b>: replay any day minute by minute, and the track record.</p></div></div></div>`;
+}
+document.addEventListener("click", e => { const t = e.target.closest("button"); if(!t) return;
+  if(t.id === "menu"){ S.hub = true; render(); return; }
+  if(S.hub && (t.id === "mine" || t.id === "theme" || t.id === "alerts-open" || t.id === "open-acct")) S.hub = false;
+}, true);
+
+/* ---------- the game plan: expected move, bull and bear targets ---------- */
+function gamePlan(L, sym){
+  const X = L?.expected?.[sym]; if(!X) return "";
+  const d = L[sym] || {}, b = d.bias, px = X.px, q = v => fmtN(v);
+  const fav = b === "bullish" ? "bull" : b === "bearish" ? "bear" : null;
+  const pos = Math.max(0, Math.min(100, (px - X.lo2) / (X.hi2 - X.lo2) * 100));
+  return `<div class="gp"><div class="gp-h"><span>Expected move ${X.open ? "rest of today" : "today"}</span><b>±${fmtN(X.pts)} pts</b><em>${X.pct}% · from ${sym === "NQ" ? "VXN" : "VIX"} ${X.iv}${X.am ? ` · AM range ±${X.am}` : ""}</em></div>
+    <div class="gp-bar"><i class="gp-1"></i><i class="gp-px" style="left:${pos}%"></i></div>
+    <div class="gp-t">
+      <div class="gp-c bear ${fav === "bear" ? "fav" : ""}"><span>Bear target${fav === "bear" ? " · favored" : ""}</span><b>${q(X.lo)}</b><em>stretch ${q(X.lo2)}</em></div>
+      <div class="gp-c mid"><span>Now</span><b>${q(px)}</b><em>${fav ? (fav === "bull" ? "lean long" : "lean short") : "no edge: fade the edges"}</em></div>
+      <div class="gp-c bull ${fav === "bull" ? "fav" : ""}"><span>Bull target${fav === "bull" ? " · favored" : ""}</span><b>${q(X.hi)}</b><em>stretch ${q(X.hi2)}</em></div></div>
+    <p class="gp-note">About 2 of 3 sessions stay inside the targets; the stretch levels are rare (~1 in 20).</p></div>`;
+}
 function replay(){
   if(!S.briefs.length) return empty();
   const days = chrono();
@@ -3365,15 +3469,18 @@ function render(){
   else if(S.tab === "research") body = research(br);
   else if(S.tab === "news") body = newsTab(br);
   else body = today(br);
-  const top = header(br) + (S.tab === "today" || S.tab === "news" ? alertTop() : "") + mtape() + (br ? strip(latest()) : "") + (S.tab==="today" && br && !S.tape?.macro?.length ? ticker(br) : "");
+  const top = header(br) + subSwitch() + (S.tab === "today" || S.tab === "news" ? alertTop() : "") + mtape() + (br && S.tab === "today" ? strip(latest()) : "") + (S.tab==="today" && br && !S.tape?.macro?.length ? ticker(br) : "");
   const app = document.getElementById("app");
   app.innerHTML = top + body + `<p class="foot">Macro read for planning, not trade signals.</p>`;
   app.style.setProperty("--sync", (-(Date.now() % 42000) / 1000) + "s");
   const ek = S.tab + "|" + (br?.id || "") + "|" + (S.loaded ? 1 : 0);
   if(ek !== S.enterKey){ S.enterKey = ek; app.classList.remove("enter"); void app.offsetWidth; app.classList.add("enter"); clearTimeout(S.enterT); S.enterT = setTimeout(() => app.classList.remove("enter"), 1200); }
   if(document.getElementById("globe-host")) mountGlobe();
-  document.getElementById("tabs").innerHTML = TABS.map(([k,l,ic])=>`<button role="tab" data-tab="${k}" aria-selected="${S.tab===k}">${ic}<span>${l}</span></button>`).join("");
-  document.getElementById("sheet-root").innerHTML = S.levels ? levelsSheet() : S.cardUrl ? cardSheet() : S.mySheet ? mySheet() : S.alertsOpen ? alertsSheet() : sheet();
+  const TI = Object.fromEntries(TABS.map(([k,,ic]) => [k, ic])), NIC = { today: TI.today, news: TI.news, mkt: TI.nq, hist: TI.replay };
+  const nk = navOf(S.tab), tgt = { today: "today", news: "news", mkt: (S.tab === "es" ? "es" : store.get("db-mkt") || "nq"), hist: (S.tab === "research" ? "research" : store.get("db-hist") || "replay") };
+  if(S.tab === "nq" || S.tab === "es") store.set("db-mkt", S.tab); if(S.tab === "replay" || S.tab === "research") store.set("db-hist", S.tab);
+  document.getElementById("tabs").innerHTML = NAV.map(([k,l])=>`<button role="tab" data-tab="${tgt[k]}" aria-selected="${nk===k}">${NIC[k]}<span>${l}</span></button>`).join("");
+  document.getElementById("sheet-root").innerHTML = S.levels ? levelsSheet() : S.cardUrl ? cardSheet() : S.hub ? hubSheet() : S.mySheet ? mySheet() : S.alertsOpen ? alertsSheet() : sheet();
   startOrb();
   animateNeedles();
   if(S.tab==="replay"){ const sel = document.querySelector('.day[aria-current="true"]'); if(sel && sel.scrollIntoView) sel.scrollIntoView({block:"nearest",inline:"center"}); }
@@ -3426,7 +3533,7 @@ document.addEventListener("click", e => {
   if(t.dataset.news){ S.newsHigh = t.dataset.news === "high"; S.newsAll = false; render(); return; }
   if(t.id === "news-more"){ S.newsAll = !S.newsAll; render(); return; }
   if(t.id === "levels"){ S.levels = true; S.saveMsg = null; render(); return; }
-  if(t.id === "sheet-close" || t.id === "scrim"){ S.sheet = false; S.levels = false; S.mySheet = false; S.alertsOpen = false; if(S.cardUrl){ URL.revokeObjectURL(S.cardUrl); S.cardUrl = null; } render(); return; }
+  if(t.id === "sheet-close" || t.id === "scrim"){ S.sheet = false; S.levels = false; S.mySheet = false; S.alertsOpen = false; S.hub = false; if(S.cardUrl){ URL.revokeObjectURL(S.cardUrl); S.cardUrl = null; } render(); return; }
   if(t.dataset.skin){ applySkin(t.dataset.skin); store.set("db-skin", S.skin); render(); return; }
   if(t.id === "fx-holiday" || t.id === "fx-effects" || t.id === "fx-stars"){ const k = t.id.slice(3); S.fx[k] = !S.fx[k]; store.set("db-fx-"+k, S.fx[k]?"1":"0"); applySkin(); render(); return; }
   if(t.id === "rp-play"){ S.rp.playing ? (rpStop(), render()) : rpPlay(); return; }
