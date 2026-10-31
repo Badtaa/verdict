@@ -105,7 +105,7 @@
     S.loaded = false; render();
     await loadBriefs();
     subscribe();
-    pollQuote(); loadCal(); loadTape(); loadVote(); loadMe(); initPush(); loadLive(); loadWire(); loadAlerts(); loadEarnings();
+    pollQuote(); loadCal(); loadTape(); loadVote(); loadMe(); initPush(); loadLive(); loadWire(); loadAlerts(); loadEarnings(); loadResearch();
   }
 
   async function loadBriefs() {
@@ -274,6 +274,22 @@
     if (!S.levels && !S.rp.playing && !W.acct) render();
   }
   setInterval(() => { if (W.screen === "app" && document.visibilityState === "visible") loadEarnings(); }, 5 * 60e3);
+  async function loadResearch() {
+    if (W.screen !== "app") return;
+    const [sc, wk] = await Promise.all([
+      W.sb.from("session_calls").select("day,session,bias,score,conviction,move_pct,result,lean,lean_result,from_px,to_px").order("day", { ascending: false }).limit(60),
+      W.sb.from("weekly_outlook").select("week,data,updated").order("week", { ascending: false }).limit(2),
+    ]);
+    if (!sc.error) S.sessCalls = sc.data || [];
+    if (!wk.error) S.weekly = (wk.data || [])[0] || null;
+    if (!S.levels && !S.rp.playing && !W.acct) render();
+  }
+  setInterval(() => { if (W.screen === "app" && document.visibilityState === "visible") loadResearch(); }, 10 * 60e3);
+  window.loadCompany = async sym => {
+    S.co = S.co || {}; if (S.co[sym]?.at > Date.now() - 5 * 60e3) return;
+    const { data } = await W.sb.from("earnings").select("day,sym,name,mcap,timing,eps_fc,eps,surprise,weight,ah_pct,react_pct,nq_pct,exp_pct").eq("sym", sym).order("day", { ascending: false }).limit(12);
+    S.co[sym] = { at: Date.now(), rows: data || [] }; render();
+  };
   async function loadWire() {
     if (W.screen !== "app") return;
     const { data, error } = await W.sb.from("headlines").select("id,at,src,topic,who,weight,url,seen_at,px0,px30").order("at", { ascending: false }).limit(30);
@@ -476,7 +492,7 @@
   document.addEventListener("keydown", e => { if (e.key === "Escape" && W.acct) { W.acct = false; render(); } });
 
   // Catch up after the phone wakes or the tab comes back.
-  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && W.screen === "app") { loadBriefs(); pollQuote(); loadCal(); loadTape(true); loadVote(); loadLive(); loadWire(); loadAlerts(); loadEarnings(); } });
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && W.screen === "app") { loadBriefs(); pollQuote(); loadCal(); loadTape(true); loadVote(); loadLive(); loadWire(); loadAlerts(); loadEarnings(); loadResearch(); } });
 
   /* ---------- boot ---------- */
   async function boot() {

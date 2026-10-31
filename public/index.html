@@ -1431,6 +1431,26 @@ a.mv-h[href]:hover{color:var(--accent-hi)}
 @media (max-width:600px){.w-hint{display:none}.w-row{grid-template-columns:22px 1fr 54px 22px}}
 .w-c{font-family:var(--mono);font-size:13px;text-align:right}.w-all{align-self:flex-start;margin-top:4px}
 .world .wcard{margin-top:14px}
+.case .cs-h,.weekly .cs-h,.sessrec .cs-h,.desk .cs-h{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.cs-lean{font-size:12.5px;font-weight:600;padding:4px 10px;border-radius:999px;border:1px solid var(--line)}.cs-lean.bull{color:var(--gain);border-color:var(--gain)}.cs-lean.bear{color:var(--loss);border-color:var(--loss)}
+.cs-grid{display:grid;grid-template-columns:1fr;gap:10px}@media (min-width:860px){.case .cs-grid{grid-template-columns:repeat(3,1fr)}.weekly .cs-grid{grid-template-columns:1fr 1fr}}
+.cs-col{padding:12px;border-radius:14px;border:1px solid var(--line);background:rgba(var(--accent-rgb),.04)}.cs-col.opp{background:rgba(var(--loss-rgb,255,80,100),.04)}
+.cs-col h4,.wk-sub{margin:0 0 8px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}.wk-sub{margin:14px 0 6px}
+.cs-col ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}.cs-col li{display:flex;flex-wrap:wrap;gap:2px 6px;font-size:13px;line-height:1.35}
+.cs-col li>span:last-child{flex-basis:100%;color:var(--muted)}.cs-pts{font-family:var(--mono);font-size:12px}.cs-pts.bull{color:var(--gain)}.cs-pts.bear{color:var(--loss)}
+.cs-if{flex-basis:100%;font-size:12.5px}.cs-if.bull{color:var(--gain)}.cs-if.bear{color:var(--loss)}
+.sr-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}.sr-stats>div{padding:10px;border-radius:12px;border:1px solid var(--line);display:flex;flex-direction:column}
+.sr-stats span{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}.sr-stats b{font-size:24px;font-family:var(--display)}.sr-stats em{font-style:normal;font-size:12px;color:var(--muted)}
+.sr{display:grid;grid-template-columns:62px 90px 1fr 64px 22px;gap:8px;align-items:center;padding:7px 0;border-top:1px solid var(--line);font-size:13px}
+.sr-d,.sr-s{color:var(--muted)}.sr-c small{color:var(--muted);font-family:var(--mono)}.sr-m{font-family:var(--mono);text-align:right}.sr-r{text-align:center;font-weight:700}.sr-r.right{color:var(--gain)}.sr-r.wrong{color:var(--loss)}.sr-r.na{color:var(--muted)}
+.wk-h{margin:2px 0 10px;font-size:18px;line-height:1.3}.wk-c b{display:block;font-size:17px;margin:4px 0}.wk-c p{margin:0 0 8px;font-size:13.5px}
+.wk-ev{display:flex;flex-direction:column;gap:6px}.wk-e{display:flex;flex-direction:column;gap:2px;padding:8px 10px;border-radius:10px;border:1px solid var(--line);font-size:13px}.wk-t{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.wk-er{display:flex;flex-wrap:wrap;gap:6px}.wk-er span{padding:6px 10px;border-radius:10px;border:1px solid var(--line);font-size:12.5px;display:flex;flex-direction:column}.wk-er em{font-style:normal;color:var(--muted);font-size:11.5px}
+.wk-lv{display:flex;flex-wrap:wrap;gap:10px}.wk-lv>div{display:flex;flex-direction:column;gap:2px;font-size:13px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;font-family:var(--mono)}
+.dk{padding:10px 0;border-top:1px solid var(--line)}.dk:first-of-type{border-top:0}.dk b{display:block;margin-bottom:4px}.dk ul{margin:6px 0 0;padding-left:18px;font-size:13px;color:var(--text)}.dk li{margin:3px 0}
+.co-top{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}.co-top>div{padding:10px;border:1px solid var(--line);border-radius:12px;display:flex;flex-direction:column}.co-top span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}.co-top b{font-size:16px}.co-top em{font-style:normal;font-size:11.5px;color:var(--muted)}
+.co-next{display:flex;flex-direction:column;gap:2px;padding:10px;border-radius:12px;border:1px solid var(--accent);margin-bottom:6px;font-size:13.5px}
+.er-s b{cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px}
 </style>
 <style>
 /* ---------- web shell ---------- */
@@ -2422,7 +2442,7 @@ function newsTab(br){
     data: br.calendar?.length ? `${br.calendar.length} releases today` : "",
     surp: br.surprises?.length ? `${br.surprises.length} prints scored` : "",
   };
-  return `${flashBanner(br)}${alertBanner(br)}${tminus(br)}${wirePanel()}${earnPanel()}${moversPanel(br)}${worldPanel(br)}${newsFlow(br)}${tapeNews(br)}
+  return `${flashBanner(br)}${alertBanner(br)}${tminus(br)}${weeklyCard()}${wirePanel()}${earnPanel()}${deskAll()}${moversPanel(br)}${worldPanel(br)}${newsFlow(br)}${tapeNews(br)}
     <div class="folds">
     ${fold("story", "Why the bias moved", sum.story, story(br), true)}
     ${fold("heads", "Headline cards", "", headlines(br))}
@@ -2641,7 +2661,7 @@ function turnRecord(L){
 function liveAnswer(br){
   const L = liveFor(br); if(!L) return answer(br);
   const SY = mySym(), d = L[SY] || L.NQ, b = d.bias;
-  const verb = b === "bullish" ? `Lean long ${MY.inst}` : b === "bearish" ? `Lean short ${MY.inst}` : (d.score >= 8 ? "No edge yet, tilting long" : d.score <= -8 ? "No edge yet, tilting short" : `No edge on ${MY.inst} yet`);
+  const verb = b === "bullish" ? `Lean long ${MY.inst}` : b === "bearish" ? `Lean short ${MY.inst}` : (d.score >= 4 ? `Leaning long ${MY.inst}` : d.score <= -4 ? `Leaning short ${MY.inst}` : `No edge on ${MY.inst} yet`);
   const px = SY === "NQ" ? L.nq?.price : L.quotes?.[SY]?.price, T = L.T || .35, q = v => fmtN(Math.round(v*4)/4);
   const wrong = px ? (b === "bullish" ? {txt:`${SY} below ${q(px*(1-T/100))}`, sub:`${T.toFixed(2)}% under here${riskLine(px*T/100)}, or the score drops under +15`} : b === "bearish" ? {txt:`${SY} above ${q(px*(1+T/100))}`, sub:`${T.toFixed(2)}% over here${riskLine(px*T/100)}, or the score climbs over −15`} : {txt:`A break of ${q(px*(1-T/100))} / ${q(px*(1+T/100))}`, sub:`or the score crosses ±15`}) : null;
   const nx = nextUp(br);
@@ -3000,7 +3020,7 @@ async function saveLevels(after){
 /* ---------- views ---------- */
 function heroLine(h){ h = String(h||""); const i = h.indexOf(": "); return i > 12 && i < 110 ? `<span class="lead">${esc(h.slice(0,i))}</span>${esc(h.slice(i+2))}` : esc(h); }
 /* ---------- Make it yours: home layout, look, trader profile, alerts ---------- */
-const HOME_BLOCKS = [["answer","Live call","The big card: lean, next 30–60 min, wrong-if"],["earnings","Earnings today","Big reports today and tomorrow morning"],["recap","Daily recap","End-of-day scorecard, after 4 PM"],["tape","Price tape","NQ price and the session chart"],["duo","NQ / ES cards","Both calls side by side"],["engine","Tug of war","What's pushing each way"],["news","News teaser","Why the bias moved"],["wire","Live wire","Breaking headlines, on the home page too"],["nudge","Alerts nudge","Reminder to turn on phone alerts"],["folds","Deep dives","Vote, plan, record, levels and more"]];
+const HOME_BLOCKS = [["answer","Live call","The big card: lean, next 30–60 min, wrong-if"],["case","The case","Thesis, opposing case, next development"],["desk","Release checklist","Before-you-react notes on big data days"],["weekly","This week","The weekly outlook in one line"],["earnings","Earnings today","Big reports today and tomorrow morning"],["recap","Daily recap","End-of-day scorecard, after 4 PM"],["tape","Price tape","NQ price and the session chart"],["duo","NQ / ES cards","Both calls side by side"],["engine","Tug of war","What's pushing each way"],["news","News teaser","Why the bias moved"],["wire","Live wire","Breaking headlines, on the home page too"],["nudge","Alerts nudge","Reminder to turn on phone alerts"],["folds","Deep dives","Vote, plan, record, levels and more"]];
 const ACCENTS = [["","Theme"],["#FF8A3D","Ember"],["#22D3A6","Mint"],["#4DA3FF","Cobalt"],["#B57BFF","Violet"],["#FF4D6D","Crimson"],["#F5C542","Gold"],["#E8E8E8","Chrome"]];
 const FONTS = [["","Theme"],["terminal","Terminal"],["rounded","Rounded"],["editorial","Editorial"]];
 const PV = { NQ: 20, MNQ: 2, ES: 50, MES: 5 };
@@ -3010,6 +3030,7 @@ const MY = (() => { let m = {}; try { m = JSON.parse(store.get("vd-my") || "{}")
     density: m.density || "comfy", orb: m.orb !== false, inst: m.inst || "NQ", risk: Number(m.risk) || 0,
     alerts: { flips: true, calls: true, events: true, turns: true, topics: [], levels: [], quiet: null, ...(m.alerts || {}) } }; })();
 HOME_BLOCKS.forEach(b => { if(!MY.order.includes(b[0])) MY.order.splice(Math.min(1, MY.order.length), 0, b[0]); });
+if(!store.get("vd-tidy2")){ const want = ["answer","case","earnings","desk","weekly"]; MY.order = [...want, ...MY.order.filter(k => !want.includes(k))]; store.set("vd-tidy2", "1"); store.set("vd-my", JSON.stringify(MY)); }
 if(!store.get("vd-tidy1")){ ["duo","engine","news","nudge"].forEach(k => { MY.hidden[k] = true; }); store.set("vd-tidy1", "1"); store.set("vd-my", JSON.stringify(MY)); }
 function saveMy(){ store.set("vd-my", JSON.stringify(MY)); applyMy(); }
 function hexRgb(h){ const n = parseInt(h.slice(1), 16); return `${n >> 16 & 255},${n >> 8 & 255},${n & 255}`; }
@@ -3178,14 +3199,14 @@ function today(br){
   };
   const B = { answer: () => liveAnswer(br), recap: () => recapCard(br), tape: () => tapeStrip(br),
     duo: () => `<div class="duo">${instCard("NQ",callOf(br,"NQ"),br)}${instCard("ES",callOf(br,"ES"),br)}</div>`,
-    engine: () => engine(br), news: () => newsTeaser(br), wire: () => wirePanel(), earnings: () => earnToday(), nudge: () => pushNudge(), folds: () => foldsHtml };
+    engine: () => engine(br), news: () => newsTeaser(br), wire: () => wirePanel(), earnings: () => earnToday(), case: () => caseCard(br), desk: () => deskToday(), weekly: () => weeklyCard(true), nudge: () => pushNudge(), folds: () => foldsHtml };
   const ctxSum = [sum.mid, sum.drivers, sum.bigtech].filter(Boolean).join(" · ");
   const foldsHtml = `<div class="folds">
     ${fold("vote", "Your call", sum.vote, voteBox(br), vOpen)}
     ${g && g.result && g.result !== "n/a" ? fold("result", "Result", sum.result, resultPanel(br), true) : ""}
     ${fold("plan", "Plan & levels", [sum.plan, sum.levels].filter(Boolean).join(" · "), mission(br) + positioning(br) + sessionMap(br))}
     ${fold("ctx", "Market context", ctxSum, midPanel(br) + drivers(br) + heatmap() + (ev || ""))}
-    ${fold("record", "Track record", sum.record, record())}
+    ${fold("record", "Track record", sum.record, sessRecord() + record())}
     </div>`;
   return `${flashBanner(br)}${alertBanner(br)}${tminus(br)}` + MY.order.filter(x => !MY.hidden[x] && B[x]).map(x => B[x]()).join("\n");
 }
@@ -3314,7 +3335,7 @@ function etToday(off = 0){ return new Date(Date.now() + off * 864e5).toLocaleDat
 function earnRow(r, past){
   const beat = r.eps == null ? null : r.surprise == null ? "flat" : r.surprise >= 0 ? "beat" : "miss";
   const mv = r.ah_pct != null && r.react_pct == null ? r.ah_pct : r.react_pct;
-  return `<div class="er ${beat || ""}"><span class="er-s"><b>${esc(r.sym)}</b>${r.weight >= 3 ? `<i class="er-big" title="Big index weight">★</i>` : ""}<small>${esc(EARN_T[r.timing] || "")}</small></span>
+  return `<div class="er ${beat || ""}"><span class="er-s"><b data-co="${esc(r.sym)}" role="button" tabindex="0">${esc(r.sym)}</b>${r.weight >= 3 ? `<i class="er-big" title="Big index weight">★</i>` : ""}<small>${esc(EARN_T[r.timing] || "")}</small></span>
     <span class="er-m">${beat ? `<b class="${beat === "beat" ? "bull" : beat === "miss" ? "bear" : ""}">${beat === "beat" ? "Beat" : beat === "miss" ? "Missed" : "In line"} ${r.surprise != null ? pctS(r.surprise) : ""}</b> · EPS ${usd2(r.eps)} vs ${usd2(r.eps_fc)}` : `Est. EPS ${usd2(r.eps_fc)}${r.exp_pct != null ? ` · <b>expected move ±${r.exp_pct}%</b>` : ""}`}</span>
     <span class="er-r">${beat ? `<b class="${mv > 0 ? "bull" : mv < 0 ? "bear" : ""}">${pctS(mv)}</b><small>${r.react_pct != null ? "stock" : r.ah_pct != null ? "after hours" : "waiting"}${r.exp_pct != null && mv != null ? ` · ${(Math.abs(mv) / r.exp_pct).toFixed(1)}× expected` : ""}${r.nq_pct != null ? ` · NQ ${pctS(r.nq_pct)}` : ""}</small>` : r.exp_pct != null ? `<b>±${r.exp_pct}%</b><small>options expect</small>` : ""}</span></div>`;
 }
@@ -3380,6 +3401,110 @@ function gamePlan(L, sym){
       <div class="gp-c bull ${fav === "bull" ? "fav" : ""}"><span>Bull target${fav === "bull" ? " · favored" : ""}</span><b>${q(X.hi)}</b><em>stretch ${q(X.hi2)}</em></div></div>
     <p class="gp-note">About 2 of 3 sessions stay inside the targets; the stretch levels are rare (~1 in 20).</p></div>`;
 }
+
+/* ---------- the case: thesis, opposing case, next development (Zetema-style, built from the live scorecard) ---------- */
+function caseCard(br){
+  const L = liveFor(br), SY = mySym(), d = (L && L[SY]) || br.instruments?.[SY]; if(!d) return "";
+  const rub = (d.rubric || []).filter(x => Number(x.points) && x.input && !/^n\/a/i.test(x.input));
+  const sc = Number(d.score) || 0, dir = sc > 0 ? 1 : sc < 0 ? -1 : 0;
+  const side = dir >= 0 ? "bullish" : "bearish";
+  const pro = rub.filter(x => Math.sign(x.points) === (dir || 1)).sort((a, b) => Math.abs(b.points) - Math.abs(a.points)).slice(0, 3);
+  const con = rub.filter(x => Math.sign(x.points) === -(dir || 1)).sort((a, b) => Math.abs(b.points) - Math.abs(a.points)).slice(0, 3);
+  const clean = t => String(t).replace(/^From the \w+ read: /, "").replace(/\s*\(live\)\s*$/, "");
+  const li = x => `<li><b>${esc(x.factor)}</b> <span class="cs-pts ${x.points > 0 ? "bull" : "bear"}">${signed(x.points)}</span><span>${esc(clean(x.input)).slice(0, 160)}</span></li>`;
+  const nx = []; const now = Date.now();
+  (br.scenarios || []).filter(s => s.status !== "resolved").slice(0, 2).forEach(s => nx.push(`<li><b>${esc(s.event)}${s.timeET ? ` · ${esc(s.timeET)} ET` : ""}</b>${(s.cases || []).filter(c => c.nq !== "neutral").map(c => `<span class="cs-if ${cls(c.nq)}">If ${esc(c.if)} → ${label(c.nq)}${c.confirm ? `, confirmed by ${esc(c.confirm)}` : ""}</span>`).join("")}</li>`));
+  if(!nx.length){ const ev = (S.cal?.events || []).filter(e => e.country === "USD" && e.impact === "high" && e.t > now).sort((a, b) => a.t - b.t)[0]; if(ev) nx.push(`<li><b>${esc(ev.title)} · ${esc(calDay(ev.t))} ${esc(calTime(ev.t))} ET</b><span>${ev.forecast ? `Forecast ${esc(ev.forecast)}${ev.previous ? `, prior ${esc(ev.previous)}` : ""}. A beat or miss vs forecast is what moves it.` : "The surprise vs forecast is what moves it."}</span></li>`); }
+  const er = (S.earn || []).filter(r => r.weight >= 3 && r.eps == null && r.day <= etToday(1)).slice(0, 2);
+  er.forEach(r => nx.push(`<li><b>${esc(r.sym)} earnings · ${r.day === etToday() ? "today" : "tomorrow"} ${esc((EARN_T[r.timing] || "").toLowerCase())}</b><span>${r.exp_pct != null ? `Options price a ±${r.exp_pct}% move. ` : ""}Big NQ weight: a big miss or beat can move the whole index.</span></li>`));
+  const X = L?.expected?.[SY]; if(X && dir) nx.push(`<li><b>The line in the sand</b><span>${dir > 0 ? `A drop through ${fmtN(X.lo)} (bear target) would break the bullish case.` : `A push through ${fmtN(X.hi)} (bull target) would break the bearish case.`}</span></li>`);
+  const lean = Math.abs(sc) >= 15 ? label(d.bias) : Math.abs(sc) >= 4 ? `Leaning ${side}` : "Balanced";
+  return `<section class="panel case"><div class="cs-h"><span class="eyebrow">The case · ${esc(SY)}</span><span class="cs-lean ${Math.abs(sc) >= 4 ? cls(side) : ""}">${esc(lean)} ${signed(sc)} · ${esc(d.conviction || "low")} conviction</span></div>
+    <div class="cs-grid">
+      <div class="cs-col"><h4>1 · The thesis</h4>${pro.length ? `<ul>${pro.map(li).join("")}</ul>` : `<p class="muted">Nothing is pushing hard ${side} yet.</p>`}</div>
+      <div class="cs-col opp"><h4>2 · The opposing case</h4>${con.length ? `<ul>${con.map(li).join("")}</ul>` : `<p class="muted">No factor is pushing the other way right now.</p>`}</div>
+      <div class="cs-col nxt"><h4>3 · The next development</h4>${nx.length ? `<ul>${nx.join("")}</ul>` : `<p class="muted">No scheduled catalyst before the next read.</p>`}</div>
+    </div></section>`;
+}
+
+/* ---------- overnight + NY morning: dated track record ---------- */
+const SESS_N = { overnight: "Overnight", nyam: "NY morning" };
+function sessRecord(full){
+  const R = S.sessCalls || []; if(!R.length) return full ? `<section class="panel"><span class="eyebrow">Session track record</span><p class="muted">Loading…</p></section>` : "";
+  const st = k => { const r = R.filter(x => x.session === k && x.lean_result); const w = r.filter(x => x.lean_result === "right").length; return { n: r.length, w, pct: r.length ? Math.round(w / r.length * 100) : null }; };
+  const o = st("overnight"), m = st("nyam");
+  const rows = (full ? R : R.slice(0, 8)).map(x => { const lr = x.lean_result, ln = x.lean === "flat" ? "Flat" : `Lean ${x.lean}`;
+    return `<div class="sr"><span class="sr-d">${esc(fmtDate(x.day, { weekday: "short" }))}</span><span class="sr-s">${esc(SESS_N[x.session] || x.session)}</span><span class="sr-c ${x.lean === "flat" ? "" : cls(x.lean)}">${esc(ln)} <small>${signed(x.score)}</small></span><span class="sr-m ${x.move_pct > 0 ? "bull" : x.move_pct < 0 ? "bear" : ""}">${pct(x.move_pct)}</span><span class="sr-r ${lr || "na"}">${lr === "right" ? "✓" : lr === "wrong" ? "✗" : "–"}</span></div>`; }).join("");
+  return `<section class="panel sessrec"><div class="cs-h"><span class="eyebrow">Overnight & NY morning · dated record</span></div>
+    <div class="sr-stats"><div><span>Overnight lean</span><b>${o.pct != null ? `${o.pct}%` : "–"}</b><em>${o.w}/${o.n} right · evening read → 9:30</em></div><div><span>NY morning lean</span><b>${m.pct != null ? `${m.pct}%` : "–"}</b><em>${m.w}/${m.n} right · 9:30 → 12:00</em></div></div>
+    <div class="sr-list">${rows}</div><p class="muted" style="font-size:11.5px;margin:8px 0 0">The lean is the direction of the score (±4 or more), even when the call is low conviction. Flat calls aren't counted. Every call is dated and kept, right or wrong.</p></section>`;
+}
+
+/* ---------- weekly QQQ / NQ outlook ---------- */
+function weeklyCard(compact){
+  const W = S.weekly; if(!W?.data) return "";
+  const d = W.data, lv = d.levels?.nq, q = d.levels?.qqq;
+  if(compact) return `<section class="panel weekly wk-c"><span class="eyebrow">This week · week of ${esc(fmtDate(W.week))}</span><b class="${cls(d.lean)}">${esc(label(d.lean))} · ${esc(d.conviction || "")} conviction</b><p>${esc(d.headline || "")}</p><button type="button" class="ans-more" data-tab="news">Read the weekly outlook</button></section>`;
+  const li = a => (a || []).map(x => `<li><b>${esc(x.point)}</b><span>${esc(x.evidence || "")}</span></li>`).join("");
+  return `<section class="panel weekly"><div class="cs-h"><span class="eyebrow">Weekly outlook · week of ${esc(fmtDate(W.week))}</span><span class="cs-lean ${cls(d.lean)}">${esc(label(d.lean))} · ${esc(d.conviction || "")}</span></div>
+    <h3 class="wk-h">${esc(d.headline || "")}</h3>
+    <div class="cs-grid"><div class="cs-col"><h4>The thesis</h4><ul>${li(d.thesis)}</ul></div><div class="cs-col opp"><h4>The opposing case</h4><ul>${li(d.opposing)}</ul></div></div>
+    ${(d.next || []).length ? `<h4 class="wk-sub">The week's key events</h4><div class="wk-ev">${d.next.map(e => `<div class="wk-e"><span class="wk-t">${esc(e.day || "")} ${esc(e.timeET || "")}</span><b>${esc(e.event)}</b>${e.ifBull ? `<span class="bull">▲ ${esc(e.ifBull)}</span>` : ""}${e.ifBear ? `<span class="bear">▼ ${esc(e.ifBear)}</span>` : ""}</div>`).join("")}</div>` : ""}
+    ${(d.earnings || []).length ? `<h4 class="wk-sub">Earnings that matter</h4><div class="wk-er">${d.earnings.map(e => `<span><b>${esc(e.sym)}</b> ${esc(e.day || "")} ${esc(EARN_T[e.timing] || "")}${e.expMovePct ? ` · ±${e.expMovePct}%` : ""}${e.why ? `<em>${esc(e.why)}</em>` : ""}</span>`).join("")}</div>` : ""}
+    ${lv || q ? `<h4 class="wk-sub">Levels</h4><div class="wk-lv">${[["NQ", lv], ["QQQ", q]].filter(x => x[1]).map(([k, v]) => `<div><b>${k}</b>${v.price ? ` ${fmtN(v.price)}` : ""}<span class="bear">S ${(v.support || []).map(fmtN).join(" / ")}</span><span class="bull">R ${(v.resistance || []).map(fmtN).join(" / ")}</span></div>`).join("")}</div>${d.levels?.note ? `<p class="muted" style="font-size:11.5px">${esc(d.levels.note)}</p>` : ""}` : ""}
+    ${d.lastWeek ? `<h4 class="wk-sub">Last week</h4><p style="margin:0">${d.lastWeek.nqPct != null ? `<b class="${d.lastWeek.nqPct > 0 ? "bull" : "bear"}">NQ ${pct(d.lastWeek.nqPct)}</b> · ` : ""}${esc(d.lastWeek.summary || "")}${d.lastWeek.verdictRecord ? ` <span class="muted">Verdict: ${esc(d.lastWeek.verdictRecord)}</span>` : ""}</p>` : ""}
+    ${(d.risks || []).length ? `<h4 class="wk-sub">Tail risks</h4><p class="muted" style="margin:0">${d.risks.map(esc).join(" · ")}</p>` : ""}
+    ${(d.sources || []).length ? `<p class="muted" style="font-size:11.5px;margin-top:10px">Sources: ${d.sources.slice(0, 8).map(s => `<a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.title)}</a>`).join(" · ")}</p>` : ""}</section>`;
+}
+
+/* ---------- before-you-react checklists for big releases ---------- */
+const DESK = [
+  [/core cpi|cpi/i, "CPI (inflation)", ["Core m/m vs forecast is the number that moves NQ; a 0.1 miss either way is a real surprise.", "Check shelter and services ex-housing: sticky services = hawkish.", "Watch the 2Y yield in the first minute: up hard = bearish NQ, down = bullish.", "Headline vs core can disagree (energy); trust core."]],
+  [/ppi/i, "PPI (producer prices)", ["Core m/m vs forecast; smaller market mover than CPI.", "Desks map parts of PPI into PCE: look for comments on the PCE read-through.", "Wait for yields to confirm before trusting the first candle."]],
+  [/non-farm|payroll|employment change/i, "Jobs report", ["Payrolls vs forecast AND the revisions to the prior 2 months: big revisions flip the read.", "Unemployment rate: a 0.1 jump scares more than a payroll miss.", "Average hourly earnings m/m: hot wages = hawkish.", "First 5 minutes are noisy; the 2Y and dollar tell you which number the market cares about."]],
+  [/pce/i, "PCE (Fed's inflation gauge)", ["Core PCE m/m is usually well forecast from CPI and PPI, so surprises are small.", "Spending and income lines matter for growth.", "Big moves are rare; fade the first spike unless yields confirm."]],
+  [/fomc|federal funds|fed chair|powell|rate decision/i, "Fed decision / Fed chair", ["2:00 PM statement: compare the wording to the last one; one changed sentence can move it.", "Dot plot (Mar/Jun/Sep/Dec): the median path vs what futures price.", "2:30 PM press conference: the first move on the statement often reverses during Q&A.", "Don't trade the first 60 seconds; spreads blow out."]],
+  [/gdp/i, "GDP", ["Final sales to private buyers is the cleanest growth signal.", "The price index inside GDP can move yields more than growth itself.", "Advance estimates move more than revisions."]],
+  [/retail sales/i, "Retail sales", ["The control group (ex autos, gas, building materials, food services) feeds GDP; it matters more than the headline.", "Check prior-month revisions.", "Strong consumer + hot inflation = hawkish; strong consumer + soft inflation = bullish."]],
+  [/ism|pmi/i, "ISM / PMI", ["Above 50 = expansion; the trend matters more than one print.", "Prices paid = inflation pressure; new orders = future growth; employment previews jobs."]],
+  [/jobless|unemployment claims/i, "Jobless claims", ["Weekly and noisy; the 4-week average and continuing claims matter more.", "Only a clear break in trend moves NQ on its own."]],
+  [/sentiment|umich|inflation expectations/i, "UMich sentiment", ["Watch 1-year and 5–10-year inflation expectations: the Fed watches these.", "The preliminary read moves more than the final."]],
+  [/jolts|job openings/i, "JOLTS", ["Openings vs prior; quits rate shows wage pressure.", "Usually a small mover unless far from forecast."]],
+  [/auction|bond|note/i, "Treasury auction", ["Tail vs when-issued yield: a tail (sold at a higher yield) = weak demand = yields up = bearish NQ.", "Bid-to-cover and the share taken by indirect bidders show foreign demand.", "Results land at 1:00 PM ET."]],
+];
+const DESK_RULES = ["Check the actual vs the forecast, and whether the prior month was revised.", "Watch the 2Y yield and the dollar in the first minute: they tell you how the market reads it.", "Separate what was reported from what's rumored; wait for a second source on headlines.", "Let the first 5-minute candle close before acting."];
+function deskFor(title){ const m = DESK.find(([re]) => re.test(title || "")); return m ? { name: m[1], pts: m[2] } : null; }
+function deskToday(){
+  const t = etToday(); const evs = (S.cal?.events || []).filter(e => e.country === "USD" && e.impact === "high" && new Date(e.t).toLocaleDateString("en-CA", { timeZone: "America/New_York" }) === t);
+  const seen = new Set(), cards = []; evs.forEach(e => { const d = deskFor(e.title); if(d && !seen.has(d.name)){ seen.add(d.name); cards.push({ ...d, ev: e }); } });
+  if(!cards.length) return "";
+  return `<section class="panel desk"><span class="eyebrow">Before you react · today's releases</span>${cards.map(c => `<div class="dk"><b>${esc(c.name)} · ${esc(calTime(c.ev.t))} ET</b>${c.ev.forecast ? `<span class="muted">Forecast ${esc(c.ev.forecast)}${c.ev.previous ? ` · prior ${esc(c.ev.previous)}` : ""}</span>` : ""}<ul>${c.pts.map(p => `<li>${esc(p)}</li>`).join("")}</ul></div>`).join("")}
+    <p class="muted" style="font-size:12px;margin:6px 0 0">${DESK_RULES.map(esc).join(" ")}</p></section>`;
+}
+function deskAll(){
+  if(!S.deskOpen) return `<section class="panel desk"><div class="cs-h"><span class="eyebrow">Open desk · release checklists</span><button type="button" class="ans-more" id="desk-open">Open</button></div><p class="muted" style="margin:0;font-size:13px">What to check before reacting to CPI, jobs, the Fed, GDP, auctions and more.</p></section>`;
+  return `<section class="panel desk"><div class="cs-h"><span class="eyebrow">Open desk · release checklists</span><button type="button" class="ans-more" id="desk-open">Close</button></div>
+    <div class="dk"><b>Every release</b><ul>${DESK_RULES.map(p => `<li>${esc(p)}</li>`).join("")}</ul></div>${DESK.map(([, n, pts]) => `<div class="dk"><b>${esc(n)}</b><ul>${pts.map(p => `<li>${esc(p)}</li>`).join("")}</ul></div>`).join("")}</section>`;
+}
+
+/* ---------- company page (tap any earnings name) ---------- */
+function coSheet(){
+  const sym = S.coSel; if(!sym) return "";
+  const C = S.co?.[sym]; const rows = C?.rows?.length ? C.rows : (S.earn || []).filter(r => r.sym === sym);
+  const up = rows.filter(r => r.eps == null).sort((a, b) => a.day.localeCompare(b.day))[0], past = rows.filter(r => r.eps != null);
+  const r0 = rows[0] || {};
+  const body = !rows.length ? `<p class="muted">Loading…</p>` : `
+    <div class="co-top"><div><span>Market cap</span><b>${r0.mcap ? `$${fmtN(Math.round(r0.mcap / 1e9))}B` : "–"}</b></div><div><span>NQ weight</span><b>${r0.weight >= 3 ? "★ Big" : "Mid"}</b></div><div><span>Next report</span><b>${up ? `${esc(fmtDate(up.day, { weekday: "short" }))}` : "–"}</b><em>${up ? esc(EARN_T[up.timing] || "") : ""}</em></div></div>
+    ${up ? `<div class="co-next"><b>Next report</b><span>Est. EPS ${usd2(up.eps_fc)}${up.exp_pct != null ? ` · options price <b>±${up.exp_pct}%</b>` : ""}</span></div>` : ""}
+    ${past.length ? `<div class="er-sub">Past reports</div>${past.map(r => earnRow(r, true)).join("")}` : `<p class="muted" style="font-size:13px">No past reports logged yet. Verdict started tracking earnings in late October 2026.</p>`}`;
+  return `<div class="scrim" id="scrim"><div class="sheet" role="dialog" aria-modal="true" aria-label="${esc(sym)}">
+    <div class="sheet-head"><h2 style="font-stretch:120%">${esc(sym)}<small class="muted" style="font-size:13px;font-weight:500;display:block">${esc(r0.name || "")}</small></h2><button class="icon-btn" id="sheet-close" aria-label="Close">${IC.close}</button></div>${body}</div></div>`;
+}
+document.addEventListener("click", e => {
+  const t = e.target.closest("[data-co],#desk-open"); if(!t) return;
+  if(t.id === "desk-open"){ S.deskOpen = !S.deskOpen; render(); return; }
+  S.coSel = t.dataset.co; if(typeof window.loadCompany === "function") window.loadCompany(S.coSel); render();
+});
 function replay(){
   if(!S.briefs.length) return empty();
   const days = chrono();
@@ -3438,7 +3563,7 @@ function research(br){
   const hist = `<section class="panel"><span class="eyebrow">Past briefs</span><div class="hist">${S.briefs.map(b=>{ const c = finalCall(b), g = b.grade||{};
       return `<button data-pick="${esc(b.id)}" aria-current="${b.id===br.id}"><span class="hd">${esc(fmtDate(b.date))}</span><span class="tag ${cls(c.NQ?.bias)}">NQ ${short(c.NQ?.bias)}${gd(g.NQ)}</span><span class="tag ${cls(c.ES?.bias)}">ES ${short(c.ES?.bias)}${gd(g.ES)}</span></button>`}).join("")}</div></section>`;
   const src = br.sources?.length ? `<section class="panel"><span class="eyebrow">Sources</span><ol class="sources">${br.sources.map(s=>`<li><a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.title||s.url)}</a></li>`).join("")}</ol></section>` : "";
-  return `${trackRecord()}${factorAccuracy()}${hist}${src}`;
+  return `${sessRecord(true)}${trackRecord()}${factorAccuracy()}${hist}${src}`;
 }
 function sheet(){
   if(!S.sheet) return "";
@@ -3493,7 +3618,7 @@ function render(){
   const nk = navOf(S.tab), tgt = { today: "today", news: "news", mkt: (S.tab === "es" ? "es" : store.get("db-mkt") || "nq"), hist: (S.tab === "research" ? "research" : store.get("db-hist") || "replay") };
   if(S.tab === "nq" || S.tab === "es") store.set("db-mkt", S.tab); if(S.tab === "replay" || S.tab === "research") store.set("db-hist", S.tab);
   document.getElementById("tabs").innerHTML = NAV.map(([k,l])=>`<button role="tab" data-tab="${tgt[k]}" aria-selected="${nk===k}">${NIC[k]}<span>${l}</span></button>`).join("");
-  document.getElementById("sheet-root").innerHTML = S.levels ? levelsSheet() : S.cardUrl ? cardSheet() : S.hub ? hubSheet() : S.mySheet ? mySheet() : S.alertsOpen ? alertsSheet() : sheet();
+  document.getElementById("sheet-root").innerHTML = S.levels ? levelsSheet() : S.cardUrl ? cardSheet() : S.coSel ? coSheet() : S.hub ? hubSheet() : S.mySheet ? mySheet() : S.alertsOpen ? alertsSheet() : sheet();
   startOrb();
   animateNeedles();
   if(S.tab==="replay"){ const sel = document.querySelector('.day[aria-current="true"]'); if(sel && sel.scrollIntoView) sel.scrollIntoView({block:"nearest",inline:"center"}); }
@@ -3546,7 +3671,7 @@ document.addEventListener("click", e => {
   if(t.dataset.news){ S.newsHigh = t.dataset.news === "high"; S.newsAll = false; render(); return; }
   if(t.id === "news-more"){ S.newsAll = !S.newsAll; render(); return; }
   if(t.id === "levels"){ S.levels = true; S.saveMsg = null; render(); return; }
-  if(t.id === "sheet-close" || t.id === "scrim"){ S.sheet = false; S.levels = false; S.mySheet = false; S.alertsOpen = false; S.hub = false; if(S.cardUrl){ URL.revokeObjectURL(S.cardUrl); S.cardUrl = null; } render(); return; }
+  if(t.id === "sheet-close" || t.id === "scrim"){ S.sheet = false; S.levels = false; S.mySheet = false; S.alertsOpen = false; S.hub = false; S.coSel = null; if(S.cardUrl){ URL.revokeObjectURL(S.cardUrl); S.cardUrl = null; } render(); return; }
   if(t.dataset.skin){ applySkin(t.dataset.skin); store.set("db-skin", S.skin); render(); return; }
   if(t.id === "fx-holiday" || t.id === "fx-effects" || t.id === "fx-stars"){ const k = t.id.slice(3); S.fx[k] = !S.fx[k]; store.set("db-fx-"+k, S.fx[k]?"1":"0"); applySkin(); render(); return; }
   if(t.id === "rp-play"){ S.rp.playing ? (rpStop(), render()) : rpPlay(); return; }
