@@ -74,10 +74,32 @@ export default async function handler(req, res) {
           let ev = ""; try { const cal = await getCalendar(); const up = (cal?.events || []).filter(x => x.country === "USD" && x.impact === "high" && x.t > Date.now() && x.t - Date.now() < 7 * 3600e3)[0];
             if (up) ev = `${up.title} ${new Date(up.t).toLocaleTimeString("en-US", { timeZone: "America/New_York", hour: "numeric", minute: "2-digit" })}`; } catch {}
           out.push({ kind: "calls", title: `🔔 9:30 plan: NQ ${L(nq.bias)} ${sg(nq.score)} · ${side}`,
-            body: [px ? `NQ ${px}` : "", next, wrong, Lv.reaction ? Lv.reaction.txt : "", lv, ev ? `next: ${ev}` : "", `ES ${L(es.bias)} ${sg(es.score)}`].filter(Boolean).join(" · "), tag: "open" });
+            body: [px ? `NQ ${px}` : "", Lv.expected?.NQ ? `expected ±${Lv.expected.NQ.pts} pts: bear ${Lv.expected.NQ.lo} / bull ${Lv.expected.NQ.hi}` : "", next, wrong, Lv.reaction ? Lv.reaction.txt : "", lv, ev ? `next: ${ev}` : "", `ES ${L(es.bias)} ${sg(es.score)}`].filter(Boolean).join(" · "), tag: "open" });
         }
       }
     } catch { /* live table not ready */ }
+
+    // 5b) earnings: a heads-up at 8 AM ET on report days, then the result as soon as the numbers post.
+    try {
+      const e2 = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", weekday: "short", hour12: false }).formatToParts(new Date()).reduce((a, x) => (a[x.type] = x.value, a), {});
+      const today = `${e2.year}-${e2.month}-${e2.day}`, mm2 = (+e2.hour % 24) * 60 + +e2.minute, T = { bmo: "before the open", amc: "after the close", tbd: "time TBA" };
+      const usd = n => n == null ? "–" : `${n < 0 ? "-" : ""}$${Math.abs(n).toFixed(2)}`;
+      if (!["Sat", "Sun"].includes(e2.weekday) && mm2 >= 480 && mm2 <= 495) {
+        const rows = await rest(`earnings?select=sym,timing,eps_fc,weight&day=eq.${today}&weight=gte.2&sym=not.in.(GOOG,BRK.A)&order=weight.desc,mcap.desc&limit=8`);
+        if (rows?.length && await claim(`earn-day:${today}`)) {
+          out.push({ kind: "events", title: `📊 Earnings today: ${rows.slice(0, 4).map(r => r.sym).join(", ")}${rows.length > 4 ? ` +${rows.length - 4}` : ""}`,
+            body: rows.map(r => `${r.sym} ${T[r.timing] || ""}${r.eps_fc != null ? ` (est ${usd(r.eps_fc)})` : ""}`).join(" · "), tag: `earn-${today}` });
+        }
+      }
+      const rep = await rest(`earnings?select=day,sym,eps,eps_fc,surprise,ah_pct,react_pct,weight&day=gte.${new Date(Date.now() - 2 * 864e5).toISOString().slice(0, 10)}&eps=not.is.null&weight=gte.2&sym=not.in.(GOOG,BRK.A)&order=weight.desc&limit=12`);
+      for (const r of rep || []) {
+        if (await claim(`earn-rpt:${r.day}:${r.sym}`)) {
+          const beat = r.surprise == null ? "reported" : r.surprise >= 0 ? "beat" : "missed";
+          out.push({ kind: "events", title: `📊 ${r.sym} ${beat}: EPS ${usd(r.eps)} vs ${usd(r.eps_fc)} est${r.surprise != null ? ` (${r.surprise > 0 ? "+" : ""}${r.surprise}%)` : ""}`,
+            body: [r.ah_pct != null ? `Stock ${r.ah_pct > 0 ? "+" : ""}${r.ah_pct}% after hours` : r.react_pct != null ? `Stock ${r.react_pct > 0 ? "+" : ""}${r.react_pct}% on the day` : "", r.weight >= 3 ? "Big NQ weight: watch the open" : ""].filter(Boolean).join(" · ") || "Numbers just posted.", tag: `earn-${r.sym}` });
+        }
+      }
+    } catch { /* earnings not ready */ }
 
     // 5) pressure building (from the live engine), at most once per direction every 30 minutes
     try {
